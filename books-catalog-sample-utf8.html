@@ -1,0 +1,804 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ØªØµÙØ­ Ø§ÙÙØªØ¨ - ÙÙØªØ¨Ø© Ø¨Ø¬Ø§ÙØ©</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2E7D32",
+                        secondary: "#4CAF50",
+                        accent: "#FFC107",
+                        surface: "#F8FAF8",
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --bg-light: #F0F4F0;
+        }
+
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            background-color: #F8FAF8;
+            color: #1A2E1A;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .book-card {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid rgba(46, 125, 50, 0.08);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(46, 125, 50, 0.12);
+            border-color: rgba(46, 125, 50, 0.2);
+        }
+
+        .book-cover-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            aspect-ratio: 2/3;
+        }
+
+        .book-cover-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .book-card:hover .book-cover-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .category-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            height: 320px;
+            cursor: pointer;
+            group: hover;
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 28px 60px rgba(46, 125, 50, 0.18);
+        }
+
+        .category-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .category-card:hover .category-card-image {
+            transform: scale(1.12);
+        }
+
+        .category-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(123, 31, 162, 0.75) 0%, rgba(244, 143, 177, 0.55) 60%, rgba(255, 202, 40, 0.25) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 24px;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .category-card:hover .category-card-overlay {
+            background: linear-gradient(135deg, rgba(123, 31, 162, 0.9) 0%, rgba(244, 143, 177, 0.7) 60%, rgba(255, 202, 40, 0.35) 100%);
+        }
+
+        .category-card-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .category-card-count {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2E7D32;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        /* Login Modal */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 28px;
+            padding: 48px 40px 40px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(46, 125, 50, 0.08);
+            position: relative;
+            animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .login-modal .close-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #607d8b;
+        }
+
+        .login-modal .close-btn:hover {
+            background: #e8f5e9;
+            color: #2E7D32;
+            transform: rotate(90deg);
+        }
+
+        .login-modal .modal-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+        }
+
+        .login-modal h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a2e1a;
+            margin-bottom: 6px;
+        }
+
+        .login-modal .subtitle {
+            text-align: center;
+            color: #607d8b;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .login-modal .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .login-modal .input-group .material-symbols-outlined {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e9e9e;
+            font-size: 22px;
+            pointer-events: none;
+        }
+
+        .login-modal input[type='text'],
+        .login-modal input[type='password'] {
+            width: 100%;
+            padding: 14px 48px 14px 14px;
+            border: 2px solid #e8ece8;
+            border-radius: 14px;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 0.95rem;
+            color: #1a2e1a;
+            background: #fafbfa;
+            transition: all 0.3s;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .login-modal input:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            background: white;
+        }
+
+        .login-modal .login-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            color: white;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 6px;
+            box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+        }
+
+        .login-modal .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.35);
+        }
+
+        .login-modal .forgot-link {
+            display: block;
+            text-align: center;
+            color: #2E7D32;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 16px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .login-modal .forgot-link:hover {
+            color: #1a5e1f;
+        }
+
+        .login-modal .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0;
+            color: #9e9e9e;
+            font-size: 0.8rem;
+        }
+
+        .login-modal .divider::before,
+        .login-modal .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e8ece8;
+        }
+
+        .login-modal .register-link {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #607d8b;
+            margin-top: 4px;
+        }
+
+        .login-modal .register-link a {
+            color: #2E7D32;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .login-modal .register-link a:hover {
+            color: #1a5e1f;
+        }
+
+        @keyframes profileDropdownShow {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .profile-dropdown-animate {
+            animation: profileDropdownShow 0.2s ease-out forwards;
+            transform-origin: top left;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <!-- Navbar (same as homepage) -->
+    <header class="fixed top-0 w-full z-50 glass-nav border-b border-primary/10 shadow-sm shadow-primary/5">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <!-- Logo Gauche -->
+                <div class="flex-shrink-0">
+                    <img alt="Logo Gauche" class="h-16 w-auto object-contain" src="/images/c.PNG" />
+                </div>
+                <!-- Center Menu -->
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="/">Ø§ÙØ±Ø¦ÙØ³ÙØ©</a>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors" href="#">Ø¹Ù
+                        Ø§ÙÙÙØªØ¨Ø©</a>
+                    <a class="text-[17px] font-bold text-primary tracking-wide"
+                        href="/pages/books-catalog.html">Ø§ÙÙØªØ¨</a>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">Ø§ÙÙØ´Ø§Ø·Ø§Øª Ø§ÙØ«ÙØ§ÙÙØ©</a>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">Ø§ØªØµÙ Ø¨ÙØ§</a>
+                </nav>
+                <!-- Logo Droite -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <button
+                        class="hidden lg:flex items-center gap-1.5 text-slate-700 hover:text-primary px-3 py-2 text-[17px] font-semibold">
+                        <span class="material-symbols-outlined text-[22px]">translate</span>
+                        <span>Ø§ÙØ¹Ø±Ø¨ÙØ©</span>
+                    </button>
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="document.getElementById('loginOverlay').classList.add('active')">ØªØ³Ø¬ÙÙ
+                            Ø§ÙØ¯Ø®ÙÙ</button>
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-white bg-primary hover:opacity-90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                            onclick="window.location.href='/pages/g.html'">Ø§ÙØªØ³Ø¬ÙÙ</button>
+                    </div>
+                    <!-- Profile Dropdown (Hidden by default) -->
+                    <div id="user-profile-menu" class="hidden relative">
+                        <button id="profile-trigger"
+                            class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                            <img id="user-avatar" src="" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                            <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                        </button>
+                        <div id="profile-dropdown"
+                            class="hidden absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100]">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p id="user-display-name" class="text-sm font-bold text-slate-900"></p>
+                                <p id="user-display-email" class="text-xs text-slate-500"></p>
+                            </div>
+                            <div class="py-2">
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">person</span> Ø­Ø³Ø§Ø¨Ù
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">history</span> Ø³Ø¬Ù Ø§ÙØ¥Ø¹Ø§Ø±Ø©
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">settings</span> Ø§ÙØ¥Ø¹Ø¯Ø§Ø¯Ø§Øª
+                                </a>
+                            </div>
+                            <div class="border-t border-slate-100 pt-2">
+                                <button id="logout-btn"
+                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">logout</span> ØªØ³Ø¬ÙÙ Ø§ÙØ®Ø±ÙØ¬
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <img alt="Ministry Logo" class="h-16 w-auto object-contain" src="/images/image.png" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+        <!-- Search & Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
+            <div class="animate-fade-in">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-2">Ø§Ø³ØªÙØ´Ù Ø§ÙÙÙØªØ¨Ø©</h2>
+                <p class="text-slate-500 text-lg">ØªØµÙØ­ Ø£ÙØ«Ø± ÙÙ Ø¢ÙØ§Ù Ø§ÙÙØªØ¨ ÙØ§ÙÙØµØ§Ø¯Ø± Ø§ÙÙØ¹Ø±ÙÙØ© Ø§ÙÙØªÙÙØ¹Ø©</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div
+                    class="search-bar relative bg-white border border-slate-200 rounded-2xl flex items-center px-4 py-3 flex-1 transition-all">
+                    <span class="material-symbols-outlined text-slate-400 mr-2">search</span>
+                    <input type="text" id="searchInput" placeholder="Ø§Ø¨Ø­Ø« Ø¹Ù ÙØªØ§Ø¨ Ø£Ù ÙØ¤ÙÙ..."
+                        class="bg-transparent border-none outline-none w-full text-sm font-medium pr-2">
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Display Grid -->
+        <div class="mb-20 animate-fade-in" style="animation-delay: 0.1s">
+            <h3 class="text-3xl font-bold text-slate-900 mb-8">Ø§ÙØªØµÙÙÙØ§Øª</h3>
+            <div id="categoriesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Categories will be loaded here by JavaScript -->
+                <div class="h-48 bg-slate-100 rounded-2xl animate-pulse"></div>
+                <div class="h-48 bg-slate-100 rounded-2xl animate-pulse"></div>
+                <div class="h-48 bg-slate-100 rounded-2xl animate-pulse"></div>
+            </div>
+        </div>
+
+        <!-- All Books Section -->
+        <section class="animate-fade-in" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+                <h3 class="text-2xl font-extrabold text-slate-900">Ø¬ÙÙØ¹ Ø§ÙÙØªØ¨</h3>
+                <div class="text-sm font-medium text-slate-500">
+                    <span id="booksCount">0</span> ÙØªØ§Ø¨
+                </div>
+            </div>
+
+            <div id="booksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <!-- Books will be loaded here by JavaScript -->
+                <div class="book-card p-3 bg-slate-100 rounded-2xl animate-pulse h-80"></div>
+                <div class="book-card p-3 bg-slate-100 rounded-2xl animate-pulse h-80"></div>
+                <div class="book-card p-3 bg-slate-100 rounded-2xl animate-pulse h-80"></div>
+                <div class="book-card p-3 bg-slate-100 rounded-2xl animate-pulse h-80"></div>
+                <div class="book-card p-3 bg-slate-100 rounded-2xl animate-pulse h-80"></div>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="flex justify-center mt-8">
+                <button id="loadMoreBtn" style="display: none;" class="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-opacity-90 transition-opacity">
+                    ØªØ­ÙÙÙ Ø§ÙÙØ²ÙØ¯ ÙÙ Ø§ÙÙØªØ¨
+                </button>
+            </div>
+        </section>
+
+  
+   
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-slate-400 text-xs">Â© 2026 ÙÙØªØ¨Ø© Ø¨Ø¬Ø§ÙØ© Ø§ÙØ±Ø¦ÙØ³ÙØ© ÙÙÙØ·Ø§ÙØ¹Ø© Ø§ÙØ¹ÙÙÙÙØ©. Ø¬ÙÙØ¹ Ø§ÙØ­ÙÙÙ ÙØ­ÙÙØ¸Ø©.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Category images mapping - these can be replaced with actual images
+        const categoryImages = {
+            'Ø±ÙØ§ÙØ§Øª': '/images/book1.png',
+            'ØªØ§Ø±ÙØ®': '/images/book2.png',
+            'Ø¹ÙÙÙ': '/images/book1.png',
+            'Ø£Ø·ÙØ§Ù': '/images/book2.png',
+            'Ø¯ÙÙ': '/images/book1.png',
+            'ÙÙØ³ÙØ©': '/images/book2.png',
+            'ÙØºØ§Øª': '/images/book1.png',
+            'ØªÙÙÙØ© Ø°Ø§ØªÙØ©': '/images/book2.png'
+        };
+
+        let allBooks = [];
+        let allCategories = [];
+        let activeCategory = null;
+
+
+
+        
+        // Create book card HTML
+        function createBookCard(book) {
+            const statusClass = book.available ? 'text-green-600' : 'text-orange-600';
+            const statusText = book.available ? 'ÙØªØ§Ø­' : 'ÙØ­Ø¬ÙØ²';
+            const statusBgClass = book.available ? 'bg-green-50' : 'bg-orange-50';
+            const statusBorderClass = book.available ? 'border-green-100' : 'border-orange-100';
+            
+            return `
+                <div class="book-card p-3 bg-white rounded-2xl hover:shadow-lg transition-all">
+                    <div class="book-cover-wrapper mb-3">
+                        <img src="${book.img || '/images/book1.png'}" alt="${book.title}" onerror="this.src='/images/book1.png'">
+                    </div>
+                    <h5 class="font-bold text-sm text-slate-900 mb-1 line-clamp-2">${book.title}</h5>
+                    <p class="text-[10px] text-slate-500 mb-2 line-clamp-1">${book.author || 'ÙØ¤ÙÙ ØºÙØ± ÙØ¹Ø±ÙÙ'}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${statusBgClass} text-[9px] font-bold ${statusClass} border ${statusBorderClass}">${statusText}</span>
+                        <span class="text-[9px] font-semibold text-slate-600">${book.year || '---'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Create category card HTML (cute style with emoji)
+        function createCategoryCard(category) {
+            const bookCount = allBooks.filter(b => b.category === category.name).length;
+            const emojis = {
+                'Ø±ÙØ§ÙØ§Øª': 'ð', 'ØªØ§Ø±ÙØ®': 'ðï¸', 'Ø¹ÙÙÙ': 'ð¬', 'Ø£Ø·ÙØ§Ù': 'ð§', 'Ø¯ÙÙ': 'ð', 'ÙÙØ³ÙØ©': 'ð­', 'ÙØºØ§Øª': 'ð£ï¸', 'ØªÙÙÙØ© Ø°Ø§ØªÙØ©': 'ð±'
+            };
+            const emoji = emojis[category.name] || 'ð';
+            return `
+                <div class="category-card" onclick="filterByCategory('${category.name}')">
+                    <img src="${categoryImages[category.name] || '/images/book1.png'}" alt="${category.name}" class="category-card-image" onerror="this.src='/images/book1.png'">
+                    <div class="category-card-overlay">
+                        <div style="display:flex;align-items:center;gap:12px;justify-content:space-between;">
+                            <div>
+                                <h3 class="category-card-title">${emoji} ${category.name}</h3>
+                                <p class="category-card-count">${bookCount} ÙØªØ§Ø¨</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/books/filters');
+                const data = await response.json();
+                allCategories = data.categories || [];
+                
+                const categoriesGrid = document.getElementById('categoriesGrid');
+                categoriesGrid.innerHTML = allCategories
+                    .slice(0, 6)
+                    .map(cat => createCategoryCard(cat))
+                    .join('');
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                document.getElementById('categoriesGrid').innerHTML = '<p class="text-red-600">Ø®Ø·Ø£ ÙÙ ØªØ­ÙÙÙ Ø§ÙØªØµÙÙÙØ§Øª</p>';
+            }
+        }
+
+        // Load all books
+        async function loadBooks(search = '', offset = 0) {
+            try {
+                let url = `/api/books/list?limit=20&offset=${offset}`;
+                if (search) {
+                    url += '&search=' + encodeURIComponent(search);
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                const newBooks = (data.books || []).map(book => ({
+                    ...book,
+                    img: '/images/book1.png',
+                    category: book.category || 'Ø¹Ø§Ù'
+                }));
+                
+                // On first load (offset=0), replace books. Otherwise append for pagination
+                if (offset === 0) {
+                    allBooks = newBooks;
+                } else {
+                    allBooks = allBooks.concat(newBooks);
+                }
+                displayBooks(allBooks);
+                
+                document.getElementById('booksCount').textContent = allBooks.length;
+                
+                // Show load more button if we got pageSize results (might be more)
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                if (loadMoreBtn) {
+                    const pageSize = 20;
+                    loadMoreBtn.style.display = (newBooks.length === pageSize) ? 'block' : 'none';
+                    if (newBooks.length === pageSize) {
+                        loadMoreBtn.onclick = () => loadBooks(search, offset + pageSize);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading books:', error);
+                document.getElementById('booksGrid').innerHTML = '<p class="text-red-600">Ø®Ø·Ø£ ÙÙ ØªØ­ÙÙÙ Ø§ÙÙØªØ¨</p>';
+            }
+        }
+
+        // Display books
+        function displayBooks(books) {
+            const booksGrid = document.getElementById('booksGrid');
+            if (books.length === 0) {
+                booksGrid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8">ÙØ§ ØªÙØ¬Ø¯ ÙØªØ¨ ÙØ·Ø§Ø¨ÙØ©</p>';
+                return;
+            }
+            booksGrid.innerHTML = books.map(book => createBookCard(book)).join('');
+        }
+
+        // Filter by category
+        function filterByCategory(categoryName) {
+            const filtered = allBooks.filter(b => b.category === categoryName);
+            displayBooks(filtered);
+            document.getElementById('booksCount').textContent = filtered.length;
+            window.scrollTo({ top: document.getElementById('booksGrid').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.trim();
+            if (searchTerm.length === 0) {
+                displayBooks(allBooks);
+                document.getElementById('booksCount').textContent = allBooks.length;
+            } else {
+                const filtered = allBooks.filter(b =>
+                    b.title.includes(searchTerm) || 
+                    (b.author && b.author.includes(searchTerm))
+                );
+                displayBooks(filtered);
+                document.getElementById('booksCount').textContent = filtered.length;
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadBooks();
+        });
+
+        // Simple search interactivity
+        const searchInput = document.querySelector('input[type="text"]');
+        if (searchInput) {
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('ring-4', 'ring-primary/10', 'border-primary');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('ring-4', 'ring-primary/10', 'border-primary');
+            });
+        }
+    </script>
+
+    <!-- Login Modal -->
+    <div id="loginOverlay" class="login-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="login-modal">
+            <button class="close-btn" onclick="document.getElementById('loginOverlay').classList.remove('active')">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+            <div class="modal-icon">
+                <span class="material-symbols-outlined" style="font-size:2.2rem;color:white;">lock_open</span>
+            </div>
+            <h2>ØªØ³Ø¬ÙÙ Ø§ÙØ¯Ø®ÙÙ</h2>
+            <p class="subtitle">ÙØ±Ø­Ø¨Ø§Ù Ø¨Ø¹ÙØ¯ØªÙ! Ø£Ø¯Ø®Ù Ø¨ÙØ§ÙØ§ØªÙ ÙÙØ¯Ø®ÙÙ Ø¥ÙÙ Ø­Ø³Ø§Ø¨Ù</p>
+            <div class="input-group">
+                <span class="material-symbols-outlined">person</span>
+                <input type="text" placeholder="Ø§Ø³Ù Ø§ÙÙØ³ØªØ®Ø¯Ù Ø£Ù Ø§ÙØ¨Ø±ÙØ¯ Ø§ÙØ¥ÙÙØªØ±ÙÙÙ" id="loginUsername" />
+            </div>
+            <div class="input-group">
+                <span class="material-symbols-outlined">lock</span>
+                <input type="password" placeholder="ÙÙÙØ© Ø§ÙÙØ±ÙØ±" id="loginPassword" />
+            </div>
+            <button class="login-btn" onclick="handleLogin()">Ø¯Ø®ÙÙ</button>
+            <a href="#" class="forgot-link">ÙØ³ÙØª ÙÙÙØ© Ø§ÙÙØ±ÙØ±Ø</a>
+            <div class="divider">Ø£Ù</div>
+            <p class="register-link">ÙÙØ³ ÙØ¯ÙÙ Ø­Ø³Ø§Ø¨Ø <a href="/pages/g.html">Ø³Ø¬ÙÙ Ø§ÙØ¢Ù</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            const authContainer = document.getElementById('auth-container');
+            const userProfileMenu = document.getElementById('user-profile-menu');
+            const profileTrigger = document.getElementById('profile-trigger');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            const userAvatar = document.getElementById('user-avatar');
+            const userDisplayName = document.getElementById('user-display-name');
+            const userDisplayEmail = document.getElementById('user-display-email');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user) {
+                authContainer.classList.add('hidden');
+                userProfileMenu.classList.remove('hidden');
+                userAvatar.src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+                userDisplayName.textContent = user.prenom + ' ' + user.nom;
+                userDisplayEmail.textContent = user.email;
+            }
+
+            profileTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = profileDropdown.classList.contains('hidden');
+                if (isHidden) {
+                    profileDropdown.classList.remove('hidden');
+                    profileDropdown.classList.add('profile-dropdown-animate');
+                } else {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('click', () => {
+                profileDropdown.classList.add('hidden');
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('libraryUser');
+                window.location.reload();
+            });
+        });
+
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) {
+                alert('ÙØ±Ø¬Ù Ø¥Ø¯Ø®Ø§Ù Ø§Ø³Ù Ø§ÙÙØ³ØªØ®Ø¯Ù ÙÙÙÙØ© Ø§ÙÙØ±ÙØ±');
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem('libraryUsers') || '[]');
+            const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+            if (user) {
+                localStorage.setItem('libraryUser', JSON.stringify(user));
+                document.getElementById('loginOverlay').classList.remove('active');
+                window.location.reload();
+            } else {
+                alert('Ø§Ø³Ù Ø§ÙÙØ³ØªØ®Ø¯Ù Ø£Ù ÙÙÙØ© Ø§ÙÙØ±ÙØ± ØºÙØ± ØµØ­ÙØ­Ø©');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('loginOverlay').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>
+

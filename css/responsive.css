@@ -1,0 +1,1125 @@
+/* ========================================
+   RESPONSIVE CSS — Library Project
+   Shared across ALL pages
+   ======================================== */
+
+/* ----------------------
+   Mobile Hamburger Menu
+   ---------------------- */
+.mobile-menu-btn {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    z-index: 200;
+    flex-shrink: 0;
+}
+
+.mobile-menu-btn:hover {
+    border-color: #2E7D32;
+    background: #f0fdf4;
+}
+
+.mobile-menu-btn span {
+    display: block;
+    width: 22px;
+    height: 2.5px;
+    background: #334155;
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+.mobile-menu-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+    background: #2E7D32;
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+    background: #2E7D32;
+}
+
+/* Mobile Slide-in Menu */
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9990;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-nav-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.mobile-nav-panel {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
+    background: white;
+    z-index: 9991;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
+    direction: rtl;
+}
+
+.mobile-nav-panel.active {
+    right: 0;
+}
+
+.mobile-nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+.mobile-nav-header .mobile-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.mobile-nav-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #f8fafc;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.mobile-nav-close:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.mobile-nav-links {
+    padding: 12px 0;
+    list-style: none;
+    margin: 0;
+}
+
+.mobile-nav-links a,
+.mobile-nav-links button {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    color: #334155;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: right;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.mobile-nav-links a:hover,
+.mobile-nav-links button:hover {
+    background: rgba(46, 125, 50, 0.06);
+    color: #2E7D32;
+}
+
+.mobile-nav-links a .material-symbols-outlined,
+.mobile-nav-links button .material-symbols-outlined {
+    font-size: 22px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+}
+
+.mobile-nav-links a:hover .material-symbols-outlined,
+.mobile-nav-links button:hover .material-symbols-outlined {
+    color: #2E7D32;
+}
+
+.mobile-nav-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 8px 20px;
+}
+
+.mobile-nav-section-title {
+    padding: 12px 24px 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.mobile-nav-actions {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.mobile-nav-actions .btn-mobile-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    color: #334155;
+    font-family: inherit;
+    width: 100%;
+}
+
+.mobile-nav-actions .btn-mobile-register {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    background: linear-gradient(135deg, #2E7D32, #43a047);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+    font-family: inherit;
+    width: 100%;
+}
+
+/* ----------------------
+   Breakpoints
+   ---------------------- */
+
+/* 1024px and below — Tablet */
+@media (max-width: 1024px) {
+
+    /* Show hamburger */
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
+    /* Navbar adjustments */
+    header .flex.justify-between {
+        gap: 6px;
+    }
+
+    /* Reduce header horizontal padding */
+    header .w-full.px-6,
+    header .w-full[class*="px-"] {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    /* Auth buttons: smaller on tablet */
+    #auth-container .px-5 {
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 13px !important;
+    }
+
+    /* Logo smaller on tablet */
+    header img[alt="Logo Gauche"],
+    header img[alt="Ministry Logo"] {
+        height: 44px;
+    }
+
+    /* Hero section text */
+    .director-hero {
+        padding: 120px 0 100px;
+    }
+
+    .content-card {
+        padding: 40px 30px;
+    }
+
+    /* Booking form */
+    .glass-card {
+        border-radius: 20px;
+    }
+}
+
+/* 768px and below — Mobile */
+@media (max-width: 768px) {
+
+    /* =============================================
+       NAVBAR — Mobile overhaul
+       ============================================= */
+
+    /* Hide auth buttons in navbar (they move to mobile menu) */
+    #auth-container {
+        display: none !important;
+    }
+
+    /* Hide language button */
+    header button[class*="lg\:"] {
+        display: none !important;
+    }
+
+    /* Hide desktop nav */
+    header nav.hidden.md\:flex {
+        display: none !important;
+    }
+
+    /* Hide profile menu trigger text (keep avatar) */
+    #user-profile-menu #profile-trigger span.material-symbols-outlined {
+        display: none;
+    }
+
+    /* Navbar height — shorter on mobile */
+    header [class*="h-[72px]"] {
+        height: 56px !important;
+    }
+
+    /* Reduce header padding */
+    header .w-full.px-6,
+    header .w-full[class*="px-"] {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    /* Logos smaller */
+    header img[alt="Logo Gauche"],
+    header img[alt="Ministry Logo"] {
+        height: 36px !important;
+    }
+
+    /* Reduce gap in right-side nav items */
+    header .flex.items-center.gap-4 {
+        gap: 6px !important;
+    }
+
+    /* Make cart/action buttons smaller */
+    header .relative.p-2\.5 {
+        padding: 6px !important;
+        border-radius: 10px !important;
+    }
+
+    /* User avatar smaller */
+    header #user-avatar {
+        height: 32px !important;
+        width: 32px !important;
+    }
+
+    /* Profile trigger compact */
+    #user-profile-menu #profile-trigger {
+        padding: 2px !important;
+    }
+
+    /* =============================================
+       HOMEPAGE — Mobile
+       ============================================= */
+
+    /* Hero section */
+    section[class*="h-[600px]"] {
+        height: 480px;
+    }
+
+    .pt-32 {
+        padding-top: 80px;
+    }
+
+    /* Stats cards */
+    .scroll-reveal.delay-100,
+    .scroll-reveal.delay-200,
+    .scroll-reveal.delay-300 {
+        padding: 20px;
+    }
+
+    .scroll-reveal .text-3xl {
+        font-size: 1.5rem;
+    }
+
+    /* Events carousel */
+    .events-carousel-section {
+        padding: 40px 0 30px;
+    }
+
+    .events-slider-wrapper {
+        padding: 0 16px !important;
+    }
+
+    .event-card {
+        width: min(340px, 80vw) !important;
+        height: min(220px, 40vh) !important;
+    }
+
+    .events-prev,
+    .events-next {
+        width: 36px !important;
+        height: 60px !important;
+        font-size: 1.2rem !important;
+    }
+
+    .events-prev {
+        left: 4px !important;
+    }
+
+    .events-next {
+        right: 4px !important;
+    }
+
+    /* Service Cards section */
+    .service-card-premium {
+        padding: 24px !important;
+    }
+
+    /* Section paddings */
+    .py-20 {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .py-12 {
+        padding-top: 32px;
+        padding-bottom: 32px;
+    }
+
+    .mb-16 {
+        margin-bottom: 32px;
+    }
+
+    .mb-12 {
+        margin-bottom: 24px;
+    }
+
+    /* Footer */
+    .footer-dark {
+        padding-top: 40px !important;
+    }
+
+    .footer-dark .grid {
+        gap: 32px;
+    }
+
+    /* =============================================
+       REGISTRATION PAGE (g.html)
+       ============================================= */
+    .container {
+        border-radius: 16px !important;
+        margin: 0 !important;
+    }
+
+    .header {
+        padding: 30px 20px 25px !important;
+    }
+
+    .header h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .header p {
+        font-size: 0.9rem !important;
+    }
+
+    .library-logo {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 16px !important;
+    }
+
+    .progress-container {
+        padding: 24px 16px 0 !important;
+    }
+
+    .form-container {
+        padding: 0 16px 24px !important;
+    }
+
+    .steps {
+        overflow-x: auto;
+        gap: 4px;
+        margin-bottom: 24px !important;
+    }
+
+    .step {
+        min-width: 52px;
+    }
+
+    .step-number {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .step-label {
+        font-size: 0.65rem !important;
+        white-space: nowrap;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .form-grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .radio-group {
+        grid-template-columns: 1fr !important;
+    }
+
+    .photo-options {
+        flex-direction: column !important;
+    }
+
+    .photo-option {
+        min-width: unset !important;
+    }
+
+    .photo-preview {
+        width: 120px !important;
+        height: 120px !important;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* =============================================
+       DIRECTOR WORD PAGE
+       ============================================= */
+    .director-hero {
+        padding: 100px 0 80px !important;
+    }
+
+    .director-hero h1 {
+        font-size: 1.8rem !important;
+    }
+
+    .director-hero .w-40 {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    .content-card {
+        padding: 28px 20px !important;
+        border-radius: 20px !important;
+        margin-top: -50px !important;
+    }
+
+    .paragraph {
+        font-size: 1rem !important;
+        line-height: 1.85 !important;
+    }
+
+    .quote-mark {
+        font-size: 60px !important;
+        top: 16px !important;
+        right: 16px !important;
+    }
+
+    .signature-box {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 16px !important;
+    }
+
+    /* =============================================
+       BOOKS CATALOG — Mobile overhaul
+       ============================================= */
+
+    /* Categories scroll area */
+    .categories-container {
+        padding: 0 8px !important;
+    }
+
+    .category-item {
+        width: 110px !important;
+    }
+
+    .category-item .cat-info {
+        padding: 6px 8px !important;
+    }
+
+    .category-item .name {
+        font-size: 0.72rem !important;
+    }
+
+    .category-item .count {
+        font-size: 0.65rem !important;
+        padding: 1px 6px !important;
+    }
+
+    /* Scroll buttons on categories */
+    .scroll-btn {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .scroll-btn.prev {
+        right: -4px !important;
+    }
+
+    .scroll-btn.next {
+        left: -4px !important;
+    }
+
+    /* Book cards */
+    .book-card {
+        border-radius: 12px !important;
+        padding: 6px !important;
+    }
+
+    .book-card .cover-wrapper {
+        border-radius: 10px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .book-card .text-sm {
+        font-size: 0.78rem !important;
+    }
+
+    .book-card .text-xs {
+        font-size: 0.65rem !important;
+    }
+
+    /* Search wrapper */
+    .search-input-wrapper {
+        padding: 4px 12px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Advanced search button — hide text on small */
+    .search-input-wrapper button span:not(.material-symbols-outlined) {
+        display: none;
+    }
+
+    .search-input-wrapper button {
+        padding: 6px 10px !important;
+        min-width: unset !important;
+    }
+
+    /* Book detail modal */
+    .modal-overlay {
+        padding: 10px !important;
+    }
+
+    .modal-content {
+        flex-direction: column !important;
+        border-radius: 20px !important;
+        max-height: 92vh !important;
+        overflow-y: auto !important;
+    }
+
+    .modal-left {
+        width: 100% !important;
+        height: 220px !important;
+        min-height: 180px;
+    }
+
+    .modal-right {
+        width: 100% !important;
+        padding: 14px !important;
+        overflow-y: visible !important;
+    }
+
+    .modal-right h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .modal-right .grid.grid-cols-2 {
+        gap: 6px !important;
+    }
+
+    .modal-right .grid.grid-cols-2 > div {
+        padding: 6px 8px !important;
+    }
+
+    .close-modal {
+        top: 12px !important;
+        left: 12px !important;
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    /* Reserve button */
+    .reserve-btn {
+        padding: 12px !important;
+        font-size: 0.9rem !important;
+        border-radius: 14px !important;
+    }
+
+    /* Cart sidebar */
+    .cart-sidebar {
+        width: 100% !important;
+        max-width: 100vw !important;
+        border-radius: 0 !important;
+        left: -100% !important;
+        right: auto !important;
+    }
+
+    .cart-sidebar.active {
+        left: 0 !important;
+    }
+
+    /* Advanced search modal */
+    .modal-overlay .login-modal {
+        max-width: 95vw !important;
+        width: 100% !important;
+        padding: 20px 16px !important;
+    }
+
+    /* Books section header */
+    .flex.items-center.justify-between.mb-8.pb-4 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 8px;
+    }
+
+    /* =============================================
+       HALL BOOKING
+       ============================================= */
+    .hero-section {
+        padding-top: 100px !important;
+        padding-bottom: 60px !important;
+    }
+
+    .hero-section h1 {
+        font-size: 1.8rem !important;
+    }
+
+    /* =============================================
+       PROFILE PAGE
+       ============================================= */
+    .profile-hero {
+        padding: 100px 0 60px !important;
+    }
+
+    .profile-card {
+        border-radius: 20px !important;
+    }
+
+    .info-row:hover {
+        margin: 0 !important;
+        padding: 12px 8px !important;
+    }
+
+    .quick-action {
+        padding: 20px 14px !important;
+    }
+
+    .quick-action .action-icon {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    /* ---- Technical Card Page ---- */
+    .tech-stat-card {
+        padding: 20px !important;
+    }
+
+    /* ---- Internal Regulations ---- */
+    .regulation-section {
+        padding: 24px 16px !important;
+    }
+
+    /* ---- Orders History Page ---- */
+    .order-card {
+        padding: 16px !important;
+    }
+
+    /* Login Modal */
+    .login-modal,
+    .login-modal-popup {
+        padding: 28px 20px 24px !important;
+        border-radius: 20px !important;
+        max-width: 95vw !important;
+    }
+
+    .login-modal h2,
+    .login-modal-popup h2 {
+        font-size: 1.3rem !important;
+    }
+
+    .login-modal .modal-icon,
+    .login-modal-popup .modal-icon-login {
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Toast on mobile */
+    .toast-notification {
+        bottom: 16px !important;
+        max-width: 90vw !important;
+        font-size: 0.82rem !important;
+        padding: 10px 18px !important;
+        border-radius: 12px !important;
+    }
+}
+
+/* 480px and below — Small phones */
+@media (max-width: 480px) {
+
+    /* ---- Navbar extra-small ---- */
+    header [class*="h-[72px]"] {
+        height: 50px !important;
+    }
+
+    header img[alt="Logo Gauche"],
+    header img[alt="Ministry Logo"] {
+        height: 30px !important;
+    }
+
+    .mobile-menu-btn {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+        padding: 8px !important;
+    }
+
+    .mobile-menu-btn span {
+        width: 18px !important;
+    }
+
+    header .flex.items-center.gap-4 {
+        gap: 4px !important;
+    }
+
+    /* Hero */
+    section[class*="h-[600px]"] {
+        height: 400px;
+    }
+
+    h1.text-4xl,
+    .text-4xl {
+        font-size: 1.4rem !important;
+    }
+
+    .text-2xl {
+        font-size: 1.15rem !important;
+    }
+
+    /* Stats section overlap */
+    section[class*="z-30"][class*="-mt-16"] {
+        margin-top: -12px;
+    }
+
+    /* Event cards */
+    .event-card {
+        width: min(280px, 78vw) !important;
+        height: min(180px, 35vh) !important;
+        border-radius: 16px !important;
+    }
+
+    .event-card .event-title {
+        font-size: 0.95rem !important;
+    }
+
+    .event-card .event-date {
+        font-size: 0.7rem !important;
+    }
+
+    .event-card .event-badge {
+        font-size: 0.65rem !important;
+        padding: 3px 10px !important;
+    }
+
+    /* Service Cards */
+    .service-card-premium {
+        padding: 20px !important;
+    }
+
+    .service-card-premium h3 {
+        font-size: 1rem !important;
+    }
+
+    .service-card-premium .material-symbols-outlined.text-5xl {
+        font-size: 2.5rem !important;
+    }
+
+    /* Registration form */
+    .header h1 {
+        font-size: 1.3rem !important;
+    }
+
+    .step-label {
+        display: none !important;
+    }
+
+    .step-number {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.75rem !important;
+        border-radius: 10px !important;
+    }
+
+    .section-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 12px !important;
+    }
+
+    .section-icon {
+        margin: 0 auto !important;
+    }
+
+    /* Footer */
+    .footer-dark .social-btn,
+    .footer-dark .w-8 {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Director word */
+    .content-card {
+        padding: 20px 16px !important;
+    }
+
+    .paragraph {
+        font-size: 0.9rem !important;
+    }
+
+    /* Booking */
+    .hero-section h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .btn-booking {
+        padding: 14px 20px !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Profile */
+    .profile-hero {
+        padding: 80px 0 40px !important;
+    }
+
+    .doc-pill {
+        padding: 6px 14px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* ---- Books Catalog — small phones ---- */
+    .category-item {
+        width: 95px !important;
+    }
+
+    .category-item .cat-img-wrapper {
+        aspect-ratio: 1/1 !important;
+    }
+
+    .categories-scroll {
+        gap: 8px !important;
+    }
+
+    .scroll-btn {
+        display: none !important;
+    }
+
+    .book-card {
+        border-radius: 10px !important;
+        padding: 5px !important;
+    }
+
+    .book-card .cover-wrapper {
+        border-radius: 8px !important;
+    }
+
+    .modal-left {
+        height: 180px !important;
+        min-height: 150px !important;
+    }
+
+    .modal-right {
+        padding: 12px !important;
+    }
+
+    .modal-right h2 {
+        font-size: 1.05rem !important;
+    }
+
+    .reserve-btn {
+        padding: 10px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Detail badges */
+    .detail-badge {
+        font-size: 0.75rem !important;
+        padding: 4px 10px !important;
+    }
+
+    .exp-badge {
+        font-size: 0.6rem !important;
+        padding: 2px 6px !important;
+    }
+}
+
+/* ---- Safe area for devices with notch ---- */
+@supports (padding-top: env(safe-area-inset-top)) {
+    header {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .mobile-nav-panel {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* ---- Touch improvements ---- */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Larger touch targets */
+    .nav-dropdown-item {
+        padding: 14px 18px !important;
+    }
+
+    .mobile-nav-links a,
+    .mobile-nav-links button {
+        min-height: 48px;
+    }
+
+    /* Disable hover effects that feel weird on touch */
+    .service-card-premium:hover {
+        transform: none !important;
+    }
+
+    .card:hover {
+        transform: none !important;
+    }
+
+    .book-card:hover {
+        transform: none !important;
+    }
+
+    .event-card:hover {
+        transform: none !important;
+    }
+
+    .event-card:hover img {
+        transform: none !important;
+    }
+}
+
+/* ---- Smooth scroll for the whole page ---- */
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* ---- Fix overflow-x on all pages ---- */
+html,
+body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* ---- iOS bouncy scroll workaround ---- */
+body {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Fix header position on all pages for mobile ---- */
+header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+/* =============================================
+   DYNAMIC BILINGUAL & MOBILE FLUIDITY ADDITIONS
+   ============================================= */
+
+/* LTR Text Alignment overrides for modals, logins, and cart */
+html[dir="ltr"] .text-right,
+html[dir="ltr"] .\!text-right,
+html[dir="ltr"] .login-modal .text-right,
+html[dir="ltr"] .modal-overlay .text-right,
+html[dir="ltr"] #bookModal .text-right {
+    text-align: left !important;
+}
+
+html[dir="ltr"] .login-modal input,
+html[dir="ltr"] .login-modal select,
+html[dir="ltr"] .modal-overlay input,
+html[dir="ltr"] .modal-overlay select {
+    text-align: left !important;
+    direction: ltr !important;
+}
+
+/* Toast direction alignment matching active language */
+html[dir="ltr"] .toast-notification {
+    direction: ltr !important;
+}
+html[dir="rtl"] .toast-notification {
+    direction: rtl !important;
+}
+
+/* Category scroll navigation button alignment */
+html[dir="ltr"] .scroll-btn.prev {
+    left: -4px !important;
+    right: auto !important;
+}
+html[dir="ltr"] .scroll-btn.next {
+    right: -4px !important;
+    left: auto !important;
+}
+html[dir="rtl"] .scroll-btn.prev {
+    right: -4px !important;
+    left: auto !important;
+}
+html[dir="rtl"] .scroll-btn.next {
+    left: -4px !important;
+    right: auto !important;
+}
+
+/* Title text shrink on narrow mobile headers/screens */
+@media (max-width: 480px) {
+    main h1,
+    main .text-2xl,
+    .director-hero h1 {
+        font-size: 1.35rem !important;
+        line-height: 1.25 !important;
+        word-break: break-word !important;
+    }
+}

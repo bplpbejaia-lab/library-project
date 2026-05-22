@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تصفح الكتب - مكتبة بجاية</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2E7D32",
+                        secondary: "#4CAF50",
+                        accent: "#FFC107",
+                        surface: "#F8FAF8",
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --bg-light: #F8FAF8;
+        }
+
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            background-color: var(--bg-light);
+            color: #1A2E1A;
+            overflow-x: hidden;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        /* Apple-style Navbar Dropdowns */
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 10;
+        }
+
+        .nav-item>a {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 260px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: top center;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 200;
+            margin-top: 12px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(50%) translateY(0);
+        }
+
+        .nav-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 4px;
+            transform: translateX(50%) rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1d1d1f;
+            font-size: 0.92rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.06);
+            color: #2E7D32;
+        }
+
+        .nav-dropdown-item .dropdown-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .nav-dropdown-item:hover .dropdown-icon {
+            transform: scale(1.08);
+        }
+
+        .nav-dropdown-item .dropdown-text {
+            flex: 1;
+        }
+
+        .nav-dropdown-item .dropdown-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-dropdown-item .dropdown-desc {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .nav-dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 4px 12px;
+        }
+
+        /* Login Modal Styles */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 28px;
+            padding: 48px 40px 40px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(46, 125, 50, 0.08);
+            position: relative;
+            animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .login-modal .close-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #607d8b;
+        }
+
+        .login-modal .close-btn:hover {
+            background: #e8f5e9;
+            color: #2E7D32;
+            transform: rotate(90deg);
+        }
+
+        .login-modal .modal-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+        }
+
+        .login-modal h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a2e1a;
+            margin-bottom: 6px;
+        }
+
+        .login-modal .subtitle {
+            text-align: center;
+            color: #607d8b;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .login-modal .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .login-modal .input-group .material-symbols-outlined {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e9e9e;
+            font-size: 22px;
+            pointer-events: none;
+        }
+
+        .login-modal input[type='text'],
+        .login-modal input[type='password'] {
+            width: 100%;
+            padding: 14px 48px 14px 14px;
+            border: 2px solid #e8ece8;
+            border-radius: 14px;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 0.95rem;
+            color: #1a2e1a;
+            background: #fafbfa;
+            transition: all 0.3s;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .login-modal input:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            background: white;
+        }
+
+        .login-modal .login-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            color: white;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 6px;
+            box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+        }
+
+        .login-modal .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.35);
+        }
+
+        .login-modal .forgot-link {
+            display: block;
+            text-align: center;
+            color: #2E7D32;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 16px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .login-modal .forgot-link:hover {
+            color: #1a5e1f;
+        }
+
+        /* Premium Book Card */
+        .book-card {
+            background: white;
+            border-radius: 20px;
+            padding: 12px;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid rgba(46, 125, 50, 0.05);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(46, 125, 50, 0.1);
+            border-color: rgba(46, 125, 50, 0.15);
+        }
+
+        .book-card .cover-wrapper {
+            aspect-ratio: 3/3.8;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            background: #f1f5f1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .book-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .book-card:hover img {
+            transform: scale(1.08);
+        }
+
+        /* Categories Scroll Area */
+        .categories-container {
+            position: relative;
+            padding: 0 40px;
+        }
+
+        .categories-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 10px 4px 20px;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .categories-scroll::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        .category-item {
+            flex: 0 0 auto;
+            width: 150px;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            border: 1.5px solid rgba(0, 0, 0, 0.06);
+            background: white;
+        }
+
+        .category-item:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(46, 125, 50, 0.18);
+            border-color: var(--primary);
+        }
+
+        .category-item .cat-img-wrapper {
+            width: 100%;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            background: #f1f5f1;
+        }
+
+        .category-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .category-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .category-item .cat-info {
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        .category-item .name {
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #1a2e1a;
+            line-height: 1.35;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .category-item .count {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #2E7D32;
+            background: rgba(46, 125, 50, 0.08);
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+            color: var(--primary);
+            border: 1px solid rgba(46, 125, 50, 0.1);
+        }
+
+        .scroll-btn:hover {
+            background: var(--primary);
+            color: white;
+            scale: 1.1;
+        }
+
+        .scroll-btn.prev {
+            right: 0;
+        }
+
+        .scroll-btn.next {
+            left: 0;
+        }
+
+        /* Detail Modal - Home Vibe */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #F8FAF8;
+            width: 900px;
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: row;
+            position: relative;
+            animation: modalScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                flex-direction: column;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-left {
+                width: 100% !important;
+                height: 300px;
+            }
+        }
+
+        .modal-left {
+            width: 40%;
+            position: relative;
+            background: #eef2ee;
+        }
+
+        .modal-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-right {
+            width: 60%;
+            padding: 24px;
+            position: relative;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-right::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-right::-webkit-scrollbar-thumb {
+            background: rgba(46, 125, 50, 0.1);
+            border-radius: 10px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            z-index: 50;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .close-modal:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .detail-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            left: -420px;
+            width: 400px;
+            max-width: 90vw;
+            height: 100vh;
+            background: white;
+            z-index: 10001;
+            box-shadow: 20px 0 60px rgba(0, 0, 0, 0.15);
+            transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 24px 24px 0;
+        }
+
+        .cart-sidebar.active {
+            left: 0;
+        }
+
+        .cart-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cart-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .cart-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8f5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 16px;
+            background: white;
+            margin-bottom: 10px;
+            border: 1px solid #e8f5e9;
+            transition: all 0.3s;
+            animation: slideInCart 0.3s ease-out;
+        }
+
+        .cart-item:hover {
+            border-color: #a5d6a7;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+        }
+
+        @keyframes slideInCart {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .cart-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e8f5e9;
+            background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+        }
+
+        .reserve-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2E7D32, #43A047);
+            color: white;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .reserve-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(46, 125, 50, 0.4);
+        }
+
+        .reserve-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Exp ID Badges */
+        .exp-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin: 2px;
+            transition: all 0.2s;
+        }
+
+        .exp-badge:hover {
+            transform: scale(1.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1b5e20;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Vibe decors (like home cards) */
+        .modal-corner {
+            width: 80px;
+            height: 80px;
+            position: absolute;
+            opacity: 0.15;
+            border-color: var(--primary);
+        }
+
+        .corner-tl {
+            top: 0;
+            right: 0;
+            border-top: 4px solid;
+            border-right: 4px solid;
+            border-radius: 0 32px 0 0;
+        }
+
+        .corner-br {
+            bottom: 0;
+            left: 0;
+            border-bottom: 4px solid;
+            border-left: 4px solid;
+            border-radius: 0 0 0 32px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input-wrapper {
+            background: white;
+            border-radius: 20px;
+            padding: 6px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(46, 125, 50, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 15px 40px rgba(46, 125, 50, 0.12);
+        }
+
+        /* Filter Dropdown */
+        .filter-dropdown-wrap {
+            position: relative;
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 260px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            padding: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px) scale(0.96);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 500;
+            overflow: hidden;
+        }
+
+        .filter-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .filter-dropdown .fd-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+        }
+
+        .filter-dropdown .fd-row:last-child {
+            border-bottom: none;
+        }
+
+        .filter-dropdown .fd-row:hover {
+            background: #f8faf8;
+        }
+
+        .filter-dropdown .fd-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .filter-dropdown select,
+        .filter-dropdown input[type="number"] {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 0.8rem;
+            background: #f8fafc;
+            direction: rtl;
+            color: #1e293b;
+            transition: border 0.2s;
+            min-width: 0;
+        }
+
+        .filter-dropdown select:focus,
+        .filter-dropdown input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-dropdown .fd-footer {
+            padding: 10px 16px;
+            background: #f8faf8;
+            display: flex;
+            justify-content: center;
+        }
+
+        .filter-btn-active {
+            background: #e8f5e9 !important;
+            color: #2E7D32 !important;
+        }
+
+        .filter-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2E7D32;
+            display: none;
+        }
+
+        .filter-badge.visible {
+            display: block;
+        }
+
+        /* Books grid spacing for screens < 480px */
+        @media (max-width: 480px) {
+            #booksGrid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+                padding: 0 4px !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <!-- Navbar (Consistent with home) -->
+    <header
+        class="absolute top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5 transition-all duration-300">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <!-- Logo Gauche -->
+                <div class="flex-shrink-0">
+                    <img alt="Logo Gauche" class="h-16 w-auto object-contain" src="../images/c.PNG" />
+                </div>
+                <!-- Center Menu -->
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">عن المكتبة <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="../pages/technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-bold text-primary tracking-wide" href="#">خدمات <span
+                                class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(244,63,94,0.08);color:#f43f5e;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">feedback</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الشكاوى</div>
+                                    <div class="dropdown-desc">أرسل ملاحظاتك واقتراحاتك</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">النشاطات الثقافية <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">celebration</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">برنامج النشاطات الثقافية</div>
+                                    <div class="dropdown-desc">الفعاليات والأنشطة القادمة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">child_care</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الأطفال</div>
+                                    <div class="dropdown-desc">أنشطة ترفيهية وتعليمية للصغار</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">menu_book</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">منتدى الكتاب</div>
+                                    <div class="dropdown-desc">مناقشات أدبية وثقافية</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">groups</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">المؤلفين المحليين</div>
+                                    <div class="dropdown-desc">بوابة الكتّاب والمؤلفين المحليين</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">اتصل بنا</a>
+                </nav>
+                <!-- Logo Droite -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <button onclick="toggleCart()"
+                        class="relative p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all border border-slate-200 group">
+                        <span
+                            class="material-symbols-outlined text-slate-700 group-hover:text-primary">shopping_basket</span>
+                        <span id="cartCountBadge"
+                            class="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button
+                        class="hidden lg:flex items-center gap-1.5 text-slate-700 hover:text-primary px-3 py-2 text-[17px] font-semibold">
+                        <span class="material-symbols-outlined text-[22px]">translate</span>
+                        <span>العربية</span>
+                    </button>
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="openLogin()">تسجيل الدخول</button>
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-white bg-primary hover:opacity-90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                            onclick="window.location.href='../pages/g.html'">التسجيل</button>
+                    </div>
+                    <!-- Profile Dropdown (Hidden by default) -->
+                    <div id="user-profile-menu" class="hidden relative">
+                        <button id="profile-trigger"
+                            class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                            <img id="user-avatar" src="" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                            <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                        </button>
+                        <div id="profile-dropdown"
+                            class="hidden absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100]">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p id="user-display-name" class="text-sm font-bold text-slate-900"></p>
+                                <p id="user-display-email" class="text-xs text-slate-500"></p>
+                            </div>
+                            <div class="py-2">
+                                <a href="../pages/profile.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">person</span> حسابي
+                                </a>
+                                <a href="../pages/orders-history.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">history</span> سجل الإعارة
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">settings</span> الإعدادات
+                                </a>
+                            </div>
+                            <div class="border-t border-slate-100 pt-2">
+                                <button id="logout-btn"
+                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">logout</span> تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <img alt="Ministry Logo" class="h-16 w-auto object-contain" src="../images/image.png" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24 sm:pt-32 pb-12 sm:pb-20 w-full px-4 sm:px-6 lg:px-10">
+        <!-- Header & Search -->
+        <div class="text-center mb-16">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mb-4 sm:mb-6">فهرس المكتبة المفتوح</h1>
+            <div class="search-container">
+                <div class="search-input-wrapper !max-w-3xl mx-auto">
+                    <span class="material-symbols-outlined text-slate-400">search</span>
+                    <input type="text" id="searchInput" placeholder="ابحث بالعنوان، المؤلف، ISBN..."
+                        class="bg-transparent border-none outline-none w-full py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base lg:text-lg font-medium">
+                    <button onclick="openAdvancedSearch()" 
+                        class="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-primary rounded-xl transition-all font-bold text-sm border border-slate-200">
+                        <span class="material-symbols-outlined text-[20px]">page_info</span>
+                        <span>بحث متقدم</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Beautiful Categories (Limited Width) -->
+        <div class="mb-10 sm:mb-16 max-w-7xl mx-auto px-0 sm:px-6">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-2xl font-bold text-slate-900 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-primary rounded-full"></span>
+                    التصنيفات المميزة
+                </h3>
+            </div>
+
+            <div class="categories-container">
+                <button class="scroll-btn prev" onclick="scrollCategories(-300)">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+                <div id="categoriesGrid" class="categories-scroll">
+                    <!-- Loaded via JS -->
+                    <div class="h-24 w-40 bg-slate-100 rounded-2xl animate-pulse"></div>
+                    <div class="h-24 w-40 bg-slate-100 rounded-2xl animate-pulse"></div>
+                    <div class="h-24 w-40 bg-slate-100 rounded-2xl animate-pulse"></div>
+                    <div class="h-24 w-40 bg-slate-100 rounded-2xl animate-pulse"></div>
+                    <div class="h-24 w-40 bg-slate-100 rounded-2xl animate-pulse"></div>
+                </div>
+                <button class="scroll-btn next" onclick="scrollCategories(300)">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Books Grid -->
+        <section>
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+                <h3 class="text-2xl font-extrabold text-slate-900">جميع الكتب</h3>
+                <div class="text-sm font-bold bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full" id="booksCountContainer">
+                    <span id="booksCount">0</span> <span id="booksCountLabel">كتاب متوفر</span>
+                </div>
+            </div>
+
+            <div id="booksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5 lg:gap-8">
+                <!-- Loaded via JS -->
+            </div>
+
+            <div class="flex justify-center mt-12">
+                <button id="loadMoreBtn" style="display: none;"
+                    class="px-10 py-4 bg-white border-2 border-primary text-primary font-bold rounded-2xl hover:bg-primary hover:text-white transition-all">
+                    عرض المزيد من النتائج
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="bookModal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal-content">
+            <div class="modal-corner corner-tl"></div>
+            <div class="modal-corner corner-br"></div>
+
+            <div class="modal-left">
+                <img id="modalImg" src="../images/book1.jpg" alt="Book Cover"
+                    onerror="this.src='/images/image.png'; this.onerror=null;">
+            </div>
+
+            <div class="close-modal" onclick="closeModal()">
+                <span class="material-symbols-outlined">close</span>
+            </div>
+
+            <div class="modal-right">
+
+                <div id="modalStatus" class="detail-badge !mb-2"></div>
+
+                <h2 id="modalTitle" class="text-2xl font-black text-slate-900 mb-1 leading-tight"></h2>
+                <p id="modalAuthor" class="text-lg text-primary font-bold mb-3"></p>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">التصنيف</p>
+                        <p id="modalCategory" class="text-base font-bold text-slate-900"></p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">السنة</p>
+                        <p id="modalYear" class="text-base font-bold text-slate-900"></p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">رقم الكتاب (ID)</p>
+                        <p id="modalId" class="text-base font-bold text-slate-900"></p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">نوع الوثيقة</p>
+                        <p id="modalDocType" class="text-base font-bold text-slate-900">كتاب</p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">اللغة</p>
+                        <p id="modalLanguage" class="text-base font-bold text-slate-900"></p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">ISBN</p>
+                        <p id="modalISBN" class="text-sm font-bold text-slate-900"></p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm col-span-2">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-0.5">الفهرسة الحرة</p>
+                        <p id="modalKeywords" class="text-sm text-slate-600 leading-tight"></p>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm col-span-2">
+                        <p class="text-xs text-slate-500 font-bold uppercase mb-1">النسخ المتوفرة</p>
+                        <div id="modalCopies" class="flex flex-wrap gap-1"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button id="reserveBtn" class="reserve-btn" onclick="handleReserve()">
+                        <span class="material-symbols-outlined">add_shopping_cart</span>
+                        أضف إلى سلة الحجز
+                    </button>
+                    <p id="reserveStatusMsg" class="text-center text-xs text-slate-400">سيتم الإحتفاظ بالكتاب لمدة 48
+                        ساعة فقط.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="toast-notification">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="toastMessage">تمت الإضافة بنجاح</span>
+    </div>
+
+    <!-- Cart Overlay & Sidebar -->
+    <div id="cartOverlay" class="cart-overlay" onclick="toggleCart()"></div>
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <div>
+                <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">shopping_basket</span>
+                    سلة الحجز
+                </h3>
+                <p id="cartCountText" class="text-xs text-slate-500 mt-0.5 mr-8">0 كتاب</p>
+            </div>
+            <button onclick="toggleCart()"
+                class="w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-red-50 hover:text-red-500 transition-all shadow-sm border border-slate-100">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+        <div id="cartItems" class="cart-items">
+            <div class="empty-cart flex flex-col items-center justify-center h-full text-slate-300">
+                <span class="material-symbols-outlined" style="font-size:80px;margin-bottom:16px;">shopping_cart</span>
+                <p class="font-bold text-lg text-slate-400">السلة فارغة</p>
+                <p class="text-sm text-slate-400 mt-1">اضغط على كتاب لإضافته هنا</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-bold text-slate-600">الإجمالي</span>
+                <span id="cartTotalCount" class="text-sm font-black text-primary">0 كتاب</span>
+            </div>
+            <button onclick="checkoutCart()" id="checkoutBtn"
+                class="w-full py-3.5 bg-gradient-to-l from-green-700 to-green-600 text-white rounded-2xl font-black shadow-lg shadow-green-600/20 hover:shadow-xl hover:shadow-green-600/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">task_alt</span>
+                تأكيد الحجز
+            </button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Advanced Search Modal -->
+    <div id="advancedSearchModal" class="modal-overlay" onclick="if(event.target===this)closeAdvancedSearch()">
+        <div class="login-modal !w-[500px] !p-8">
+            <button class="close-btn" onclick="closeAdvancedSearch()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-3xl">page_info</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-slate-900 !text-right !m-0">البحث المتقدم</h2>
+                    <p class="text-sm text-slate-500 !text-right">ابحث بدقة في كامل قاعدة البيانات</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 pr-2">المؤلف</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">person</span>
+                        <input id="advAuthor" type="text" placeholder="اسم المؤلف" 
+                            class="!w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all"/>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 pr-2">سنة النشر</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">calendar_month</span>
+                        <input id="advYear" type="number" placeholder="مثلاً: 2024" 
+                            class="!w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all"/>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 pr-2">رقم ISBN</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">barcode</span>
+                        <input id="advISBN" type="text" placeholder="رقم الـ ISBN" 
+                            class="!w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all"/>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 pr-2">اللغة</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">translate</span>
+                        <select id="advLanguage" class="w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all">
+                            <option value="">كل اللغات</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 pr-2">التصنيف</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">category</span>
+                        <select id="advCategory" class="w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all">
+                            <option value="">كل التصنيفات</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 pr-2">الحالة</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <select id="advAvailability" class="w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all">
+                            <option value="">الكل</option>
+                            <option value="available">متوفر</option>
+                            <option value="unavailable">محجوز</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1 md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500 pr-2">الكلمات المفتاحية (Mots clés)</label>
+                    <div class="input-group">
+                        <span class="material-symbols-outlined">tag</span>
+                        <input id="advKeywords" type="text" placeholder="مثلاً: تاريخ، علوم، أدب..." 
+                            class="!w-full !px-12 !py-3 border-2 border-slate-100 rounded-xl font-bold text-sm bg-slate-50 appearance-none outline-none focus:border-primary transition-all"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button class="flex-1 login-btn !m-0 !bg-primary" onclick="applyAdvancedSearch()">
+                    تطبيق البحث
+                </button>
+                <button class="px-6 py-3 border-2 border-slate-100 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all font-bold text-sm" onclick="clearAdvancedSearch()">
+                    <span class="material-symbols-outlined align-middle">restart_alt</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Auth Scripts same as before -->
+    <script>
+        const categoryImagesPool = [
+            '../images/d.webp',
+            '../images/f.webp',
+            '../images/g.webp'
+        ];
+
+        let allBooks = [];
+        let activeCategory = null;
+        let selectedBook = null;
+        let cart = JSON.parse(localStorage.getItem('libraryCart') || '[]');
+
+        // Centralized translation helper for dynamic JS strings
+        function _t(key) {
+            const lang = document.documentElement.lang || 'ar';
+            const dict = {
+                ar: {
+                    book: 'كتاب', emptyCart: 'السلة فارغة', emptyCartHint: 'اضغط على كتاب لإضافته هنا',
+                    general: 'عام', deleteTitle: 'حذف', addedToCart: 'تمت إضافة', toCart: 'إلى السلة',
+                    removedFromCart: 'تم حذف الكتاب من السلة', loginFirst: '⚠️ يرجى تسجيل الدخول أولاً لإكمال الحجز',
+                    sending: 'جاري الإرسال...', orderSuccess: '✅ تم إرسال طلب حجز', booksSuccess: 'كتب بنجاح!',
+                    orderError: 'خطأ: ', orderFailed: 'فشل في إرسال الطلب', connectionError: 'حدث خطأ في الاتصال بالخادم',
+                    booksAvailable: 'كتاب متوفر', allBooks: 'جميع الكتب', loadMore: 'عرض المزيد من النتائج',
+                    loginRequired: 'يرجى إدخال اسم المستخدم وكلمة المرور', loginFailed: 'اسم المستخدم أو كلمة المرور غير صحيحة',
+                    serverError: 'تعذر الاتصال بالخادم حالياً',
+                    advAuthor: 'المؤلف', advYear: 'السنة', advISBN: 'ISBN', advLanguage: 'اللغة',
+                    advCategory: 'التصنيف', advStatus: 'الحالة', advKeywords: 'الكلمات المفتاحية (Mots clés)',
+                    advAll: 'الكل', advAvailable: 'متوفر', advUnavailable: 'محجوز',
+                    advApply: 'تطبيق البحث', advAuthorPh: 'ابحث بالمؤلف', advYearPh: 'السنة', advISBNPh: 'رقم ISBN',
+                    advKeywordsPh: 'مثلاً: تاريخ، علوم، أدب...',
+                    cartTitle: 'سلة الحجز', checkoutBtn: 'تأكيد الحجز', cartTotal: 'الإجمالي',
+                    pageTitle: 'تصفح الكتب - مكتبة بجاية', searchPlaceholder: 'ابحث بالعنوان، المؤلف، ISBN...',
+                    advSearchBtn: 'بحث متقدم', featuredCategories: 'التصنيفات المميزة',
+                    advHeader: 'البحث المتقدم', advSub: 'ابحث بدقة في كامل قاعدة البيانات'
+                },
+                fr: {
+                    book: 'livre', emptyCart: 'Le panier est vide', emptyCartHint: 'Cliquez sur un livre pour l\'ajouter ici',
+                    general: 'Général', deleteTitle: 'Supprimer', addedToCart: 'Ajouté :', toCart: 'au panier',
+                    removedFromCart: 'Livre retiré du panier', loginFirst: '⚠️ Veuillez vous connecter pour finaliser la réservation',
+                    sending: 'Envoi en cours...', orderSuccess: '✅ Demande de réservation envoyée pour', booksSuccess: 'livre(s) avec succès !',
+                    orderError: 'Erreur : ', orderFailed: 'Échec de l\'envoi', connectionError: 'Erreur de connexion au serveur',
+                    booksAvailable: 'livre(s) disponible(s)', allBooks: 'Tous les livres', loadMore: 'Afficher plus de résultats',
+                    loginRequired: 'Veuillez saisir le nom d\'utilisateur et le mot de passe', loginFailed: 'Nom d\'utilisateur ou mot de passe incorrect',
+                    serverError: 'Connexion au serveur impossible actuellement',
+                    advAuthor: 'Auteur', advYear: 'Année', advISBN: 'ISBN', advLanguage: 'Langue',
+                    advCategory: 'Catégorie', advStatus: 'Statut', advKeywords: 'Mots clés',
+                    advAll: 'Tous', advAvailable: 'Disponible', advUnavailable: 'Réservé',
+                    advApply: 'Appliquer la recherche', advAuthorPh: 'Rechercher par auteur', advYearPh: 'Année', advISBNPh: 'Numéro ISBN',
+                    advKeywordsPh: 'Ex : histoire, sciences, littérature...',
+                    cartTitle: 'Panier de réservation', checkoutBtn: 'Confirmer la réservation', cartTotal: 'Total',
+                    pageTitle: 'Catalogue des livres - Bibliothèque de Béjaïa', searchPlaceholder: 'Rechercher par titre, auteur, ISBN...',
+                    advSearchBtn: 'Recherche Avancée', featuredCategories: 'Catégories Vedettes',
+                    advHeader: 'Recherche Avancée', advSub: 'Recherchez précisément dans toute la base de données'
+                },
+                en: {
+                    book: 'book', emptyCart: 'Cart is empty', emptyCartHint: 'Click on a book to add it here',
+                    general: 'General', deleteTitle: 'Delete', addedToCart: 'Added:', toCart: 'to cart',
+                    removedFromCart: 'Book removed from cart', loginFirst: '⚠️ Please log in first to complete the reservation',
+                    sending: 'Sending...', orderSuccess: '✅ Reservation request sent for', booksSuccess: 'book(s) successfully!',
+                    orderError: 'Error: ', orderFailed: 'Failed to send request', connectionError: 'Server connection error',
+                    booksAvailable: 'book(s) available', allBooks: 'All Books', loadMore: 'Load more results',
+                    loginRequired: 'Please enter username and password', loginFailed: 'Invalid username or password',
+                    serverError: 'Cannot connect to server at this time',
+                    advAuthor: 'Author', advYear: 'Year', advISBN: 'ISBN', advLanguage: 'Language',
+                    advCategory: 'Category', advStatus: 'Status', advKeywords: 'Keywords',
+                    advAll: 'All', advAvailable: 'Available', advUnavailable: 'Reserved',
+                    advApply: 'Apply Search', advAuthorPh: 'Search by author', advYearPh: 'Year', advISBNPh: 'ISBN number',
+                    advKeywordsPh: 'E.g.: history, science, literature...',
+                    cartTitle: 'Reservation Cart', checkoutBtn: 'Confirm Reservation', cartTotal: 'Total',
+                    pageTitle: 'Browse Books - Bejaia Library', searchPlaceholder: 'Search by title, author, ISBN...',
+                    advSearchBtn: 'Advanced Search', featuredCategories: 'Featured Categories',
+                    advHeader: 'Advanced Search', advSub: 'Search precisely in the entire database'
+                }
+            };
+            return (dict[lang] || dict['ar'])[key] || key;
+        }
+
+        // API Fetchers
+        async function fetchCategories() {
+            try {
+                const res = await fetch('../api/books/domains/filters');
+                const data = await res.json();
+
+                const lang = document.documentElement.lang || 'ar';
+                const bookLabel = lang === 'fr' ? 'livre' : (lang === 'en' ? 'book' : 'كتاب');
+                const pluralSuffix = (count) => (lang === 'fr' && count > 1 ? 's' : (lang === 'en' && count > 1 ? 's' : ''));
+
+                // Render category scroll
+                const grid = document.getElementById('categoriesGrid');
+                grid.innerHTML = data.categories.map((cat, index) => `
+                    <div class="category-item" onclick="filterByCategory('${cat.name}')">
+                        <div class="cat-img-wrapper">
+                            <img src="${categoryImagesPool[index % categoryImagesPool.length]}" onerror="this.src='../images/book1.jpg'; this.onerror=null;">
+                        </div>
+                        <div class="cat-info">
+                            <div class="name">${cat.id} - ${cat.name}</div>
+                            <div class="count">${cat.count} ${bookLabel}${pluralSuffix(cat.count)}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Populate filter dropdowns
+                const allLangsLabel = lang === 'fr' ? 'Toutes les langues' : (lang === 'en' ? 'All languages' : 'كل اللغات');
+                const allCatsLabel = lang === 'fr' ? 'Toutes les catégories' : (lang === 'en' ? 'All categories' : 'كل التصنيفات');
+
+                const langSelect = document.getElementById('advLanguage');
+                if (langSelect && data.languages) {
+                    const currentVal = langSelect.value;
+                    langSelect.innerHTML = `<option value="">${allLangsLabel}</option>` +
+                        data.languages.map(l => `<option value="${l.name}">${l.name}</option>`).join('');
+                    if (currentVal) langSelect.value = currentVal;
+                }
+                const catSelect = document.getElementById('advCategory');
+                if (catSelect && data.categories) {
+                    const currentVal = catSelect.value;
+                    catSelect.innerHTML = `<option value="">${allCatsLabel}</option>` +
+                        data.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                    if (currentVal) catSelect.value = currentVal;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function getFilterParams() {
+            const lang = document.getElementById('advLanguage')?.value || '';
+            const year = document.getElementById('advYear')?.value || '';
+            const avail = document.getElementById('advAvailability')?.value || '';
+            const author = document.getElementById('advAuthor')?.value || '';
+            const isbn = document.getElementById('advISBN')?.value || '';
+            const category = document.getElementById('advCategory')?.value || '';
+            const keywords = document.getElementById('advKeywords')?.value || '';
+            
+            let params = '';
+            if (lang) params += '&language=' + encodeURIComponent(lang);
+            if (year) params += '&year=' + encodeURIComponent(year);
+            if (avail) params += '&availability=' + encodeURIComponent(avail);
+            if (author) params += '&author=' + encodeURIComponent(author);
+            if (isbn) params += '&isbn=' + encodeURIComponent(isbn);
+            if (category) params += '&category=' + encodeURIComponent(category);
+            if (keywords) params += '&keywords=' + encodeURIComponent(keywords);
+            return params;
+        }
+
+        async function fetchBooks(search = '', offset = 0) {
+            try {
+                let url = `../api/books/domains/list?limit=20&offset=${offset}`;
+                if (search) url += '&search=' + encodeURIComponent(search);
+                if (activeCategory && !search) url += '&category=' + encodeURIComponent(activeCategory);
+                url += getFilterParams();
+
+                const res = await fetch(url);
+                const data = await res.json();
+                const newBooks = data.books || [];
+
+                if (offset === 0) allBooks = newBooks;
+                else allBooks = allBooks.concat(newBooks);
+
+                renderBooks();
+                document.getElementById('booksCount').textContent = data.total || allBooks.length;
+
+                const btn = document.getElementById('loadMoreBtn');
+                if (btn) {
+                    btn.style.display = newBooks.length === 20 ? 'block' : 'none';
+                    btn.onclick = () => fetchBooks(search, offset + 20);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Advanced Search Functions
+        function openAdvancedSearch() {
+            document.getElementById('advancedSearchModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAdvancedSearch() {
+            document.getElementById('advancedSearchModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function applyAdvancedSearch() {
+            activeCategory = null;
+            const search = document.getElementById('searchInput').value.trim();
+            fetchBooks(search, 0);
+            closeAdvancedSearch();
+        }
+
+        function clearAdvancedSearch() {
+            const fields = ['advAuthor', 'advYear', 'advISBN', 'advLanguage', 'advCategory', 'advAvailability', 'advKeywords'];
+            fields.forEach(f => {
+                const el = document.getElementById(f);
+                if (el) el.value = '';
+            });
+            applyAdvancedSearch();
+        }
+
+        function renderBooks() {
+            const grid = document.getElementById('booksGrid');
+            const lang = document.documentElement.lang || 'ar';
+            if (allBooks.length === 0) {
+                const noResultsMsg = lang === 'fr' ? 'Désolé, aucun résultat correspondant' : (lang === 'en' ? 'Sorry, no matching results found' : 'عذراً، لم نجد نتائج مطابقة');
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-bold">${noResultsMsg}</div>`;
+                return;
+            }
+            grid.innerHTML = allBooks.map(book => {
+                const availText = book.available ? (lang === 'fr' ? 'Disponible' : (lang === 'en' ? 'Available' : 'متاح')) : (lang === 'fr' ? 'Réservé' : (lang === 'en' ? 'Reserved' : 'محجوز'));
+                return `
+                <div class="book-card animate-fade-in" onclick='openModal(${JSON.stringify(book).replace(/'/g, "&apos;")})'>
+                    <div class="cover-wrapper">
+                        <img src="${book.img || '../images/book1.jpg'}" onerror="this.src='../images/book1.jpg'; this.onerror=null;">
+                    </div>
+                    <div class="p-1.5 text-right flex flex-col">
+                        <h4 class="font-bold text-slate-900 mb-1 leading-snug text-[1.05rem] line-clamp-2">${book.title}</h4>
+                        <p class="text-[11px] text-slate-500 mb-2 truncate">${book.author}</p>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold">${book.categoryCode ? `${book.categoryCode} - ` : ''}${book.category}</span>
+                            <span class="text-[10px] ${book.available ? 'text-green-600' : 'text-orange-600'} font-black">${availText}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Modal Logic
+        // Badge colors for exemplar IDs
+        const expColors = [
+            'bg-emerald-100 text-emerald-700 border-emerald-200',
+            'bg-blue-100 text-blue-700 border-blue-200',
+            'bg-purple-100 text-purple-700 border-purple-200',
+            'bg-amber-100 text-amber-700 border-amber-200',
+            'bg-rose-100 text-rose-700 border-rose-200',
+            'bg-cyan-100 text-cyan-700 border-cyan-200',
+            'bg-indigo-100 text-indigo-700 border-indigo-200',
+            'bg-teal-100 text-teal-700 border-teal-200',
+        ];
+
+        function renderExpIds(expIdsStr) {
+            const container = document.getElementById('modalCopies');
+            const lang = document.documentElement.lang || 'ar';
+            if (!expIdsStr || expIdsStr.trim() === '') {
+                const noCopiesMsg = lang === 'fr' ? 'Aucun exemplaire disponible' : (lang === 'en' ? 'No copies available' : 'لا توجد نسخ متاحة');
+                container.innerHTML = `<span class="text-xs text-slate-400 italic">${noCopiesMsg}</span>`;
+                return;
+            }
+            const ids = expIdsStr.split(',').map(s => s.trim()).filter(Boolean);
+            container.innerHTML = ids.map((id, i) =>
+                `<span class="exp-badge border ${expColors[i % expColors.length]}">
+                    <span class="material-symbols-outlined" style="font-size:13px;">bookmark</span>
+                    ${id}
+                </span>`
+            ).join('');
+        }
+
+        function openModal(book) {
+            selectedBook = book;
+
+            const lang = document.documentElement.lang || 'ar';
+            const modalDict = {
+                ar: {
+                    category: "التصنيف",
+                    year: "السنة",
+                    id: "رقم الكتاب (ID)",
+                    docType: "نوع الوثيقة",
+                    docTypeValue: "كتاب",
+                    language: "اللغة",
+                    isbn: "ISBN",
+                    keywords: "الفهرسة الحرة",
+                    copies: "النسخ المتوفرة",
+                    unknown: "غير معروف",
+                    unspecified: "غير محدد",
+                    statusAvailable: "متوفر للمطالعة",
+                    statusReserved: "الكتاب محجوز حالياً",
+                    inCart: "موجود في السلة",
+                    addToCart: "أضف إلى سلة الحجز",
+                    reserveNote: "سيتم الإحتفاظ بالكتاب لمدة 48 ساعة فقط."
+                },
+                fr: {
+                    category: "Catégorie",
+                    year: "Année",
+                    id: "ID du Livre",
+                    docType: "Type de Document",
+                    docTypeValue: "Livre",
+                    language: "Langue",
+                    isbn: "ISBN",
+                    keywords: "Indexation Libre",
+                    copies: "Exemplaires Disponibles",
+                    unknown: "Inconnu",
+                    unspecified: "Non spécifié",
+                    statusAvailable: "Disponible pour lecture",
+                    statusReserved: "Le livre est actuellement réservé",
+                    inCart: "Déjà dans le panier",
+                    addToCart: "Ajouter au panier",
+                    reserveNote: "Le livre sera conservé pendant 48 heures uniquement."
+                },
+                en: {
+                    category: "Category",
+                    year: "Year",
+                    id: "Book ID",
+                    docType: "Document Type",
+                    docTypeValue: "Book",
+                    language: "Language",
+                    isbn: "ISBN",
+                    keywords: "Keywords",
+                    copies: "Available Copies",
+                    unknown: "Unknown",
+                    unspecified: "Unspecified",
+                    statusAvailable: "Available for reading",
+                    statusReserved: "Book is currently reserved",
+                    inCart: "Already in cart",
+                    addToCart: "Add to reserve cart",
+                    reserveNote: "The book will be held for 48 hours only."
+                }
+            };
+
+            const mDict = modalDict[lang] || modalDict['ar'];
+
+            // Translate static labels in modal grid
+            const gridDivs = document.querySelectorAll('#bookModal .grid > div');
+            if (gridDivs.length >= 8) {
+                gridDivs[0].querySelector('p:first-child').textContent = mDict.category;
+                gridDivs[1].querySelector('p:first-child').textContent = mDict.year;
+                gridDivs[2].querySelector('p:first-child').textContent = mDict.id;
+                gridDivs[3].querySelector('p:first-child').textContent = mDict.docType;
+                gridDivs[4].querySelector('p:first-child').textContent = mDict.language;
+                gridDivs[5].querySelector('p:first-child').textContent = mDict.isbn;
+                gridDivs[6].querySelector('p:first-child').textContent = mDict.keywords;
+                gridDivs[7].querySelector('p:first-child').textContent = mDict.copies;
+            }
+
+            document.getElementById('modalDocType').textContent = mDict.docTypeValue;
+            document.getElementById('reserveStatusMsg').textContent = mDict.reserveNote;
+
+            document.getElementById('modalTitle').textContent = book.title;
+            document.getElementById('modalAuthor').textContent = book.author;
+            document.getElementById('modalCategory').textContent = `${book.categoryCode ? `${book.categoryCode} - ` : ''}${book.category}${book.subcategory ? ` / ${book.subcategory}` : ''}`;
+            document.getElementById('modalYear').textContent = book.year || mDict.unknown;
+            document.getElementById('modalId').textContent = book.id || '---';
+            renderExpIds(book.expIds);
+            document.getElementById('modalLanguage').textContent = book.language || mDict.unspecified;
+            document.getElementById('modalISBN').textContent = book.isbn || '---';
+            const keywords = book.keywords ? book.keywords.replace(/\//g, ' ').replace(/\s+/g, ' ').trim() : '---';
+            document.getElementById('modalKeywords').textContent = keywords;
+            document.getElementById('modalImg').src = book.img;
+
+            const status = document.getElementById('modalStatus');
+            if (book.available) {
+                status.innerHTML = `<span class="material-symbols-outlined">check_circle</span> ${mDict.statusAvailable}`;
+                status.className = 'detail-badge bg-green-50 text-green-700 border border-green-100';
+            } else {
+                status.innerHTML = `<span class="material-symbols-outlined">error</span> ${mDict.statusReserved}`;
+                status.className = 'detail-badge bg-orange-50 text-orange-700 border border-orange-100';
+            }
+
+            // Check if already in cart
+            const reserveBtn = document.getElementById('reserveBtn');
+            const isInCart = cart.find(i => String(i.id) === String(book.id));
+            if (isInCart) {
+                reserveBtn.innerHTML = `<span class="material-symbols-outlined">check</span> ${mDict.inCart}`;
+                reserveBtn.style.background = 'linear-gradient(135deg, #1565C0, #42A5F5)';
+                reserveBtn.style.boxShadow = '0 8px 24px rgba(21,101,192,0.3)';
+            } else {
+                reserveBtn.innerHTML = `<span class="material-symbols-outlined">add_shopping_cart</span> ${mDict.addToCart}`;
+                reserveBtn.style.background = 'linear-gradient(135deg, #2E7D32, #43A047)';
+                reserveBtn.style.boxShadow = '0 8px 24px rgba(46,125,50,0.3)';
+            }
+
+            document.getElementById('bookModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Toast system
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Cart Logic
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            if (sidebar.classList.contains('active')) renderCart();
+        }
+
+        function addToCart() {
+            if (!selectedBook) return;
+            const exists = cart.find(i => String(i.id) === String(selectedBook.id));
+            if (exists) {
+                closeModal();
+                toggleCart();
+                return;
+            }
+            cart.push({ ...selectedBook });
+            localStorage.setItem('libraryCart', JSON.stringify(cart));
+            updateCartBadge();
+            showToast(`${_t('addedToCart')} "${selectedBook.title}" ${_t('toCart')}`);
+            closeModal();
+            setTimeout(() => toggleCart(), 350);
+        }
+
+        function removeFromCart(itemId) {
+            const id = String(itemId);
+            cart = cart.filter(i => String(i.id) !== id);
+            localStorage.setItem('libraryCart', JSON.stringify(cart));
+            renderCart();
+            updateCartBadge();
+            showToast(_t('removedFromCart'));
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartCountBadge');
+            if (badge) {
+                badge.textContent = cart.length;
+                badge.classList.toggle('hidden', cart.length === 0);
+            }
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const countText = document.getElementById('cartCountText');
+            const totalCount = document.getElementById('cartTotalCount');
+
+            if (countText) countText.textContent = cart.length + ' ' + _t('book');
+            if (totalCount) totalCount.textContent = cart.length + ' ' + _t('book');
+
+            // Translate header, total and checkout button text
+            const cartHeaderTitle = document.querySelector('.cart-header h3');
+            if (cartHeaderTitle) {
+                cartHeaderTitle.innerHTML = `<span class="material-symbols-outlined text-primary">shopping_basket</span> ${_t('cartTitle')}`;
+            }
+            const cartTotalSpan = document.querySelector('.cart-footer .flex.items-center.justify-between span:first-child');
+            if (cartTotalSpan) cartTotalSpan.textContent = _t('cartTotal');
+            if (checkoutBtn) {
+                checkoutBtn.innerHTML = `<span class="material-symbols-outlined">task_alt</span> ${_t('checkoutBtn')}`;
+            }
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart flex flex-col items-center justify-center h-full text-slate-300">
+                        <span class="material-symbols-outlined" style="font-size:80px;margin-bottom:16px;">shopping_cart</span>
+                        <p class="font-bold text-lg text-slate-400">${_t('emptyCart')}</p>
+                        <p class="text-sm text-slate-400 mt-1">${_t('emptyCartHint')}</p>
+                    </div>`;
+                if (checkoutBtn) checkoutBtn.disabled = true;
+                return;
+            }
+
+            if (checkoutBtn) checkoutBtn.disabled = false;
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="cart-item" style="animation-delay:${idx * 0.05}s">
+                    <img src="${item.img || '../images/book1.jpg'}" class="w-14 h-[72px] object-cover rounded-xl shadow-sm flex-shrink-0" onerror="this.src='../images/book1.jpg'">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-slate-800 text-sm line-clamp-1">${item.title}</h4>
+                        <p class="text-[11px] text-slate-500 line-clamp-1">${item.author}</p>
+                        <span class="inline-block mt-1 text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-bold">${item.category || _t('general')}</span>
+                    </div>
+                    <button data-id="${item.id}" onclick="removeFromCart(this.dataset.id)" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0" title="${_t('deleteTitle')}">
+                        <span class="material-symbols-outlined text-[20px]">close</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function checkoutCart() {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            if (!user) {
+                showToast(_t('loginFirst'));
+                toggleCart();
+                setTimeout(() => openLogin(), 400);
+                return;
+            }
+
+            if (cart.length === 0) return;
+
+            const btn = document.getElementById('checkoutBtn');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> ${_t('sending')}`;
+            btn.disabled = true;
+
+            const lec_id = user.lecteurId || user.username;
+            const book_ids = cart.map(item => item.id);
+
+            fetch('/api/orders/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lec_id, book_ids })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const count = cart.length;
+                        cart = [];
+                        localStorage.setItem('libraryCart', '[]');
+                        updateCartBadge();
+                        toggleCart();
+                        showToast(`${_t('orderSuccess')} ${count} ${_t('booksSuccess')}`);
+                    } else {
+                        alert(_t('orderError') + (data.error || _t('orderFailed')));
+                    }
+                })
+                .catch(err => {
+                    console.error('Checkout error:', err);
+                    alert(_t('connectionError'));
+                })
+                .finally(() => {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                });
+        }
+
+        function closeModal() {
+            document.getElementById('bookModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleReserve() {
+            addToCart();
+        }
+
+        // Filter Logic
+        function filterByCategory(name) {
+            activeCategory = name;
+            document.getElementById('searchInput').value = '';
+            fetchBooks('', 0);
+            window.scrollTo({ top: document.getElementById('booksGrid').offsetTop - 150, behavior: 'smooth' });
+        }
+
+        function scrollCategories(val) {
+            document.getElementById('categoriesGrid').scrollBy({ left: val, behavior: 'smooth' });
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCategories();
+            fetchBooks('', 0);
+            updateCartBadge();
+
+            // Close dropdown when clicking outside
+            window.addEventListener('click', (e) => {
+                const wrap = document.querySelector('.filter-dropdown-wrap');
+                const dropdown = document.getElementById('filterDropdown');
+                const btn = document.getElementById('filterToggleBtn');
+                if (wrap && !wrap.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                    btn.classList.remove('filter-btn-active');
+                }
+            });
+
+            const searchInput = document.getElementById('searchInput');
+            let timer;
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        activeCategory = null;
+                        fetchBooks(e.target.value.trim(), 0);
+                    }, 400);
+                });
+            }
+
+            // Auth Logic
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            const authContainer = document.getElementById('auth-container');
+            const userProfileMenu = document.getElementById('user-profile-menu');
+            const userAvatar = document.getElementById('user-avatar');
+            const userDisplayName = document.getElementById('user-display-name');
+            const userDisplayEmail = document.getElementById('user-display-email');
+
+            if (user) {
+                if (authContainer) authContainer.classList.add('hidden');
+                if (userProfileMenu) userProfileMenu.classList.remove('hidden');
+                if (userAvatar) userAvatar.src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+                if (userDisplayName) userDisplayName.textContent = user.prenom + ' ' + user.nom;
+                if (userDisplayEmail) userDisplayEmail.textContent = user.email;
+            }
+
+            // Listen for language change events from i18n.js and re-render dynamic sections
+            document.addEventListener('i18nChanged', () => {
+                translateDynamicCatalogPage();
+            });
+            // Also run once on load
+            setTimeout(() => translateDynamicCatalogPage(), 500);
+        });
+
+        // Translate all dynamic page sections when language changes
+        function translateDynamicCatalogPage() {
+            // Document Title
+            document.title = _t('pageTitle');
+
+            // Search input placeholder
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.placeholder = _t('searchPlaceholder');
+
+            // Advanced search button next to search bar
+            const advSearchSpan = document.querySelector('.search-input-wrapper button span:not(.material-symbols-outlined)');
+            if (advSearchSpan) advSearchSpan.textContent = _t('advSearchBtn');
+
+            // Featured Categories heading
+            const featuredCatsH3 = document.querySelector('.max-w-7xl h3.text-slate-900');
+            if (featuredCatsH3) {
+                featuredCatsH3.innerHTML = `<span class="w-2 h-8 bg-primary rounded-full"></span> ${_t('featuredCategories')}`;
+            }
+
+            // Books count label
+            const countLabel = document.getElementById('booksCountLabel');
+            if (countLabel) countLabel.textContent = _t('booksAvailable');
+
+            // "All Books" heading
+            const allBooksH3 = document.querySelector('section .text-2xl.font-extrabold');
+            if (allBooksH3) allBooksH3.textContent = _t('allBooks');
+
+            // Load more button
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) loadMoreBtn.textContent = _t('loadMore');
+
+            // Advanced search modal headers
+            const advHeader = document.querySelector('#advancedSearchModal h2');
+            if (advHeader) advHeader.textContent = _t('advHeader');
+            const advSub = document.querySelector('#advancedSearchModal p.text-slate-500');
+            if (advSub) advSub.textContent = _t('advSub');
+
+            // Advanced search modal labels and placeholders
+            const advLabels = document.querySelectorAll('#advancedSearchModal .space-y-1 > label');
+            const advLabelKeys = ['advAuthor', 'advYear', 'advISBN', 'advLanguage', 'advCategory', 'advStatus', 'advKeywords'];
+            advLabels.forEach((label, i) => {
+                if (advLabelKeys[i]) label.textContent = _t(advLabelKeys[i]);
+            });
+
+            // Placeholders
+            const advAuthorEl = document.getElementById('advAuthor');
+            if (advAuthorEl) advAuthorEl.placeholder = _t('advAuthorPh');
+            const advYearEl = document.getElementById('advYear');
+            if (advYearEl) advYearEl.placeholder = _t('advYearPh');
+            const advISBNEl = document.getElementById('advISBN');
+            if (advISBNEl) advISBNEl.placeholder = _t('advISBNPh');
+            const advKeywordsEl = document.getElementById('advKeywords');
+            if (advKeywordsEl) advKeywordsEl.placeholder = _t('advKeywordsPh');
+
+            // Availability dropdown options
+            const advAvail = document.getElementById('advAvailability');
+            if (advAvail && advAvail.options.length >= 3) {
+                advAvail.options[0].textContent = _t('advAll');
+                advAvail.options[1].textContent = _t('advAvailable');
+                advAvail.options[2].textContent = _t('advUnavailable');
+            }
+
+            // Apply search button
+            const applyBtn = document.querySelector('#advancedSearchModal .login-btn');
+            if (applyBtn) applyBtn.textContent = _t('advApply');
+
+            // Re-render categories & books with new language
+            fetchCategories();
+            renderBooks();
+            renderCart();
+        }
+
+        function openLogin() {
+            const overlay = document.getElementById('loginOverlay');
+            if (overlay) overlay.classList.add('active');
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok && data.user) {
+                    localStorage.setItem('libraryUser', JSON.stringify(data.user));
+                    const overlay = document.getElementById('loginOverlay');
+                    if (overlay) overlay.classList.remove('active');
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('تعذر الاتصال بالخادم حالياً');
+            }
+        }
+    </script>
+
+    <!-- Login Modal -->
+    <div id="loginOverlay" class="login-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="login-modal">
+            <button class="close-btn" onclick="document.getElementById('loginOverlay').classList.remove('active')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-icon">
+                <span class="material-symbols-outlined" style="color:white;font-size:40px;">account_circle</span>
+            </div>
+            <h2>مرحباً بك مجدداً</h2>
+            <p class="subtitle">سجل دخولك للوصول إلى كافة خدمات المكتبة</p>
+            <div class="input-group">
+                <span class="material-symbols-outlined">person</span>
+                <input id="loginUsername" placeholder="اسم المستخدم أو البريد الإلكتروني" type="text" />
+            </div>
+            <div class="input-group">
+                <span class="material-symbols-outlined">lock</span>
+                <input id="loginPassword" placeholder="كلمة المرور" type="password" />
+            </div>
+            <button class="login-btn" onclick="handleLogin()">تسجيل الدخول</button>
+            <a class="forgot-link" href="#">نسيت كلمة المرور؟</a>
+            <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+                <p class="text-sm text-slate-500">ليس لديك حساب؟ <a href="../pages/g.html"
+                        class="text-primary font-bold hover:underline">سجل الآن</a></p>
+            </div>
+        </div>
+    </div>
+    <!-- Green End-of-Page Decoration -->
+    <div style="position:relative;margin-top:40px;">
+        <div style="height:3px;background:linear-gradient(90deg, transparent, #2E7D32, #4CAF50, #2E7D32, transparent);">
+        </div>
+        <div
+            style="padding:20px 0 16px;text-align:center;background:linear-gradient(180deg, rgba(46,125,50,0.03), transparent);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, transparent, #2E7D32);"></div>
+                <span class="material-symbols-outlined"
+                    style="color:#2E7D32;font-size:16px;opacity:0.6;">local_library</span>
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, #2E7D32, transparent);"></div>
+            </div>
+            <p style="font-size:11px;color:#94a3b8;margin:0;">© 2026 المكتبة الرئيسية للمطالعة العمومية لولاية بجاية.
+                genie systeme جميع الحقوق محفوظة.</p>
+        </div>
+    </div>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>

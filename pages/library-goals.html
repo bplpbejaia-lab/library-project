@@ -1,0 +1,874 @@
+﻿<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>أهداف ومهام المكتبة - المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2E7D32",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            overflow-x: hidden;
+            background-color: #f6f8f6;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 10;
+        }
+
+        .nav-item>a {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 260px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: top center;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 200;
+            margin-top: 12px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(50%) translateY(0);
+        }
+
+        .nav-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 4px;
+            transform: translateX(50%) rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1d1d1f;
+            font-size: 0.92rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.06);
+            color: #2E7D32;
+        }
+
+        .nav-dropdown-item .dropdown-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .nav-dropdown-item:hover .dropdown-icon {
+            transform: scale(1.08);
+        }
+
+        .nav-dropdown-item .dropdown-text {
+            flex: 1;
+        }
+
+        .nav-dropdown-item .dropdown-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-dropdown-item .dropdown-desc {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .nav-dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 4px 12px;
+        }
+
+        .goals-hero {
+            min-height: 520px;
+            padding-top: 160px;
+            padding-bottom: 80px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #1a5e1f;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(46, 125, 50, 0.4), rgba(16, 34, 22, 0.9)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.8;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            padding: 0 24px;
+        }
+
+        .mission-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 20px;
+            margin-top: -60px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .goal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(243, 244, 246, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .goal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 60px rgba(46, 125, 50, 0.08);
+            border-color: rgba(46, 125, 50, 0.1);
+        }
+
+        .goal-icon-box {
+            width: 56px;
+            height: 56px;
+            background: rgba(46, 125, 50, 0.08);
+            color: #2E7D32;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.6rem;
+        }
+
+        .goal-number {
+            font-family: 'Lexend', sans-serif;
+            font-weight: 800;
+            color: rgba(46, 125, 50, 0.15);
+            font-size: 2.4rem;
+            line-height: 1;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light">
+    <!-- Navbar -->
+    <header
+        class="absolute top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5 transition-all duration-300">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <!-- Logo Gauche -->
+                <div class="flex-shrink-0">
+                    <img alt="Logo Gauche" class="h-16 w-auto object-contain" src="../images/c.PNG" />
+                </div>
+                <!-- Center Menu -->
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">عن المكتبة <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="../pages/technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">خدمات <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(244,63,94,0.08);color:#f43f5e;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">feedback</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الشكاوى</div>
+                                    <div class="dropdown-desc">أرسل ملاحظاتك واقتراحاتك</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">النشاطات الثقافية <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/cultural-activities.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">celebration</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">برنامج النشاطات الثقافية</div>
+                                    <div class="dropdown-desc">الفعاليات والأنشطة القادمة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">child_care</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الأطفال</div>
+                                    <div class="dropdown-desc">أنشطة ترفيهية وتعليمية للصغار</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">menu_book</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">منتدى الكتاب</div>
+                                    <div class="dropdown-desc">مناقشات أدبية وثقافية</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">groups</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">المؤلفين المحليين</div>
+                                    <div class="dropdown-desc">بوابة الكتّاب والمؤلفين المحليين</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">اتصل بنا</a>
+                </nav>
+                <!-- Logo Droite -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <button
+                        class="hidden lg:flex items-center gap-1.5 text-slate-700 hover:text-primary px-3 py-2 text-[17px] font-semibold">
+                        <span class="material-symbols-outlined text-[22px]">translate</span>
+                        <span>العربية</span>
+                    </button>
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="document.getElementById('loginOverlay').classList.add('active')">تسجيل
+                            الدخول</button>
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-white bg-primary hover:opacity-90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                            onclick="window.location.href='/pages/g.html'">التسجيل</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="goals-hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="mission-badge">
+                    <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    <span>قيمنا ورسالتنا</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight">أهداف ومهام المكتبة الرئيسية
+                    للمطالعة العمومية</h1>
+                <p
+                    class="text-xl md:text-2xl text-white/90 font-medium leading-relaxed max-w-3xl mx-auto bg-black/10 backdrop-blur-sm p-6 rounded-3xl border border-white/10">
+                    نسعى لجعل المكتبة مركزاً حيوياً للمعرفة والثقافة، يخدم جميع أفراد المجتمع ويساهم في تطوير الوعي
+                    الثقافي والعلمي.
+                </p>
+            </div>
+        </section>
+
+        <section class="max-w-5xl mx-auto px-6 py-12 mb-24">
+            <div class="goals-grid">
+                <!-- Goal 1 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">library_books</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">وضع مختلف الأرصدة
+                            الوثائقية والخدمات المرتبطة بالمطالعة العمومية وجميع الخدمات الملحقة الأخرى تحت تصرف
+                            المستعملين.</p>
+                    </div>
+                    <span class="goal-number">01</span>
+                </div>
+                <!-- Goal 2 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">child_care</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">تخصيص فضاء للمطالعة
+                            العمومية يتكيف مع احتياجات الطفل.</p>
+                    </div>
+                    <span class="goal-number">02</span>
+                </div>
+                <!-- Goal 3 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">school</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">توفير فضاء للدراسات وتحضير
+                            الامتحانات.</p>
+                    </div>
+                    <span class="goal-number">03</span>
+                </div>
+                <!-- Goal 4 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">computer</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">تسهيل تطور الكفاءات
+                            القاعدية لاستعمال الإعلام الآلي.</p>
+                    </div>
+                    <span class="goal-number">04</span>
+                </div>
+                <!-- Goal 5 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">accessible</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">توفير الوسائل التي تسمح
+                            للأشخاص المعاقين بالوصول للمطالعة العمومية.</p>
+                    </div>
+                    <span class="goal-number">05</span>
+                </div>
+                <!-- Goal 6 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">festival</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">تنظيم أنشطة ثقافية حول
+                            الكتاب.</p>
+                    </div>
+                    <span class="goal-number">06</span>
+                </div>
+                <!-- Goal 7 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">public</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">إتاحة جميع مصادر المعلومات
+                            المتوفرة بها لجميع من يرغبون في الاطلاع عليها.</p>
+                    </div>
+                    <span class="goal-number">07</span>
+                </div>
+                <!-- Goal 8 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">search_insights</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">توفير إمكانيات وخدمات
+                            البحث الحر وذلك لمساعدة الفرد على توسيع معارفه ومكتسباته طبقا لاحتياجاته واهتماماته ورغباته
+                            وقدراته.</p>
+                    </div>
+                    <span class="goal-number">08</span>
+                </div>
+                <!-- Goal 9 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">auto_stories</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">المساعدة في تحقيق أهداف
+                            التربية المدرسية، وذلك لأن المكتبة تعمل على تعميق أفق الطالب وفهمه لموضوعاته الدراسية.</p>
+                    </div>
+                    <span class="goal-number">09</span>
+                </div>
+                <!-- Goal 10 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">volunteer_activism</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">تشجيع وتدعيم المقروئية لدى
+                            المواطنين عن طريق تقديم الخدمات والكتب التي ترضي مختلف الاحتياجات والأذواق.</p>
+                    </div>
+                    <span class="goal-number">10</span>
+                </div>
+                <!-- Goal 11 -->
+                <div class="goal-card">
+                    <div class="goal-icon-box"><span class="material-symbols-outlined">work</span></div>
+                    <div>
+                        <p class="text-[1.1rem] font-semibold text-slate-700 leading-relaxed">تزويد القراء بالمعلومات
+                            اللازمة لهم في تحديث أعمالهم في وظائفهم وبالمجتمع وفي إدارة شؤونهم العملية.</p>
+                    </div>
+                    <span class="goal-number">11</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- Login Modal -->
+    <div id="loginOverlay" class="login-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="login-modal">
+            <button class="close-btn" onclick="document.getElementById('loginOverlay').classList.remove('active')">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+            <div class="modal-icon">
+                <span class="material-symbols-outlined" style="font-size:2.2rem;color:white;">lock_open</span>
+            </div>
+            <h2>تسجيل الدخول</h2>
+            <p class="subtitle">مرحباً بعودتك! أدخل بياناتك للدخول إلى حسابك</p>
+            <div class="input-group">
+                <span class="material-symbols-outlined">person</span>
+                <input type="text" placeholder="اسم المستخدم أو البريد الإلكتروني" id="loginUsername" />
+            </div>
+            <div class="input-group">
+                <span class="material-symbols-outlined">lock</span>
+                <input type="password" placeholder="كلمة المرور" id="loginPassword" />
+            </div>
+            <button class="login-btn" onclick="handleLogin()">دخول</button>
+            <a href="#" class="forgot-link">نسيت كلمة المرور؟</a>
+            <div class="divider">أو</div>
+            <p class="register-link">ليس لديك حساب؟ <a href="../pages/g.html">سجّل الآن</a></p>
+        </div>
+    </div>
+
+    <style>
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .login-modal {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 30px;
+            position: relative;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .login-overlay.active .login-modal {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: #2E7D32;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.2);
+        }
+
+        .login-modal h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group span {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 48px 14px 16px;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-align: right;
+        }
+
+        .input-group input:focus {
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        }
+
+        .login-btn:hover {
+            background: #1B5E20;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+        }
+
+        .forgot-link {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 24px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .register-link {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .register-link a {
+            color: #2E7D32;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @keyframes profileDropdownShow {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .profile-dropdown-animate {
+            animation: profileDropdownShow 0.2s ease-out forwards;
+            transform-origin: top left;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            const authContainer = document.getElementById('auth-container');
+            const userProfileMenu = document.getElementById('user-profile-menu');
+            const profileTrigger = document.getElementById('profile-trigger');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            const userAvatar = document.getElementById('user-avatar');
+            const userDisplayName = document.getElementById('user-display-name');
+            const userDisplayEmail = document.getElementById('user-display-email');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user) {
+                authContainer.classList.add('hidden');
+                userProfileMenu.classList.remove('hidden');
+                userAvatar.src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+                userDisplayName.textContent = user.prenom + ' ' + user.nom;
+                userDisplayEmail.textContent = user.email;
+            }
+
+            profileTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = profileDropdown.classList.contains('hidden');
+                if (isHidden) {
+                    profileDropdown.classList.remove('hidden');
+                    profileDropdown.classList.add('profile-dropdown-animate');
+                } else {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('click', () => {
+                profileDropdown.classList.add('hidden');
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('libraryUser');
+                window.location.reload();
+            });
+        });
+
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem('libraryUsers') || '[]');
+            const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+            if (user) {
+                localStorage.setItem('libraryUser', JSON.stringify(user));
+                document.getElementById('loginOverlay').classList.remove('active');
+                window.location.reload();
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+            }
+        }
+    </script>
+    <div id="loginOverlay" class="login-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="login-modal">
+            <button class="close-btn" onclick="document.getElementById('loginOverlay').classList.remove('active')">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+            <div class="modal-icon">
+                <span class="material-symbols-outlined" style="font-size:2.2rem;color:white;">lock_open</span>
+            </div>
+            <h2>تسجيل الدخول</h2>
+            <p class="subtitle">مرحباً بعودتك! أدخل بياناتك للدخول إلى حسابك</p>
+            <div class="input-group">
+                <span class="material-symbols-outlined">person</span>
+                <input type="text" placeholder="اسم المستخدم أو البريد الإلكتروني" id="loginUsername" />
+            </div>
+            <div class="input-group">
+                <span class="material-symbols-outlined">lock</span>
+                <input type="password" placeholder="كلمة المرور" id="loginPassword" />
+            </div>
+            <button class="login-btn" onclick="handleLogin()">دخول</button>
+            <a href="#" class="forgot-link">نسيت كلمة المرور؟</a>
+            <div class="divider">أو</div>
+            <p class="register-link">ليس لديك حساب؟ <a href="../pages/g.html">سجّل الآن</a></p>
+        </div>
+    </div>
+    <!-- Green End-of-Page Decoration -->
+    <div style="position:relative;margin-top:40px;">
+        <div style="height:3px;background:linear-gradient(90deg, transparent, #2E7D32, #4CAF50, #2E7D32, transparent);">
+        </div>
+        <div
+            style="padding:20px 0 16px;text-align:center;background:linear-gradient(180deg, rgba(46,125,50,0.03), transparent);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, transparent, #2E7D32);"></div>
+                <span class="material-symbols-outlined"
+                    style="color:#2E7D32;font-size:16px;opacity:0.6;">local_library</span>
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, #2E7D32, transparent);"></div>
+            </div>
+            <p style="font-size:11px;color:#94a3b8;margin:0;">© 2026 المكتبة الرئيسية للمطالعة العمومية لولاية بجاية.
+                genie systeme جميع الحقوق محفوظة.</p>
+        </div>
+    </div>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>

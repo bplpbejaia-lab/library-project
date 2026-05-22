@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>برنامج النشاطات الثقافية - المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#2E7D32", "background-light": "#f6f8f6", "background-dark": "#102216" },
+                    fontFamily: { "display": ["Lexend", "Noto Sans Arabic", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            overflow-x: hidden;
+            background: #f6f8f6;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 10;
+        }
+
+        .nav-item>a {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 260px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 200;
+            margin-top: 12px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(50%) translateY(0);
+        }
+
+        .nav-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 50%;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 4px;
+            transform: translateX(50%) rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1d1d1f;
+            font-size: 0.92rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.06);
+            color: #2E7D32;
+        }
+
+        .nav-dropdown-item .dropdown-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .nav-dropdown-item:hover .dropdown-icon {
+            transform: scale(1.08);
+        }
+
+        .nav-dropdown-item .dropdown-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-dropdown-item .dropdown-desc {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .nav-dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 4px 12px;
+        }
+
+        /* Hero */
+        .activities-hero {
+            position: relative;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .activities-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.75));
+            z-index: 2;
+        }
+
+        .hero-slideshow {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            padding: 0 2rem;
+        }
+
+        /* Filter tabs */
+        .filter-tab {
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-tab:hover {
+            border-color: #2E7D32;
+            color: #2E7D32;
+        }
+
+        .filter-tab.active {
+            background: #2E7D32;
+            color: white;
+            border-color: #2E7D32;
+            box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3);
+        }
+
+        /* Event cards */
+        .event-card-full {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .event-card-full:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(46, 125, 50, 0.12);
+            border-color: rgba(46, 125, 50, 0.2);
+        }
+
+        .event-card-full:hover .card-img img {
+            transform: scale(1.08);
+        }
+
+        .card-img {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .badge-upcoming {
+            background: rgba(46, 125, 50, 0.9);
+            color: white;
+        }
+
+        .badge-free {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+        }
+
+        .badge-new {
+            background: rgba(139, 92, 246, 0.9);
+            color: white;
+        }
+
+        .badge-active {
+            background: rgba(14, 165, 233, 0.9);
+            color: white;
+        }
+
+        .badge-exclusive {
+            background: rgba(244, 63, 94, 0.9);
+            color: white;
+        }
+
+        /* Modal */
+        .event-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .event-modal-overlay.active {
+            display: flex;
+            animation: fadeInM 0.3s ease;
+        }
+
+        .event-modal {
+            background: white;
+            border-radius: 32px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.25);
+            animation: slideUpM 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            padding: 0;
+            flex: 1;
+        }
+
+        @keyframes fadeInM {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes slideUpM {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .modal-hero-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-item {
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        /* Cuter Search bar */
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto 40px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 28px 20px 64px;
+            border-radius: 40px;
+            border: 3px solid transparent;
+            background: white;
+            font-size: 1.1rem;
+            font-family: inherit;
+            font-weight: 500;
+            color: #1e293b;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(46, 125, 50, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            text-align: right;
+            direction: rtl;
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 15px 40px rgba(46, 125, 50, 0.2), 0 0 0 8px rgba(46, 125, 50, 0.05);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #2E7D32;
+            font-size: 28px;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus~.search-icon {
+            transform: translateY(-50%) scale(1.2) rotate(10deg);
+        }
+
+        /* Calendar Styles */
+        .calendar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calendar-overlay.active {
+            display: flex;
+            animation: fadeInCal 0.5s ease;
+        }
+
+        @keyframes fadeInCal {
+            from {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .calendar-card {
+            background: white;
+            border-radius: 40px;
+            width: 100%;
+            max-width: 1000px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(46, 125, 50, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            padding: 40px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-btn-fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(46, 125, 50, 0.4);
+            cursor: pointer;
+            z-index: 500;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid white;
+        }
+
+        .calendar-btn-fab:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 20px 45px rgba(46, 125, 50, 0.5);
+        }
+
+        .calendar-btn-fab span {
+            font-size: 40px;
+        }
+
+        .calendar-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+        }
+
+        .calendar-day-head {
+            text-align: center;
+            font-weight: 800;
+            color: #2E7D32;
+            padding: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            background: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            border-color: #2E7D32;
+            transform: scale(1.05);
+        }
+
+        .calendar-day.today {
+            background: #e8f5e9;
+            border: 2px solid #2E7D32;
+        }
+
+        .calendar-day .day-num {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+
+        .calendar-day.active-day .day-num {
+            color: #2E7D32;
+        }
+
+        .event-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-dot.literary {
+            background: #2E7D32;
+        }
+
+        .event-dot.workshop {
+            background: #8b5cf6;
+        }
+
+        .event-dot.children {
+            background: #f59e0b;
+        }
+
+        .event-dot.exhibition {
+            background: #ec4899;
+        }
+
+        .event-dot.conference {
+            background: #0ea5e9;
+        }
+
+        .calendar-month-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-btn-cal {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn-cal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            display: none;
+            padding: 4px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .search-clear:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .search-clear.visible {
+            display: flex;
+        }
+
+        .search-results-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .no-results .material-symbols-outlined {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        /* Scroll reveals */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-100 {
+            transition-delay: 0.1s;
+        }
+
+        .delay-200 {
+            transition-delay: 0.2s;
+        }
+
+        .delay-300 {
+            transition-delay: 0.3s;
+        }
+
+        /* Login Modal */
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .login-modal {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 30px;
+            position: relative;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .login-overlay.active .login-modal {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f8fafc;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: #2E7D32;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.2);
+        }
+
+        .login-modal h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group span {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 48px 14px 16px;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-align: right;
+        }
+
+        .input-group input:focus {
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        }
+
+        .login-btn:hover {
+            background: #1B5E20;
+            transform: translateY(-2px);
+        }
+
+        .forgot-link {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 24px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .register-link {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .register-link a {
+            color: #2E7D32;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @keyframes profileDropdownShow {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .profile-dropdown-animate {
+            animation: profileDropdownShow 0.2s ease-out forwards;
+            transform-origin: top left;
+        }
+
+        /* Lightbox */
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-overlay.active {
+            display: flex;
+        }
+
+        .lightbox-overlay img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+    <style>
+        .admin-trigger { position:fixed; bottom:10px; left:10px; width:28px; height:28px; border-radius:50%; background:rgba(0,0,0,0.3); color:white; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:800; border:none; font-size:12px; opacity:0.4; transition:opacity 0.2s; }
+        .admin-trigger:hover { opacity:1; }
+        .admin-tag { position:fixed; top:80px; left:14px; background:linear-gradient(135deg,#2E7D32,#4CAF50); color:white; padding:5px 12px; border-radius:50px; font-weight:700; font-size:0.7rem; z-index:850; box-shadow:0 4px 12px rgba(46,125,50,0.3); display:none; }
+        .admin-tag.visible { display:block; }
+        .admin-fab { position:fixed; bottom:130px; left:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#2E7D32,#4CAF50); color:white; display:none; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(46,125,50,0.4); cursor:pointer; z-index:900; border:none; transition:all 0.3s; }
+        .admin-fab.visible { display:flex; }
+        .admin-fab:hover { transform:scale(1.1); }
+        .admin-add-event-btn { position:fixed; bottom:200px; left:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#fbbf24); color:white; display:none; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(245,158,11,0.4); cursor:pointer; z-index:900; border:none; transition:all 0.3s; font-size:0.7rem; font-weight:800; flex-direction:column; gap:2px; }
+        .admin-add-event-btn.visible { display:flex; }
+        .admin-add-event-btn:hover { transform:scale(1.1); }
+        body.admin-active .event-card-full { position:relative; }
+        .admin-card-btns { position:absolute; top:8px; left:8px; display:flex; gap:6px; z-index:10; }
+        .admin-cbtn { width:32px; height:32px; border-radius:8px; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px; opacity:0.9; transition:all 0.2s; }
+        .admin-cbtn.edit { background:#2E7D32; color:white; }
+        .admin-cbtn.del { background:#ef4444; color:white; }
+        .admin-cbtn:hover { opacity:1; transform:scale(1.1); }
+        .admin-img-btn { position:absolute; top:8px; left:8px; width:36px; height:36px; border-radius:50%; background:rgba(46,125,50,0.9); color:white; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5; opacity:0.8; transition:all 0.2s; }
+        .admin-img-btn:hover { opacity:1; transform:scale(1.1); }
+        .admin-video-btn { position:absolute; bottom:8px; left:8px; background:rgba(46,125,50,0.9); color:white; border:none; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:700; cursor:pointer; z-index:5; opacity:0.8; transition:all 0.2s; }
+        .admin-video-btn:hover { opacity:1; }
+        .admin-stat { position:relative; cursor:pointer; border-radius:8px; transition:all 0.2s; }
+        .admin-stat:hover { background:rgba(46,125,50,0.1); box-shadow:0 0 0 2px #2E7D32; }
+        .admin-inline-input { width:100%; padding:6px 10px; border:2px solid #2E7D32; border-radius:8px; font-family:inherit; font-size:inherit; font-weight:inherit; color:inherit; background:white; outline:none; }
+        .admin-inline-textarea { width:100%; padding:6px 10px; border:2px solid #2E7D32; border-radius:8px; font-family:inherit; font-size:inherit; color:inherit; background:white; outline:none; resize:vertical; min-height:60px; }
+        body.admin-active .hero-content h1:hover,
+        body.admin-active .hero-content p:hover { text-decoration:underline; text-decoration-color:#4CAF50; text-decoration-thickness:3px; cursor:pointer; }
+        body.admin-active .gallery-item { position:relative; }
+        body.admin-active .grid.grid-cols-1.md\:grid-cols-2.gap-8.scroll-reveal > div { position:relative; }
+    </style>
+</head>
+
+<body class="bg-background-light">
+    <!-- Navbar -->
+    <header
+        class="absolute top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5 transition-all duration-300">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <div class="flex-shrink-0"><img alt="Logo" class="h-16 w-auto object-contain" src="../images/c.PNG" />
+                </div>
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">عن المكتبة <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">خدمات <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(244,63,94,0.08);color:#f43f5e;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">feedback</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الشكاوى</div>
+                                    <div class="dropdown-desc">أرسل ملاحظاتك واقتراحاتك</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-bold text-primary transition-colors" href="#">النشاطات الثقافية <span
+                                class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="cultural-activities.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">celebration</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">برنامج النشاطات الثقافية</div>
+                                    <div class="dropdown-desc">الفعاليات والأنشطة القادمة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">child_care</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الأطفال</div>
+                                    <div class="dropdown-desc">أنشطة ترفيهية وتعليمية للصغار</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">menu_book</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">منتدى الكتاب</div>
+                                    <div class="dropdown-desc">مناقشات أدبية وثقافية</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">groups</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">المؤلفين المحليين</div>
+                                    <div class="dropdown-desc">بوابة الكتّاب والمؤلفين المحليين</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">اتصل بنا</a>
+                </nav>
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="document.getElementById('loginOverlay').classList.add('active')">تسجيل
+                            الدخول</button>
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-white bg-primary hover:opacity-90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                            onclick="window.location.href='g.html'">التسجيل</button>
+                    </div>
+                    <div id="user-profile-menu" class="hidden relative">
+                        <button id="profile-trigger"
+                            class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                            <img id="user-avatar" src="" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                            <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                        </button>
+                        <div id="profile-dropdown"
+                            class="hidden absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p id="user-display-name" class="text-sm font-bold text-slate-900"></p>
+                                <p id="user-display-email" class="text-xs text-slate-500"></p>
+                            </div>
+                            <div class="py-2">
+                                <a href="profile.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"><span
+                                        class="material-symbols-outlined text-[20px]">person</span> حسابي</a>
+                                <a href="orders-history.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"><span
+                                        class="material-symbols-outlined text-[20px]">history</span> سجل الإعارة</a>
+                            </div>
+                            <div class="border-t border-slate-100 pt-2 pb-1"><button id="logout-btn"
+                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 transition-colors"><span
+                                        class="material-symbols-outlined text-[20px]">logout</span> تسجيل
+                                    الخروج</button></div>
+                        </div>
+                    </div>
+                    <img alt="Ministry Logo" class="h-16 w-auto object-contain" src="../images/image.png" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="activities-hero">
+        <div class="hero-slideshow">
+            <div class="hero-slide active" style="background-image: url('../images/cultural_hero.png')"></div>
+            <div class="hero-slide" style="background-image: url('../images/library_entrance_clean.png')"></div>
+            <div class="hero-slide" style="background-image: url('../images/book_exhibition.png')"></div>
+        </div>
+        <div class="hero-content">
+            <div
+                class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/30">
+                <span class="material-symbols-outlined text-4xl text-white">celebration</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4">برنامج النشاطات الثقافية</h1>
+            <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto font-medium mb-6">اكتشف الفعاليات والأنشطة
+                الثقافية القادمة في المكتبة الرئيسية لولاية بجاية</p>
+            <div class="flex items-center justify-center gap-6 text-white/80 text-sm flex-wrap">
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">event</span> 10+
+                    فعاليات قادمة</span>
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">groups</span>
+                    مفتوحة للجميع</span>
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">location_on</span>
+                    بجاية، الجزائر</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats bar -->
+    <section class="relative z-30 -mt-12 max-w-5xl mx-auto px-4">
+        <div class="bg-white rounded-2xl shadow-xl p-6 grid grid-cols-2 md:grid-cols-4 gap-6 border border-slate-100">
+            <div class="text-center">
+                <div class="text-3xl font-extrabold text-primary">10</div>
+                <div class="text-slate-500 text-sm font-medium mt-1">فعالية مبرمجة</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-extrabold text-primary">4</div>
+                <div class="text-slate-500 text-sm font-medium mt-1">ورشات عمل</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-extrabold text-primary">3</div>
+                <div class="text-slate-500 text-sm font-medium mt-1">معارض كتب</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-extrabold text-primary">∞</div>
+                <div class="text-slate-500 text-sm font-medium mt-1">مقاعد مجانية</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter + Events -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center mb-10 scroll-reveal">
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <div class="w-16 h-[2px] bg-gradient-to-l from-primary to-primary/30 rounded"></div>
+                <span class="material-symbols-outlined text-primary text-2xl">event_note</span>
+                <div class="w-16 h-[2px] bg-gradient-to-r from-primary to-primary/30 rounded"></div>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">الفعاليات والأنشطة</h2>
+            <p class="text-slate-500 max-w-xl mx-auto">تعرّف على جميع الفعاليات الثقافية والتعليمية القادمة في مكتبتنا
+            </p>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="flex flex-wrap justify-center gap-3 mb-12 scroll-reveal" id="filterTabs">
+            <button class="filter-tab active" data-filter="all">الكل</button>
+            <button class="filter-tab" data-filter="literary">أدبي</button>
+            <button class="filter-tab" data-filter="workshop">ورشات</button>
+            <button class="filter-tab" data-filter="exhibition">معارض</button>
+            <button class="filter-tab" data-filter="children">أطفال</button>
+            <button class="filter-tab" data-filter="conference">محاضرات</button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container scroll-reveal">
+            <input type="text" id="searchInput" class="search-input"
+                placeholder="ابحث عن فعالية... (العنوان، التصنيف، المكان)">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+        </div>
+        <div id="searchResultsInfo" class="search-results-info" style="display:none;"></div>
+
+        <!-- Events Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="eventsGrid">
+        </div>
+    </section>
+
+    <!-- Photo Gallery -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 scroll-reveal">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="w-16 h-[2px] bg-gradient-to-l from-primary to-primary/30 rounded"></div>
+                    <span class="material-symbols-outlined text-primary text-2xl">photo_library</span>
+                    <div class="w-16 h-[2px] bg-gradient-to-r from-primary to-primary/30 rounded"></div>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">معرض الصور</h2>
+                <p class="text-slate-500 max-w-xl mx-auto">لحظات مميزة من فعالياتنا السابقة</p>
+            </div>
+            <div class="gallery-grid scroll-reveal">
+                <div class="gallery-item" onclick="openLightbox(this)"><img src="../images/cultural_hero.png"
+                        alt="Gallery 1"></div>
+                <div class="gallery-item" onclick="openLightbox(this)"><img src="../images/calligraphy_workshop.png"
+                        alt="Gallery 2"></div>
+                <div class="gallery-item" onclick="openLightbox(this)"><img src="../images/children_reading.png"
+                        alt="Gallery 3"></div>
+                <div class="gallery-item" onclick="openLightbox(this)"><img src="../images/book_exhibition.png"
+                        alt="Gallery 4"></div>
+                <div class="gallery-item" onclick="openLightbox(this)"><img src="../images/event1.png" alt="Gallery 5">
+                </div>
+                <div class="gallery-item" onclick="openLightbox(this)"><img src="../images/event2.png" alt="Gallery 6">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12 scroll-reveal">
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <div class="w-16 h-[2px] bg-gradient-to-l from-primary to-primary/30 rounded"></div>
+                <span class="material-symbols-outlined text-primary text-2xl">smart_display</span>
+                <div class="w-16 h-[2px] bg-gradient-to-r from-primary to-primary/30 rounded"></div>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">فيديوهات الفعاليات</h2>
+            <p class="text-slate-500 max-w-xl mx-auto">شاهد أبرز اللحظات من فعالياتنا الثقافية</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 scroll-reveal">
+            <div
+                class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100 group hover:shadow-xl transition-all">
+                <div class="aspect-video bg-slate-900 flex items-center justify-center relative cursor-pointer"
+                    onclick="this.innerHTML='<iframe src=\'https://www.youtube.com/embed/8c399HPb01s?autoplay=1\' class=\'w-full h-full\' frameborder=\'0\' allow=\'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\' allowfullscreen></iframe>'">
+                    <img src="https://img.youtube.com/vi/8c399HPb01s/maxresdefault.jpg" alt="Video thumbnail"
+                        class="absolute inset-0 w-full h-full object-cover opacity-80"
+                        onerror="this.src='../images/event3.png'">
+                    <div
+                        class="relative z-10 w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl">
+                        <span class="material-symbols-outlined text-white text-4xl"
+                            style="margin-right:-4px;">play_arrow</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">عرض تعريفي للنشاطات الثقافية</h3>
+                    <p class="text-slate-500 text-sm">شاهد الفيديو التعريفي لأبرز النشاطات والفعاليات الثقافية في
+                        مكتبتنا</p>
+                </div>
+            </div>
+            <div
+                class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100 group hover:shadow-xl transition-all">
+                <div class="aspect-video bg-slate-900 flex items-center justify-center relative cursor-pointer"
+                    onclick="this.innerHTML='<iframe src=\'https://www.youtube.com/embed/8c399HPb01s?autoplay=1\' class=\'w-full h-full\' frameborder=\'0\' allow=\'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\' allowfullscreen></iframe>'">
+                    <img src="https://img.youtube.com/vi/8c399HPb01s/maxresdefault.jpg" alt="Video thumbnail"
+                        class="absolute inset-0 w-full h-full object-cover opacity-80"
+                        onerror="this.src='../images/event4.png'">
+                    <div
+                        class="relative z-10 w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl">
+                        <span class="material-symbols-outlined text-white text-4xl"
+                            style="margin-right:-4px;">play_arrow</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-bold text-lg text-slate-900 mb-2">تغطية خاصة متميزة</h3>
+                    <p class="text-slate-500 text-sm">فيديو تعريفي للخدمات والأنشطة المقدمة داخل الفضاء الثقافي</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Green End-of-Page Decoration (same as technical-card) -->
+    <div style="position:relative;margin-top:40px;">
+        <div style="height:3px;background:linear-gradient(90deg, transparent, #2E7D32, #4CAF50, #2E7D32, transparent);">
+        </div>
+        <div
+            style="padding:20px 0 16px;text-align:center;background:linear-gradient(180deg, rgba(46,125,50,0.03), transparent);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, transparent, #2E7D32);"></div>
+                <span class="material-symbols-outlined"
+                    style="color:#2E7D32;font-size:16px;opacity:0.6;">local_library</span>
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, #2E7D32, transparent);"></div>
+            </div>
+            <p style="font-size:11px;color:#94a3b8;margin:0;">© 2026 المكتبة الرئيسية للمطالعة العمومية لولاية بجاية.
+                جميع الحقوق محفوظة.</p>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox-overlay" onclick="this.classList.remove('active')">
+        <img id="lightboxImg" src="" alt="Enlarged photo">
+    </div>
+
+    <!-- Calendar Button -->
+    <div class="calendar-btn-fab" onclick="openCalendar()">
+        <span class="material-symbols-outlined hover-bounce">calendar_month</span>
+    </div>
+
+    <!-- Calendar Overlay -->
+    <div id="calendarOverlay" class="calendar-overlay" onclick="if(event.target===this)closeCalendar()">
+        <div class="calendar-card">
+            <div class="calendar-header">
+                <div>
+                    <h2 class="text-3xl font-extrabold mb-1">تقويم النشاطات</h2>
+                    <p class="text-white/80" id="calendarMonthYear"></p>
+                </div>
+                <div class="calendar-month-nav">
+                    <div class="nav-btn-cal" onclick="changeMonth(1)"><span
+                            class="material-symbols-outlined">chevron_right</span></div>
+                    <div class="nav-btn-cal" onclick="changeMonth(-1)"><span
+                            class="material-symbols-outlined">chevron_left</span></div>
+                    <div class="nav-btn-cal" onclick="closeCalendar()"><span
+                            class="material-symbols-outlined">close</span></div>
+                </div>
+            </div>
+            <div class="calendar-body">
+                <div class="calendar-grid">
+                    <div class="calendar-day-head">الأحد</div>
+                    <div class="calendar-day-head">الاثنين</div>
+                    <div class="calendar-day-head">الثلاثاء</div>
+                    <div class="calendar-day-head">الأربعاء</div>
+                    <div class="calendar-day-head">الخميس</div>
+                    <div class="calendar-day-head">الجمعة</div>
+                    <div class="calendar-day-head">السبت</div>
+                </div>
+                <div id="calendarDaysGrid" class="calendar-grid mt-4">
+                    <!-- Days injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginOverlay" class="login-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="login-modal">
+            <button class="close-btn" onclick="document.getElementById('loginOverlay').classList.remove('active')"><span
+                    class="material-symbols-outlined" style="font-size:20px;">close</span></button>
+            <div class="modal-icon"><span class="material-symbols-outlined"
+                    style="font-size:2.2rem;color:white;">lock_open</span></div>
+            <h2>تسجيل الدخول</h2>
+            <p class="subtitle">مرحباً بعودتك! أدخل بياناتك للدخول إلى حسابك</p>
+            <div class="input-group"><span class="material-symbols-outlined">person</span><input type="text"
+                    placeholder="اسم المستخدم أو البريد الإلكتروني" id="loginUsername" /></div>
+            <div class="input-group"><span class="material-symbols-outlined">lock</span><input type="password"
+                    placeholder="كلمة المرور" id="loginPassword" /></div>
+            <button class="login-btn" onclick="handleLogin()">دخول</button>
+            <a href="#" class="forgot-link">نسيت كلمة المرور؟</a>
+            <div class="divider">أو</div>
+            <p class="register-link">ليس لديك حساب؟ <a href="../pages/g.html">سجّل الآن</a></p>
+        </div>
+    </div>
+
+    <script src="../js/events-data.js"></script>
+    <script>
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Calendar Logic
+        let calDate = new Date();
+
+        function openCalendar() {
+            document.getElementById('calendarOverlay').classList.add('active');
+            renderCalendar();
+        }
+
+        function closeCalendar() {
+            document.getElementById('calendarOverlay').classList.remove('active');
+        }
+
+        function changeMonth(delta) {
+            calDate.setMonth(calDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarDaysGrid');
+            const monthTitle = document.getElementById('calendarMonthYear');
+            grid.innerHTML = '';
+
+            const monthNames = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            monthTitle.textContent = `${monthNames[calDate.getMonth()]} ${calDate.getFullYear()}`;
+
+            const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0).getDate();
+
+            // Padding days
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += '<div class="calendar-day opacity-0 pointer-events-none"></div>';
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${calDate.getFullYear()}-${String(calDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const dayEvents = events.filter(e => e.sortDate === dateStr);
+
+                let eventHtml = '';
+                if (dayEvents.length > 0) {
+                    eventHtml = `<div class="event-dot ${dayEvents[0].category}" title="${dayEvents.map(e => e.title).join(', ')}">${dayEvents.length}</div>`;
+                }
+
+                const isToday = new Date().toDateString() === new Date(calDate.getFullYear(), calDate.getMonth(), d).toDateString();
+
+                grid.innerHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${dayEvents.length > 0 ? 'active-day' : ''}" 
+                         onclick="${dayEvents.length > 0 ? `showEventById(${dayEvents[0].id})` : ''}">
+                        <span class="day-num">${d}</span>
+                        ${eventHtml}
+                    </div>
+                `;
+            }
+        }
+
+        function showEventById(id) {
+            window.location.href = `event-details.html?id=${id}`;
+        }
+
+        // Search input handler
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            currentSearch = e.target.value.trim();
+            const clearBtn = document.getElementById('searchClear');
+            if (currentSearch.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+            renderEvents(currentFilter, currentSearch);
+        });
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            document.getElementById('searchClear').classList.remove('visible');
+            renderEvents(currentFilter, currentSearch);
+        }
+
+        // Render events (sorted newest first + search)
+        function renderEvents(filter = 'all', searchQuery = '') {
+            const grid = document.getElementById('eventsGrid');
+            const infoEl = document.getElementById('searchResultsInfo');
+
+            // Filter by category
+            let filtered = filter === 'all' ? [...events] : events.filter(e => e.category === filter);
+
+            // Filter by search query
+            if (searchQuery.length > 0) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(e =>
+                    e.title.toLowerCase().includes(q) ||
+                    e.desc.toLowerCase().includes(q) ||
+                    e.date.toLowerCase().includes(q) ||
+                    e.location.toLowerCase().includes(q) ||
+                    e.tags.some(t => t.toLowerCase().includes(q)) ||
+                    e.badge.toLowerCase().includes(q)
+                );
+            }
+
+            // Sort newest first by sortDate (descending)
+            filtered.sort((a, b) => {
+                const da = a.sortDate ? new Date(a.sortDate) : new Date(0);
+                const db = b.sortDate ? new Date(b.sortDate) : new Date(0);
+                return db - da;
+            });
+
+            // Show search results info
+            if (searchQuery.length > 0) {
+                infoEl.style.display = 'block';
+                infoEl.textContent = `تم العثور على ${filtered.length} نتيجة للبحث: "${searchQuery}"`;
+            } else {
+                infoEl.style.display = 'none';
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results" style="grid-column: 1 / -1;">
+                        <span class="material-symbols-outlined">search_off</span>
+                        <h3 style="font-size:1.3rem;font-weight:700;color:#64748b;margin-bottom:8px;">لا توجد نتائج</h3>
+                        <p style="color:#94a3b8;">لم يتم العثور على فعاليات تطابق بحثك. جرّب كلمات مختلفة.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map((e, i) => `
+        <div class="event-card-full scroll-reveal delay-${(i % 3 + 1) * 100}" data-category="${e.category}" onclick="openEventModal(${e.id})">
+            <div class="card-img">
+                <img src="${e.img}" alt="${e.title}">
+                <span class="card-badge ${e.badgeClass}">${e.badge}</span>
+            </div>
+            <div class="p-6">
+                <h3 class="font-extrabold text-lg text-slate-900 mb-3 leading-snug">${e.title}</h3>
+                <div class="flex items-center gap-2 text-slate-400 text-sm mb-2"><span class="material-symbols-outlined text-base">calendar_today</span>${e.date}</div>
+                <div class="flex items-center gap-2 text-slate-400 text-sm mb-2"><span class="material-symbols-outlined text-base">schedule</span>${e.time}</div>
+                <div class="flex items-center gap-2 text-slate-400 text-sm mb-4"><span class="material-symbols-outlined text-base">location_on</span>${e.location}</div>
+                <div class="flex flex-wrap gap-2">${e.tags.slice(0, 3).map(t => `<span class="px-3 py-1 bg-primary/5 text-primary text-xs font-bold rounded-full">${t}</span>`).join('')}</div>
+            </div>
+        </div>
+    `).join('');
+            // Re-init scroll reveals
+            initScrollReveal();
+        }
+
+        // Filter tabs
+        document.getElementById('filterTabs').addEventListener('click', e => {
+            if (!e.target.classList.contains('filter-tab')) return;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.dataset.filter;
+            renderEvents(currentFilter, currentSearch);
+        });
+
+        // Open Event Full Page
+        function openEventModal(id) {
+            window.location.href = `event-details.html?id=${id}`;
+        }
+
+        function closeModal() {
+            // No longer needed as we use a full page
+        }
+
+        // Lightbox
+        function openLightbox(el) {
+            document.getElementById('lightboxImg').src = el.querySelector('img').src;
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        // Scroll reveal
+        function initScrollReveal() {
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                const obs = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('revealed'); }); }, { threshold: 0.1 });
+                obs.observe(el);
+            });
+        }
+
+        // Auth
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEvents();
+
+            // Hero Slideshow Logic
+            const slides = document.querySelectorAll('.hero-slide');
+            let currentSlide = 0;
+
+            function nextSlide() {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }
+
+            setInterval(nextSlide, 5000); // Change slide every 5 seconds
+
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            if (user) {
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('user-profile-menu').classList.remove('hidden');
+                document.getElementById('user-avatar').src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+                document.getElementById('user-display-name').textContent = user.prenom + ' ' + user.nom;
+                document.getElementById('user-display-email').textContent = user.email;
+            }
+            document.getElementById('profile-trigger').addEventListener('click', e => { e.stopPropagation(); document.getElementById('profile-dropdown').classList.toggle('hidden'); });
+            document.addEventListener('click', () => document.getElementById('profile-dropdown').classList.add('hidden'));
+            document.getElementById('logout-btn').addEventListener('click', () => { localStorage.removeItem('libraryUser'); location.reload(); });
+        });
+
+        async function handleLogin() {
+            const u = document.getElementById('loginUsername').value.trim(), p = document.getElementById('loginPassword').value;
+            if (!u || !p) { alert('يرجى إدخال اسم المستخدم وكلمة المرور'); return; }
+            try { const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) }); const d = await r.json(); if (r.ok && d.user) { localStorage.setItem('libraryUser', JSON.stringify(d.user)); document.getElementById('loginOverlay').classList.remove('active'); location.reload(); } else { alert(d.error || 'بيانات خاطئة'); } } catch (e) { alert('تعذر الاتصال'); }
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('loginOverlay').classList.remove('active'); closeModal(); document.getElementById('lightbox').classList.remove('active'); } });
+        // Expose variables for admin-cultural.js
+        window.currentFilter = currentFilter;
+        window.currentSearch = currentSearch;
+    </script>
+    <script src="/js/mobile-menu.js"></script>
+    <script src="/js/admin-cultural.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>تفاصيل الفعالية - المكتبة الرئيسية للمطالعة العمومية ببجاية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="/css/responsive.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-light: #4CAF50;
+            --primary-dark: #1B5E20;
+            --background: #f8fafc;
+        }
+
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            background-color: var(--background);
+            overflow-x: hidden;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 10;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 260px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 200;
+            margin-top: 12px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(50%) translateY(0);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1d1d1f;
+            transition: all 0.2s;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.06);
+            color: #2E7D32;
+        }
+
+        .dropdown-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-desc {
+            font-size: 0.75rem;
+            color: #86868b;
+        }
+
+        .nav-dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 4px 12px;
+        }
+
+        .event-hero {
+            position: relative;
+            height: 60vh;
+            min-height: 400px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 4rem;
+        }
+
+        .event-hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+        }
+
+        .event-hero-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+            z-index: 0;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .bg-primary {
+            background-color: var(--primary);
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        .sticky-sidebar {
+            position: sticky;
+            top: 100px;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(46, 125, 50, 0.25);
+        }
+
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(46, 125, 50, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .video-play-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            transition: background 0.3s;
+        }
+
+        .video-play-overlay:hover::before {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .video-play-btn {
+            position: relative;
+            z-index: 3;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(46, 125, 50, 0.4);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .video-play-overlay:hover .video-play-btn {
+            transform: scale(1.12);
+            box-shadow: 0 16px 50px rgba(46, 125, 50, 0.5);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <!-- Navbar -->
+    <header
+        class="fixed top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <div class="flex-shrink-0"><a href="../"><img alt="Logo" class="h-16 w-auto object-contain"
+                            src="../images/c.PNG" /></a></div>
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">عن المكتبة <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">خدمات <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(244,63,94,0.08);color:#f43f5e;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">feedback</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الشكاوى</div>
+                                    <div class="dropdown-desc">أرسل ملاحظاتك واقتراحاتك</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">النشاطات الثقافية <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="cultural-activities.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">celebration</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">برنامج النشاطات الثقافية</div>
+                                    <div class="dropdown-desc">الفعاليات والأنشطة القادمة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">child_care</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الأطفال</div>
+                                    <div class="dropdown-desc">أنشطة ترفيهية وتعليمية للصغار</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">menu_book</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">منتدى الكتاب</div>
+                                    <div class="dropdown-desc">مناقشات أدبية وثقافية</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">groups</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">المؤلفين المحليين</div>
+                                    <div class="dropdown-desc">بوابة الكتّاب والمؤلفين المحليين</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">اتصل بنا</a>
+                </nav>
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="history.back()">العودة</button>
+                    </div>
+                    <div id="user-profile-menu" class="hidden relative">
+                        <button id="profile-trigger"
+                            class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                            <img id="user-avatar" src="" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                            <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                        </button>
+                        <div id="profile-dropdown"
+                            class="hidden absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100]">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p id="user-display-name" class="text-sm font-bold text-slate-900"></p>
+                                <p id="user-display-email" class="text-xs text-slate-500"></p>
+                            </div>
+                            <div class="py-2">
+                                <a href="profile.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"><span
+                                        class="material-symbols-outlined text-[20px]">person</span> حسابي</a>
+                                <a href="orders-history.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"><span
+                                        class="material-symbols-outlined text-[20px]">history</span> سجل الإعارة</a>
+                            </div>
+                            <div class="border-t border-slate-100 pt-2 pb-1">
+                                <button id="logout-btn"
+                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 transition-colors"><span
+                                        class="material-symbols-outlined text-[20px]">logout</span> تسجيل
+                                    الخروج</button>
+                            </div>
+                        </div>
+                    </div>
+                    <img alt="Ministry Logo" class="h-16 w-auto object-contain" src="../images/image.png" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-20">
+        <!-- Hero Section -->
+        <section class="event-hero">
+            <div class="event-hero-bg">
+                <img id="eventHeroImg" src="" alt="Event Hero">
+            </div>
+            <div class="event-hero-overlay"></div>
+            <div class="max-w-7xl mx-auto px-6 w-full relative z-10">
+                <div class="flex flex-col gap-4 max-w-3xl">
+                    <span id="eventCategoryBadge"
+                        class="inline-block px-4 py-1.5 bg-primary/90 backdrop-blur-md text-white text-xs font-bold rounded-full w-fit uppercase tracking-widest">
+                        --
+                    </span>
+                    <h1 id="eventTitle" class="text-4xl md:text-6xl font-black text-white leading-tight mb-2">
+                        جاري التحميل...
+                    </h1>
+                    <div class="flex flex-wrap gap-6 text-white/90">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-light">calendar_today</span>
+                            <span id="eventDate" class="font-bold">--</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-light">schedule</span>
+                            <span id="eventTime" class="font-bold">--</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-light">location_on</span>
+                            <span id="eventLocation" class="font-bold">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Section -->
+        <div class="max-w-7xl mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Main Content -->
+                <div class="lg:col-span-8 space-y-12">
+                    <!-- Description -->
+                    <div class="detail-card p-8 md:p-10">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="section-icon">
+                                <span class="material-symbols-outlined">description</span>
+                            </div>
+                            <h2 class="text-2xl font-black text-slate-900">حول الفعالية</h2>
+                        </div>
+                        <div id="eventLongDesc" class="text-lg text-slate-600 leading-relaxed whitespace-pre-wrap">
+                            --
+                        </div>
+                    </div>
+
+                    <!-- Program -->
+                    <div class="detail-card p-8 md:p-10">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="section-icon">
+                                <span class="material-symbols-outlined">format_list_numbered</span>
+                            </div>
+                            <h2 class="text-2xl font-black text-slate-900">برنامج النشاط</h2>
+                        </div>
+                        <div class="grid gap-6" id="eventProgramContainer">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Video Section (shown if available) -->
+                    <div class="detail-card p-8 md:p-10" id="eventVideoSection" style="display:none;">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="section-icon">
+                                <span class="material-symbols-outlined">smart_display</span>
+                            </div>
+                            <h2 class="text-2xl font-black text-slate-900">فيديو الفعالية</h2>
+                        </div>
+                        <div class="video-container" id="eventVideoContainer">
+                            <!-- Video iframe injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="flex flex-wrap gap-3" id="eventTagsContainer">
+                    </div>
+                </div>
+
+                <!-- Sidebar (Registration) -->
+                <div class="lg:col-span-4">
+                    <div class="sticky-sidebar">
+                        <div class="detail-card p-8 bg-slate-900 text-white overflow-hidden relative">
+                            <div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl z-0">
+                            </div>
+                            <div class="relative z-10">
+                                <h3 class="text-2xl font-black mb-6">حجز مقعد</h3>
+                                <p class="text-slate-400 mb-8 text-sm leading-relaxed">
+                                    يرجى ملء النموذج أدناه لتأكيد حضوركم. المقاعد محدودة والأولوية للمسجلين الأوائل.
+                                </p>
+
+                                <form class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">الاسم
+                                            الكامل</label>
+                                        <input type="text"
+                                            class="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary focus:ring-0 transition-all"
+                                            placeholder="أدخل اسمك هنا">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">رقم
+                                            الهاتف</label>
+                                        <input type="tel"
+                                            class="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white focus:border-primary focus:ring-0 transition-all"
+                                            placeholder="05 / 06 / 07 ...">
+                                    </div>
+                                    <button type="button"
+                                        class="w-full py-4 btn-premium text-white font-black rounded-xl text-lg flex items-center justify-center gap-3">
+                                        <span class="material-symbols-outlined">send</span>
+                                        تأكيد التسجيل
+                                    </button>
+                                </form>
+
+                                <div class="mt-8 pt-6 border-t border-white/10 flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-primary-light">verified_user</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 leading-tight">
+                                        سوف تتلقى رسالة تأكيد عبر الهاتف فور معالجة طلبكم.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share -->
+                        <div class="mt-6 flex gap-4">
+                            <button
+                                class="flex-1 py-4 px-6 bg-white rounded-2xl border border-slate-200 text-slate-700 font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+                                <span class="material-symbols-outlined">share</span>
+                                مشاركة
+                            </button>
+                            <button
+                                class="py-4 px-6 bg-white rounded-2xl border border-slate-200 text-slate-700 font-bold flex items-center justify-center hover:bg-slate-50 transition-all"
+                                title="إضافة للتقويم">
+                                <span class="material-symbols-outlined">calendar_add_on</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Green End-of-Page Decoration (same as technical-card) -->
+    <div style="position:relative;margin-top:40px;">
+        <div style="height:3px;background:linear-gradient(90deg, transparent, #2E7D32, #4CAF50, #2E7D32, transparent);">
+        </div>
+        <div
+            style="padding:20px 0 16px;text-align:center;background:linear-gradient(180deg, rgba(46,125,50,0.03), transparent);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, transparent, #2E7D32);"></div>
+                <span class="material-symbols-outlined"
+                    style="color:#2E7D32;font-size:16px;opacity:0.6;">local_library</span>
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, #2E7D32, transparent);"></div>
+            </div>
+            <p style="font-size:11px;color:#94a3b8;margin:0;">© 2026 المكتبة الرئيسية للمطالعة العمومية لولاية بجاية.
+                جميع الحقوق محفوظة.</p>
+        </div>
+    </div>
+
+    <script src="../js/events-data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = parseInt(urlParams.get('id'));
+
+            if (!events) {
+                console.error('Events data not loaded!');
+                return;
+            }
+
+            const event = events.find(e => e.id === eventId);
+
+            if (event) {
+                document.title = `${event.title} - تفاصيل الفعالية`;
+                document.getElementById('eventTitle').textContent = event.title;
+                document.getElementById('eventHeroImg').src = event.img;
+                document.getElementById('eventCategoryBadge').textContent = getCategoryName(event.category);
+                document.getElementById('eventDate').textContent = event.date;
+                document.getElementById('eventTime').textContent = event.time;
+                document.getElementById('eventLocation').textContent = event.location;
+                document.getElementById('eventLongDesc').textContent = event.desc;
+
+                const programContainer = document.getElementById('eventProgramContainer');
+                if (event.program && event.program.length > 0) {
+                    programContainer.innerHTML = event.program.map((item, idx) => `
+                        <div class="flex gap-6 p-6 rounded-2xl bg-slate-50 border border-slate-100 items-start">
+                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
+                                ${idx + 1}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-1">${item.title}</h4>
+                                <p class="text-slate-500">${item.desc}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    programContainer.innerHTML = '<p class="text-slate-400 italic">سيتم الإعلان عن البرنامج التفصيلي قريباً.</p>';
+                }
+
+                const tagsContainer = document.getElementById('eventTagsContainer');
+                tagsContainer.innerHTML = event.tags.map(tag => `
+                    <span class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-full text-sm hover:border-primary hover:text-primary transition-all cursor-default">
+                        # ${tag}
+                    </span>
+                `).join('');
+
+                // Video section
+                const videoSection = document.getElementById('eventVideoSection');
+                const videoContainer = document.getElementById('eventVideoContainer');
+                if (event.video) {
+                    videoSection.style.display = 'block';
+
+                    // Extract YouTube ID for high-quality thumbnail
+                    let videoId = '';
+                    try {
+                        if (event.video.includes('embed/')) {
+                            videoId = event.video.split('embed/')[1].split('?')[0];
+                        } else if (event.video.includes('v=')) {
+                            videoId = event.video.split('v=')[1].split('&')[0];
+                        } else {
+                            videoId = event.video.split('/').pop().split('?')[0];
+                        }
+                    } catch (e) { videoId = ''; }
+
+                    const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : event.img;
+
+                    videoContainer.innerHTML = `
+                        <img src="${thumbUrl}" alt="Video thumbnail" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.src='${event.img}'">
+                        <div class="video-play-overlay" onclick="playEventVideo(this, '${event.video}')">
+                            <div class="video-play-btn">
+                                <span class="material-symbols-outlined text-white" style="font-size:40px;margin-right:-4px;">play_arrow</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    videoSection.style.display = 'none';
+                }
+            } else {
+                // Handle 404
+                document.body.innerHTML = `
+                    <div class="h-screen flex flex-col items-center justify-center bg-slate-50 font-sans">
+                        <h1 class="text-9xl font-black text-slate-200">404</h1>
+                        <p class="text-2xl font-bold text-slate-600 mb-8 mt-4">عذراً، الفعالية غير موجودة</p>
+                        <a href="cultural-activities.html" class="px-8 py-4 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20">العودة للنشاطات</a>
+                    </div>
+                `;
+            }
+        });
+
+        function getCategoryName(cat) {
+            const names = {
+                'literary': 'فعالية أدبية',
+                'children': 'فضاء الأطفال',
+                'exhibition': 'معرض ثقافي',
+                'conference': 'ندوة فكرية',
+                'workshop': 'ورشة تدريبية'
+            };
+            return names[cat] || 'فعالية عامة';
+        }
+
+        function playEventVideo(overlay, videoUrl) {
+            const container = overlay.parentElement;
+            container.innerHTML = `<iframe src="${videoUrl}?autoplay=1&rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        }
+
+        // Navbar Interaction & Auth
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            if (user) {
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('user-profile-menu').classList.remove('hidden');
+                document.getElementById('user-avatar').src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+                document.getElementById('user-display-name').textContent = user.prenom + ' ' + user.nom;
+                document.getElementById('user-display-email').textContent = user.email;
+            }
+
+            const profileTrigger = document.getElementById('profile-trigger');
+            if (profileTrigger) {
+                profileTrigger.addEventListener('click', e => {
+                    e.stopPropagation();
+                    document.getElementById('profile-dropdown').classList.toggle('hidden');
+                });
+            }
+
+            document.addEventListener('click', () => {
+                const dropdown = document.getElementById('profile-dropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+            });
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('libraryUser');
+                    location.reload();
+                });
+            }
+        });
+    </script>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>حسابي - مكتبة بجاية الرئيسية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Document Viewer Modal -->
+    <div id="documentViewer" class="viewer-modal" onclick="closeDocumentViewer()">
+        <div class="viewer-content" onclick="event.stopPropagation()">
+            <span class="viewer-close material-symbols-outlined" onclick="closeDocumentViewer()">close</span>
+            <img id="viewerImage" src="" alt="Document">
+        </div>
+    </div>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2E7D32",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            background-color: #f6f8f6;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        /* Apple-style Navbar Dropdowns */
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 10;
+        }
+
+        .nav-item>a {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 260px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: top center;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 200;
+            margin-top: 12px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(50%) translateY(0);
+        }
+
+        .nav-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 4px;
+            transform: translateX(50%) rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1d1d1f;
+            font-size: 0.92rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.06);
+            color: #2E7D32;
+        }
+
+        .nav-dropdown-item .dropdown-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .nav-dropdown-item:hover .dropdown-icon {
+            transform: scale(1.08);
+        }
+
+        .nav-dropdown-item .dropdown-text {
+            flex: 1;
+        }
+
+        .nav-dropdown-item .dropdown-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-dropdown-item .dropdown-desc {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .nav-dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 4px 12px;
+        }
+
+        .profile-hero {
+            background: linear-gradient(135deg, #0d2818 0%, #1a4a28 30%, #2E7D32 60%, #43a047 100%);
+            padding: 140px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(to top, #f6f8f6, transparent);
+        }
+
+
+        .profile-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .quick-action {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(46, 125, 50, 0.1);
+            border-color: #2E7D32;
+        }
+
+        .doc-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .doc-pill.uploaded {
+            background: rgba(76, 175, 80, 0.1);
+            color: #2E7D32;
+        }
+
+        .doc-pill.missing {
+            background: rgba(244, 67, 54, 0.08);
+            color: #d32f2f;
+        }
+
+        .login-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-overlay.active {
+            display: flex;
+        }
+
+        .login-modal-popup {
+            background: white;
+            border-radius: 28px;
+            padding: 40px;
+            width: 420px;
+            position: relative;
+        }
+
+        /* --- RFID CARD PREMIUM STYLE (SYNCED WITH ADMIN) --- */
+        .rfid-card-new {
+            width: 85.6mm;
+            height: 53.98mm;
+            /* Dimensions exactes de la carte d'identité biométrique algérienne (Standard ID-1 : 85.60mm x 53.98mm) */
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin: 10px auto;
+            color: #333;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ── RECTO ── */
+        .rfid-card-new.front {
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .recto-bg-books {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            opacity: 0.35;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .recto-header {
+            position: absolute;
+            top: 8px;
+            width: 100%;
+            text-align: center;
+            line-height: 1.1;
+            z-index: 5;
+        }
+
+        .recto-header p {
+            margin: 0;
+            font-size: 6pt;
+            font-weight: 700;
+            color: #333;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+        }
+
+        .recto-header p:first-child {
+            font-size: 9.5pt;
+            font-weight: 900;
+            margin-bottom: 2px;
+        }
+
+        .recto-header p:not(:first-child) {
+            font-size: 8.2pt;
+            font-weight: 400;
+            margin-bottom: 1px;
+        }
+
+        .recto-photo-box {
+            position: absolute;
+            top: 55px;
+            right: 12px;
+            width: 65px;
+            height: 75px;
+            border: 1px solid #999;
+            background: #fff;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .recto-photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .recto-qr-box {
+            position: absolute;
+            bottom: 5px;
+            right: 12px;
+            width: 65px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .recto-qr-box img {
+            width: 45px;
+            height: 45px;
+            border: 1px solid #ddd;
+            padding: 1px;
+            background: white;
+        }
+
+        .recto-id-number {
+            font-size: 10px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-top: 1px;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        .recto-title-bar {
+            position: absolute;
+            top: 85px;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .title-green-box {
+            color: #2e7d32;
+            background: none;
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: 19px;
+            font-weight: 900;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            box-shadow: none;
+            position: relative;
+            z-index: 5;
+        }
+
+        .modern-decor {
+            background: none;
+            color: #2e7d32;
+            width: auto;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 5;
+            box-shadow: none;
+        }
+
+        .recto-names-area {
+            position: absolute;
+            top: 132px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 5;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            line-height: 1.2;
+        }
+
+        .name-ar-big {
+            font-size: 16px;
+            font-weight: 900;
+            color: #000;
+        }
+
+        .name-la-big {
+            font-size: 12px;
+            font-weight: 800;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        /* ── VERSO ── */
+        .rfid-card-new.back {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            padding: 15px;
+            text-align: center;
+            background: white !important;
+            box-sizing: border-box;
+            border: 1px solid #ddd !important;
+        }
+
+        .verso-logo-centered {
+            max-width: 80%;
+            max-height: 120px;
+            object-fit: contain;
+        }
+
+        .verso-ar-text {
+            direction: rtl;
+            width: 100%;
+        }
+
+        .verso-ar-text p {
+            margin: 2px 0;
+            font-size: 13px;
+            font-weight: 900;
+            color: #000;
+            line-height: 1.2;
+        }
+
+        /* Modal Viewer Style */
+        .viewer-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .viewer-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .viewer-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .viewer-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .viewer-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            cursor: pointer;
+            font-size: 30px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .btn-view-doc {
+            padding: 4px 12px;
+            background: rgba(46, 125, 50, 0.1);
+            color: #2E7D32;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(46, 125, 50, 0.2);
+        }
+
+        .btn-view-doc:hover {
+            background: #2E7D32;
+            color: white;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+
+            #rfidPrintArea,
+            #rfidPrintArea * {
+                visibility: visible !important;
+            }
+
+            #rfidPrintArea {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                z-index: 9999;
+                display: block !important;
+            }
+
+            .rfid-card-new {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+                margin: 0 auto !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* Glass Bubble Stepper Styles */
+        .glass-bubble {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .glass-bubble:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .bubble-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .bubble-email {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .bubble-docs {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        .bubble-final {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .bubble-active.bubble-info {
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .bubble-active.bubble-email {
+            background: rgba(139, 92, 246, 0.8);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .bubble-active.bubble-docs {
+            background: rgba(249, 115, 22, 0.8);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .bubble-active.bubble-final {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <header
+        class="absolute top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5 transition-all duration-300">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <!-- Logo Gauche -->
+                <div class="flex-shrink-0">
+                    <img alt="Logo Gauche" class="h-16 w-auto object-contain" src="../images/c.PNG" />
+                </div>
+                <!-- Center Menu -->
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors" href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors" href="#">عن المكتبة
+                            <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="../pages/technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors" href="#">خدمات <span
+                                class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold hover:text-primary transition-colors" href="#">اتصل بنا</a>
+                </nav>
+                <!-- Right Side -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <button
+                        class="hidden lg:flex items-center gap-1.5 text-slate-700 hover:text-primary px-3 py-2 text-[17px] font-semibold">
+                        <span class="material-symbols-outlined text-[22px]">translate</span>
+                        <span>العربية</span>
+                    </button>
+                    <!-- Auth/Profile Container -->
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <div id="user-profile-menu" class="relative group">
+                            <button id="profile-trigger"
+                                class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                                <img id="nav-avatar" src="" alt="Profile"
+                                    class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                                <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                            </button>
+                            <div id="profile-dropdown"
+                                class="hidden group-hover:block absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100]">
+                                <div class="px-4 py-3 border-b border-slate-100">
+                                    <p id="nav-display-name" class="text-sm font-bold text-slate-900"></p>
+                                    <p id="nav-display-email" class="text-xs text-slate-500"></p>
+                                </div>
+                                <div class="py-2">
+                                    <a href="../pages/profile.html"
+                                        class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                        <span class="material-symbols-outlined text-[20px]">person</span> حسابي
+                                    </a>
+                                    <a href="../pages/orders-history.html"
+                                        class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                        <span class="material-symbols-outlined text-[20px]">history</span> سجل الإعارة
+                                    </a>
+                                </div>
+                                <div class="border-t border-slate-100 pt-2">
+                                    <button onclick="handleLogout()"
+                                        class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors">
+                                        <span class="material-symbols-outlined text-[20px]">logout</span> تسجيل الخروج
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <img alt="Ministry Logo" class="h-16 w-auto object-contain" src="../images/image.png" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="profile-hero">
+        <div class="max-w-4xl mx-auto px-4 text-center text-white relative z-10">
+            <div
+                class="w-32 h-32 mx-auto rounded-full border-4 border-white/30 overflow-hidden mb-6 shadow-2xl relative group">
+                <img id="heroAvatarImg" src="" class="w-full h-full object-cover">
+                <div
+                    class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <span class="material-symbols-outlined text-white">photo_camera</span>
+                    <input type="file" class="absolute inset-0 opacity-0 cursor-pointer"
+                        onchange="handlePhotoUpload(this)">
+                </div>
+            </div>
+            <h1 id="heroName" class="text-4xl font-bold mb-2">...</h1>
+            <p id="heroEmail" class="opacity-70 mb-6">...</p>
+            <div
+                class="inline-flex items-center gap-4 px-6 py-2 bg-white/10 rounded-full border border-white/20 backdrop-blur-md">
+                <span id="heroCardNumber" class="font-mono font-bold tracking-wider">...</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                <span class="text-xs font-bold uppercase">عضو نشط</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verification Stepper -->
+    <div class="max-w-6xl mx-auto px-4 mt-8 no-print">
+        <div
+            class="bg-white/40 backdrop-blur-xl rounded-[40px] p-8 shadow-2xl border border-white/50 flex flex-wrap justify-between items-center gap-6">
+            <div class="flex flex-col items-center gap-3">
+                <div id="step1-icon" class="glass-bubble bubble-active bubble-info">
+                    <span class="material-symbols-outlined text-2xl font-black">check</span>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-emerald-500 font-black uppercase tracking-[0.2em] mb-1">Step 01</p>
+                    <p class="text-xs font-black text-emerald-600">المعلومات</p>
+                </div>
+            </div>
+
+            <div id="arc-1-2"
+                class="hidden lg:block flex-1 h-[3px] bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+            </div>
+
+            <div class="flex flex-col items-center gap-3">
+                <div id="step2-icon" class="glass-bubble bubble-email">
+                    <span class="material-symbols-outlined text-2xl">mail</span>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Step 02</p>
+                    <p class="text-xs font-black text-slate-800">البريد</p>
+                </div>
+            </div>
+
+            <div id="arc-2-3"
+                class="hidden lg:block flex-1 h-[2px] bg-gradient-to-r from-purple-200 to-orange-200 rounded-full opacity-30 transition-all duration-700">
+            </div>
+
+            <div class="flex flex-col items-center gap-3">
+                <div id="step3-icon" class="glass-bubble bubble-docs">
+                    <span class="material-symbols-outlined text-2xl">upload_file</span>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Step 03</p>
+                    <p class="text-xs font-black text-slate-800">الوثائق</p>
+                </div>
+            </div>
+
+            <div id="arc-3-4"
+                class="hidden lg:block flex-1 h-[2px] bg-gradient-to-r from-orange-200 to-emerald-200 rounded-full opacity-30 transition-all duration-700">
+            </div>
+
+            <div class="flex flex-col items-center gap-3">
+                <div id="step4-icon" class="glass-bubble bubble-final">
+                    <span class="material-symbols-outlined text-2xl">verified</span>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Final Status</p>
+                    <p id="final-status-text" class="text-xs font-black text-slate-400">قيد المراجعة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 mt-8 pb-24 relative z-20">
+        <!-- Email Verification Alert -->
+        <div id="emailVerifyAlert"
+            class="hidden mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined">mail</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-amber-900">البريد الإلكتروني غير مؤكد</h4>
+                    <p class="text-xs text-amber-700">يرجى تأكيد بريدك الإلكتروني لتفعيل جميع ميزات حسابك.</p>
+                </div>
+            </div>
+            <button onclick="resendEmailVerification()"
+                class="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-xl hover:bg-amber-700 transition-colors">
+                تأكيد الآن
+            </button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="quick-action" onclick="printRegistrationForm()">
+                <div
+                    class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">وصل التسجيل</p>
+            </div>
+            <div class="quick-action" onclick="printEngagementForm('ar')">
+                <div
+                    class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">description</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">تعهد (AR)</p>
+            </div>
+            <div class="quick-action" onclick="printEngagementForm('fr')">
+                <div
+                    class="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">article</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">Engagement (FR)</p>
+            </div>
+            <div class="quick-action" onclick="showRfidCard()">
+                <div
+                    class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">id_card</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">بطاقة القارئ (RFID)</p>
+            </div>
+            <div class="quick-action" onclick="openChangePassword()">
+                <div
+                    class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">lock</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">تغيير السر</p>
+            </div>
+            <div class="quick-action" onclick="window.location.href='/pages/books-catalog.html'">
+                <div
+                    class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">بحث الكتب</p>
+            </div>
+            <div class="quick-action" onclick="handleLogout()">
+                <div
+                    class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">logout</span>
+                </div>
+                <p class="font-bold text-slate-700 text-sm">خروج</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div class="profile-card p-8">
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-primary rounded-full"></span>
+                        المعلومات الشخصية
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                        <div class="py-4 border-b border-slate-50">
+                            <p class="text-xs text-slate-400 mb-1">الاسم واللقب</p>
+                            <p id="profileFullName" class="font-bold text-slate-800">...</p>
+                        </div>
+                        <div class="py-4 border-b border-slate-50">
+                            <p class="text-xs text-slate-400 mb-1">Nom et Prénom</p>
+                            <p id="profileNomLatin" class="font-bold text-slate-800" dir="ltr">...</p>
+                        </div>
+                        <div class="py-4 border-b border-slate-50">
+                            <p class="text-xs text-slate-400 mb-1">تاريخ الميلاد</p>
+                            <p id="profileBirthdate" class="font-bold text-slate-800">...</p>
+                        </div>
+                        <div class="py-4 border-b border-slate-50">
+                            <p class="text-xs text-slate-400 mb-1">المهنة</p>
+                            <p id="profileProfession" class="font-bold text-slate-800">...</p>
+                        </div>
+                        <div class="py-4 border-b border-slate-50 md:col-span-2">
+                            <p class="text-xs text-slate-400 mb-1">رقم التعريف الوطني</p>
+                            <p id="profileNIN" class="font-bold text-slate-800 font-mono">...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card p-8">
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                        التواصل والعنوان
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between w-full">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-slate-400">mail</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400">البريد الإلكتروني</p>
+                                    <p id="profileEmail" class="font-bold text-slate-800">...</p>
+                                </div>
+                            </div>
+                            <button onclick="openChangeEmail()" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors" title="تعديل البريد الإلكتروني">
+                                <span class="material-symbols-outlined text-base">edit</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-outlined text-slate-400">phone</span>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400">رقم الهاتف</p>
+                                <p id="profilePhone" class="font-bold text-slate-800">...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-outlined text-slate-400">location_on</span>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400">العنوان</p>
+                                <p id="profileAddress" class="font-bold text-slate-800">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <div class="profile-card p-8">
+                    <h3 class="text-lg font-bold text-slate-900 mb-6">حالة الملف</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700">بطاقة الهوية</span>
+                                <div class="flex gap-2 mt-1">
+                                    <button class="btn-view-doc" id="viewCniFront" style="display:none"
+                                        onclick="viewDocument('cniFront')">الوجه</button>
+                                    <button class="btn-view-doc" id="viewCniBack" style="display:none"
+                                        onclick="viewDocument('cniBack')">الظهر</button>
+                                </div>
+                            </div>
+                            <span id="cniStatus" class="doc-pill missing">...</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700">الصورة الشخصية</span>
+                                <button class="btn-view-doc mt-1" id="viewUserPhoto" style="display:none"
+                                    onclick="viewDocument('photo')">عرض</button>
+                            </div>
+                            <span id="photoStatus" class="doc-pill missing">...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permanent RFID Card Display -->
+                <div
+                    class="profile-card p-6 flex flex-col items-center bg-white border border-slate-100 shadow-xl overflow-hidden">
+                    <div class="flex justify-between items-center w-full mb-6">
+                        <h3 class="text-sm font-bold text-slate-400 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-sm">badge</span>
+                            بطاقة القارئ الذكية
+                        </h3>
+                        <span
+                            class="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold rounded-full border border-green-100 uppercase">عضو
+                            نشط</span>
+                    </div>
+
+                    <div
+                        class="flex flex-col gap-12 w-full items-center bg-slate-50/50 p-6 rounded-2xl border border-dashed border-slate-200 min-h-[500px] justify-center">
+                        <!-- Front Side -->
+                        <div class="flex flex-col items-center gap-4 w-full">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">الوجه
+                                (Recto)</span>
+                            <div id="directRfidRecto" class="scale-[0.65] sm:scale-[0.8] origin-center"
+                                style="min-width: 85.6mm; min-height: 53.98mm; display: block !important;">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="w-full h-px bg-slate-200"></div>
+
+                        <!-- Back Side -->
+                        <div class="flex flex-col items-center gap-4 w-full">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">الظهر
+                                (Verso)</span>
+                            <div id="directRfidVerso" class="scale-[0.65] sm:scale-[0.8] origin-center"
+                                style="min-width: 85.6mm; min-height: 53.98mm; display: block !important;">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Change Password Modal -->
+    <div id="changePassModal" class="login-overlay" onclick="if(event.target===this)closeChangePassword()">
+        <div class="login-modal-popup">
+            <h2 class="text-xl font-bold mb-6 text-center">تغيير كلمة المرور</h2>
+            <div class="space-y-4">
+                <input id="oldPass" type="password" placeholder="كلمة المرور الحالية"
+                    class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-primary">
+                <input id="newPass" type="password" placeholder="كلمة المرور الجديدة"
+                    class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-primary">
+                <input id="confirmPass" type="password" placeholder="تأكيد كلمة المرور"
+                    class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-primary">
+                <button onclick="submitChangePassword()"
+                    class="w-full py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-green-700 transition-colors">حفظ
+                    التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Email Modal -->
+    <div id="changeEmailModal" class="login-overlay" onclick="if(event.target===this)closeChangeEmail()">
+        <div class="login-modal-popup">
+            <h2 class="text-xl font-bold mb-6 text-center">تغيير البريد الإلكتروني</h2>
+            <div class="space-y-4">
+                <input id="newEmail" type="email" placeholder="البريد الإلكتروني الجديد"
+                    class="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-primary">
+                <button onclick="submitChangeEmail()"
+                    class="w-full py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-green-700 transition-colors">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RFID Card Modal -->
+    <div id="rfidModal" class="login-overlay" onclick="if(event.target===this)closeRfidModal()">
+        <div class="login-modal-popup" style="max-width: 800px; width: 95%;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">بطاقة القارئ الذكية</h2>
+                <button class="modal-close p-2 hover:bg-slate-100 rounded-full" onclick="closeRfidModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="rfidPrintArea" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="flex flex-col items-center">
+                    <div id="rfidRecto" class="rfid-card-new front shadow-2xl"></div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div id="rfidVerso" class="rfid-card-new back shadow-2xl"></div>
+                </div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4 border-t pt-6 no-print">
+                <button
+                    class="px-6 py-2 bg-primary text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all"
+                    onclick="printCardPart('recto')">طباعة الوجه</button>
+                <button
+                    class="px-6 py-2 bg-primary text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all"
+                    onclick="printCardPart('verso')">طباعة الظهر</button>
+                <button
+                    class="px-6 py-2 bg-slate-800 text-white font-bold rounded-lg shadow-md hover:bg-black transition-all"
+                    onclick="printCardPart('both')">طباعة الكل</button>
+                <button
+                    class="px-6 py-2 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-all"
+                    onclick="closeRfidModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden PDF Template for Receipt -->
+    <div id="registrationFormPrint"
+        style="display:none; width:210mm; padding:15mm; background:white; font-family:'Noto Sans Arabic','Arial',sans-serif; color:#000; direction:rtl;">
+        <table style="width:100%; border-bottom:2px solid #000; padding-bottom:8px; margin-bottom:5px;" cellpadding="0"
+            cellspacing="0">
+            <tr>
+                <td style="width:90px; text-align:center; vertical-align:top;">
+                    <img src="/logo.jpg" style="width:70px; height:auto; margin-bottom:5px;"
+                        onerror="this.src='../images/c.PNG'">
+                    <p style="font-size:7pt; margin:0; font-weight:bold;">BPLPB</p>
+                </td>
+                <td style="text-align:center; vertical-align:top; font-weight:bold; line-height:1.5; font-size:10pt;">
+                    <p style="margin:0; font-size:11pt;">الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                    <p style="margin:0; font-family:Arial; font-size:9pt;">République Algérienne Démocratique et
+                        Populaire</p>
+                    <p style="margin:0; font-size:11pt;">وزارة الثقافة و الفنون</p>
+                    <p style="margin:0; font-size:10pt;">المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</p>
+                </td>
+                <td style="width:90px; text-align:center; vertical-align:top;">
+                    <img src="/minsitere.png" style="width:75px; height:auto;" onerror="this.src='../images/c.PNG'">
+                </td>
+            </tr>
+        </table>
+        <div style="text-align:center; margin:20px 0;">
+            <h2 style="font-size:18pt; font-weight:bold; color:#8B0000; text-decoration:underline;">بطاقة التسجيل
+                والتزام القارئ</h2>
+        </div>
+        <div style="margin:0 40px;">
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">اللقب
+                    :</span><span id="p-nom"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">الاسم
+                    :</span><span id="p-prenom"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">اللقب
+                    (Latin) :</span><span id="p-nom-la"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">الاسم
+                    (Latin) :</span><span id="p-prenom-la"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">تاريخ
+                    الميلاد :</span><span id="p-dob"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">المهنة
+                    :</span><span id="p-job"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">رقم الهاتف
+                    :</span><span id="p-phone"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">NIN
+                    :</span><span id="p-nin"></span></div>
+            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">العنوان
+                    :</span><span id="p-address"></span></div>
+        </div>
+    </div>
+
+    <!-- Engagement Form (Absolute Positioning) -->
+    <div id="engagementFormPrint"
+        style="display:none; width:210mm; height:297mm; background:#fff; color:#000; font-family:'Noto Sans Arabic','Arial',sans-serif; position:relative; overflow:hidden;">
+        <div style="position:absolute; top:8mm; left:10mm; right:10mm; border-bottom:1.5px solid #000; height:32mm;">
+            <div style="position:absolute; left:0; top:0; width:30mm; text-align:center;">
+                <img src="/logo.jpg" style="width:20mm;" onerror="this.src='../images/c.PNG'">
+                <div style="font-size:7pt; font-weight:900;">BPLPB</div>
+            </div>
+            <div style="position:absolute; left:30mm; right:30mm; top:0; text-align:center; line-height:1.4;">
+                <div style="font-size:10pt; font-weight:900;">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+                <div style="font-size:8pt; font-family:Arial; font-weight:bold;">République Algérienne Démocratique et
+                    Populaire</div>
+                <div style="font-size:9pt; font-weight:900; margin-top:3px;">وزارة الثقافة و الفنون</div>
+                <div style="font-size:7.5pt; font-family:Arial; font-weight:bold; margin-top:3px;">Bibliothèque
+                    principale de la lecture publique de la wilaya de Bejaia</div>
+                <div style="font-size:9pt; font-weight:900;">المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</div>
+            </div>
+            <div style="position:absolute; right:0; top:0; width:30mm; text-align:center;">
+                <img src="/minsitere.png" style="width:25mm;" onerror="this.src='../images/c.PNG'">
+            </div>
+        </div>
+        <div style="position:absolute; top:45mm; width:100%; text-align:center;">
+            <h1 id="eng-title-text"
+                style="font-size:18pt; font-weight:900; text-decoration:underline; font-style:italic;">بطاقة التسجيل و
+                التزام القارئ</h1>
+        </div>
+        <div id="eng-intro" style="position:absolute; top:58mm; right:40mm; font-size:11pt; font-weight:900;">أنا الموقع
+            أدناه :</div>
+        <div style="position:absolute; top:68mm; left:15mm; right:15mm; border:1px solid #000;">
+            <div style="display:flex; border-bottom:1px solid #000; height:18mm; direction:rtl;">
+                <div
+                    style="width:28mm; border-left:1px solid #000; display:flex; align-items:center; justify-content:center; padding:1mm;">
+                    <img id="eng-photo" src=""
+                        style="height:16mm; width:22mm; object-fit:cover; border:0.5px solid #000;">
+                </div>
+                <div style="flex:1; border-left:1px solid #000; padding:2mm; position:relative;">
+                    <span style="font-size:9pt; font-weight:900;" id="label-nom">اللقب :</span>
+                    <span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-nom"></span>
+                </div>
+                <div style="flex:1; padding:2mm; position:relative; direction:ltr;">
+                    <span style="font-size:9pt; font-weight:900;" id="label-nom-lat">Nom :</span>
+                    <span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-nom-lat"></span>
+                </div>
+            </div>
+            <div style="display:flex; border-bottom:1px solid #000; height:12mm; direction:rtl;">
+                <div style="width:28mm; border-left:1px solid #000;"></div>
+                <div style="flex:1; border-left:1px solid #000; padding:2mm; position:relative;">
+                    <span style="font-size:9pt; font-weight:900;" id="label-prenom">الاسم :</span>
+                    <span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-prenom"></span>
+                </div>
+                <div style="flex:1; padding:2mm; position:relative; direction:ltr;">
+                    <span style="font-size:9pt; font-weight:900;" id="label-prenom-lat">Prénom :</span>
+                    <span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-prenom-lat"></span>
+                </div>
+            </div>
+            <div style="display:flex; border-bottom:1px solid #000; height:12mm; direction:rtl;">
+                <div style="width:35mm; border-left:1px solid #000; padding:2mm; position:relative;"><span
+                        style="font-size:9pt; font-weight:900;" id="label-gender">الجنس :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-gender"></span></div>
+                <div style="flex:2; border-left:1px solid #000; padding:2mm; position:relative;"><span
+                        style="font-size:9pt; font-weight:900;" id="label-dob">تاريخ و مكان الميلاد :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-dob"></span></div>
+                <div style="flex:1; padding:2mm; position:relative;"><span style="font-size:9pt; font-weight:900;"
+                        id="label-job">المهنة :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-job"></span></div>
+            </div>
+            <div style="display:flex; border-bottom:1px solid #000; height:12mm; direction:rtl;">
+                <div style="flex:1; border-left:1px solid #000; padding:2mm; position:relative;"><span
+                        style="font-size:9pt; font-weight:900;" id="label-code">رمز القارئ :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-code"></span></div>
+                <div style="flex:1; padding:2mm; position:relative;"><span style="font-size:9pt; font-weight:900;"
+                        id="label-date">تاريخ التسجيل :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-date"></span></div>
+            </div>
+            <div style="border-bottom:1px solid #000; height:12mm; direction:rtl; padding:2mm; position:relative;"><span
+                    style="font-size:9pt; font-weight:900;" id="label-nin">رقم التعريف الوطني :</span><span
+                    style="font-size:11pt; font-weight:900; font-family:monospace; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                    id="eng-nin"></span></div>
+            <div style="border-bottom:1px solid #000; height:12mm; direction:rtl; padding:2mm; position:relative;"><span
+                    style="font-size:9pt; font-weight:900;" id="label-email">عنوان البريد :</span><span
+                    style="font-size:10pt; font-weight:900; direction:ltr; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                    id="eng-email"></span></div>
+            <div style="border-bottom:1px solid #000; height:15mm; direction:rtl; padding:2mm; position:relative;"><span
+                    style="font-size:9pt; font-weight:900;" id="label-address">عنوان الإقامة :</span><span
+                    style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; width:80%;"
+                    id="eng-address"></span></div>
+            <div style="border-bottom:1px solid #000; height:12mm; direction:rtl; padding:2mm; position:relative;"><span
+                    style="font-size:9pt; font-weight:900;" id="label-wilaya">ولاية :</span><span
+                    style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                    id="eng-wilaya"></span></div>
+            <div style="display:flex; height:12mm; direction:rtl;">
+                <div style="flex:1; border-left:1px solid #000; padding:2mm; position:relative;"><span
+                        style="font-size:9pt; font-weight:900;" id="label-country">البلد :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-country"></span></div>
+                <div style="flex:1; padding:2mm; position:relative;"><span style="font-size:9pt; font-weight:900;"
+                        id="label-phone">الهاتف :</span><span
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
+                        id="eng-phone"></span></div>
+            </div>
+        </div>
+        <div style="position:absolute; top:180mm; left:15mm; right:15mm; direction:rtl;">
+            <div id="label-commitment" style="font-size:12pt; font-weight:900; text-decoration:underline;">أتعهد بـ :
+            </div>
+            <div id="eng-rules" style="font-size:10pt; font-weight:900; line-height:1.6;">
+                <div>- الاستحفاظ على ممتلكات المكتبة واحترام قانونها الداخلي</div>
+                <div>- الالتزام بإعادة الكتب في الوقت المحدد</div>
+                <div>- إعلامكم بتغيير العنوان</div>
+                <div>- الاستحفاظ على بطاقة القارئ</div>
+            </div>
+        </div>
+        <div style="position:absolute; top:235mm; left:20mm; right:20mm;">
+            <div style="float:left; text-align:center;">
+                <div id="label-signature" style="font-size:12pt; font-weight:900;">Signature</div>
+            </div>
+            <div style="float:right; text-align:center;">
+                <div id="label-legal" style="font-size:12pt; font-weight:900;">L'égalisation</div>
+            </div>
+        </div>
+        <div style="position:absolute; top:275mm; left:15mm; right:15mm; border-top:1px solid #eee; text-align:center;">
+            <div id="label-obs" style="position:absolute; right:0; top:2mm; font-size:9pt; font-weight:900;">ملاحظة :
+            </div>
+            <div id="eng-footer-note" style="font-size:9pt; font-weight:900; margin-top:6mm;">هذا الالتزام صالح لمدة عام
+                واحد</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const storedUser = JSON.parse(localStorage.getItem('libraryUser'));
+            if (!storedUser || !storedUser.lecteurId) {
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                // Fetch fresh data from server
+                console.log("Fetching fresh profile data for:", storedUser.lecteurId);
+                const response = await fetch(`/api/auth/profile/${storedUser.lecteurId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.user) {
+                        console.log("Fresh data received:", data.user);
+                        // Update localStorage with fresh data
+                        localStorage.setItem('libraryUser', JSON.stringify(data.user));
+
+                        // Populate UI
+                        populateProfileData(data.user);
+                        updateStepper(data.user);
+                        populateDirectRfidCards(data.user);
+
+                        // Email Verification Alert
+                        console.log("Email Verification Status:", data.user.emailVerified);
+                        const emailAlert = document.getElementById('emailVerifyAlert');
+                        if (data.user.emailVerified === false || data.user.emailVerified === null || data.user.emailVerified === undefined) {
+                            console.log("Showing Email Alert");
+                            emailAlert.style.display = 'flex';
+                            emailAlert.classList.remove('hidden');
+                        } else {
+                            console.log("Hiding Email Alert");
+                            emailAlert.style.display = 'none';
+                            emailAlert.classList.add('hidden');
+                        }
+
+                        // Populate Nav Avatar safely
+                        const navAvatar = document.getElementById('nav-avatar');
+                        if (navAvatar) navAvatar.src = data.user.photo || `https://ui-avatars.com/api/?name=${data.user.prenom}+${data.user.nom}&background=2E7D32&color=fff`;
+                        const navDisplayName = document.getElementById('nav-display-name');
+                        if (navDisplayName) navDisplayName.textContent = (data.user.prenom || '') + ' ' + (data.user.nom || '');
+                        const navDisplayEmail = document.getElementById('nav-display-email');
+                        if (navDisplayEmail) navDisplayEmail.textContent = data.user.email;
+                    }
+                } else {
+                    console.warn("Failed to fetch fresh profile, using stored data");
+                    populateProfileData(storedUser);
+                    updateStepper(storedUser);
+                    populateDirectRfidCards(storedUser);
+                }
+            } catch (err) {
+                console.error("Error refreshing profile:", err);
+                populateProfileData(storedUser);
+                updateStepper(storedUser);
+                populateDirectRfidCards(storedUser);
+            }
+        });
+
+        function populateProfileData(user) {
+            try {
+                const safeSetText = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text || '...';
+                };
+
+                safeSetText('heroName', (user.prenom || '') + ' ' + (user.nom || ''));
+                safeSetText('heroEmail', user.email);
+                safeSetText('heroCardNumber', user.lecteurId || 'BJA-XXXX');
+
+                const avatar = document.getElementById('heroAvatarImg');
+                if (avatar) avatar.src = user.photo || `https://ui-avatars.com/api/?name=${user.prenom}+${user.nom}&background=2E7D32&color=fff`;
+
+                safeSetText('profileFullName', (user.nom || '').toUpperCase() + ' ' + (user.prenom || ''));
+                safeSetText('profileNomLatin', (user.nomLatin || '') + ' ' + (user.prenomLatin || ''));
+                safeSetText('profileBirthdate', user.naissance ? new Date(user.naissance).toLocaleDateString('fr-FR') : '...');
+                safeSetText('profileProfession', user.profession);
+                safeSetText('profileNIN', user.nin);
+                safeSetText('profileEmail', user.email);
+                safeSetText('profilePhone', user.telephone);
+                safeSetText('profileAddress', user.adresse);
+
+                // Update document status pills
+                const cniStatus = document.getElementById('cniStatus');
+                if (cniStatus) {
+                    const hasCni = !!(user.cniFront || user.cniBack || user.cni);
+                    cniStatus.className = hasCni ? 'doc-pill uploaded' : 'doc-pill missing';
+                    cniStatus.textContent = hasCni ? 'تم الرفع' : 'غير متوفر';
+                }
+
+                const photoStatus = document.getElementById('photoStatus');
+                if (photoStatus) {
+                    const hasPhoto = !!user.photo;
+                    photoStatus.className = hasPhoto ? 'doc-pill uploaded' : 'doc-pill missing';
+                    photoStatus.textContent = hasPhoto ? 'تم الرفع' : 'غير متوفر';
+                }
+            } catch (err) {
+                console.error("Error in populateProfileData:", err);
+            }
+        }
+
+        function updateStepper(user) {
+            if (!user) return;
+            try {
+                const status = parseInt(user.statut || 0);
+
+                const s1 = document.getElementById('step1-icon');
+                const s2 = document.getElementById('step2-icon');
+                const s3 = document.getElementById('step3-icon');
+                const s4 = document.getElementById('step4-icon');
+                const arc12 = document.getElementById('arc-1-2');
+                const arc23 = document.getElementById('arc-2-3');
+                const arc34 = document.getElementById('arc-3-4');
+                const finalTxt = document.getElementById('final-status-text');
+
+                // Step 1: Info (Always blue/active since they logged in)
+                if (s1) {
+                    s1.className = 'glass-bubble bubble-active bubble-info';
+                    s1.innerHTML = '<span class="material-symbols-outlined font-black">check</span>';
+                }
+                if (arc12) arc12.className = 'hidden lg:block flex-1 h-[3px] bg-blue-500 rounded-full shadow-lg';
+
+                // Step 2: Email (Green if verified)
+                if (s2) {
+                    if (user.emailVerified) {
+                        s2.className = 'glass-bubble bubble-active bubble-email';
+                        s2.innerHTML = '<span class="material-symbols-outlined font-black">check</span>';
+                        if (arc23) arc23.className = 'hidden lg:block flex-1 h-[3px] bg-purple-500 rounded-full shadow-lg';
+                    } else {
+                        s2.className = 'glass-bubble bubble-email';
+                        s2.innerHTML = '<span class="material-symbols-outlined text-2xl">mail</span>';
+                        if (arc23) arc23.className = 'hidden lg:block flex-1 h-[2px] bg-slate-200 rounded-full opacity-30';
+                    }
+                }
+
+                // Step 3: Documents (Orange if they have photo + CNI)
+                if (s3) {
+                    const hasDocs = !!(user.photo && (user.cniFront || user.cniBack || user.cni));
+                    if (hasDocs) {
+                        s3.className = 'glass-bubble bubble-active bubble-docs';
+                        s3.innerHTML = '<span class="material-symbols-outlined font-black">check</span>';
+                        if (arc34) arc34.className = 'hidden lg:block flex-1 h-[3px] bg-orange-500 rounded-full shadow-lg';
+                    } else {
+                        s3.className = 'glass-bubble bubble-docs';
+                        s3.innerHTML = '<span class="material-symbols-outlined text-2xl">upload_file</span>';
+                        if (arc34) arc34.className = 'hidden lg:block flex-1 h-[2px] bg-slate-200 rounded-full opacity-30';
+                    }
+                }
+
+                // Step 4: Final Status (Verified by admin)
+                if (s4) {
+                    if (status === 1) {
+                        s4.className = 'glass-bubble bubble-active bubble-final';
+                        s4.innerHTML = '<span class="material-symbols-outlined font-black">check</span>';
+                        if (finalTxt) {
+                            finalTxt.textContent = 'تم التحقق';
+                            finalTxt.className = 'text-xs font-black text-emerald-600';
+                        }
+                    } else {
+                        s4.className = 'glass-bubble bubble-final';
+                        s4.innerHTML = '<span class="material-symbols-outlined text-2xl">verified</span>';
+                        if (finalTxt) {
+                            finalTxt.textContent = 'قيد المراجعة';
+                            finalTxt.className = 'text-xs font-black text-slate-400';
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error in updateStepper:", err);
+            }
+        }
+
+
+        function populateDirectRfidCards(user) {
+            if (!user) {
+                user = JSON.parse(localStorage.getItem('libraryUser'));
+            }
+            if (!user) return;
+
+            renderRfidCard('directRfidRecto', user);
+
+            const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
+            const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const expiry = user.date_expiration || user.LEC_DATE_EXPIRATION;
+            const expiryStr = expiry ? new Date(expiry).toLocaleDateString('fr-FR') : 'Indéfinie';
+
+            document.getElementById('directRfidVerso').innerHTML = `
+                <div class="rfid-card-new back" style="display:flex !important; visibility:visible !important; opacity:1 !important;">
+                    <img src="/public/images/bplpb_logo.jpg" class="verso-logo-centered" style="display:block !important;" onerror="this.src='../logo.jpg'">
+                    <div class="verso-ar-text">
+                        <p>هذه البطاقة شخصية</p>
+                        <p>هذه البطاقة صالحة لمدة سنة</p>
+                        <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ التسجيل: ${regDateStr}</p>
+                        <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ انتهاء الصلاحية: ${expiryStr}</p>
+                    </div>
+                </div>
+            `;
+
+            // Document visibility toggles
+            if (user.cniFront) document.getElementById('viewCniFront').style.display = 'inline-block';
+            if (user.cniBack) document.getElementById('viewCniBack').style.display = 'inline-block';
+            if (user.photo) document.getElementById('viewUserPhoto').style.display = 'inline-block';
+        }
+
+        function viewDocument(type) {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            const viewer = document.getElementById('documentViewer');
+            const img = document.getElementById('viewerImage');
+
+            let src = '';
+            if (type === 'cniFront') src = user.cniFront;
+            else if (type === 'cniBack') src = user.cniBack;
+            else if (type === 'photo') src = user.photo;
+
+            if (src) {
+                img.src = src;
+                viewer.classList.add('active');
+            }
+        }
+
+        function closeDocumentViewer() {
+            document.getElementById('documentViewer').classList.remove('active');
+        }
+
+        function renderRfidCard(targetId, user) {
+            try {
+                if (!user) return;
+                const r = {
+                    LEC_NOM: user.nomLatin || user.nom || '',
+                    LEC_PRENOM: user.prenomLatin || user.prenom || '',
+                    LEC_NOM_AR: user.nom || '',
+                    LEC_PRENOM_AR: user.prenom || '',
+                    LEC_PHOTO: user.photo,
+                    LEC_ID: user.lecteurId || user.libraryNumber || 'BJA-READER',
+                    LEC_RFID: user.rfid || user.LEC_RFID
+                };
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.LEC_ID}`;
+                const target = document.getElementById(targetId);
+                if (!target) return;
+
+                const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : `https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff`;
+
+                target.innerHTML = `
+                    <div class="rfid-card-new front" style="display:block !important;">
+                        <img src="/public/images/rfid_bg.png" class="recto-bg-books" style="opacity: 0.15;">
+                        
+                        <div class="recto-header">
+                            <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                            <p>وزارة الثقافة والفنون</p>
+                            <p>المكتبة الرئيسية للمطالعة العامة لولاية بجاية</p>
+                            <p>الشهيد طاهر عميروشن</p>
+                        </div>
+
+                        <div class="recto-title-bar">
+                            <div class="title-green-box">بطاقة القارئ</div>
+                        </div>
+
+                        <div class="recto-photo-box">
+                            <img src="${userPhoto}" onerror="this.src='https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff'">
+                        </div>
+
+                        <div class="recto-names-area">
+                            <div class="name-ar-big">${r.LEC_NOM_AR || r.LEC_NOM || ''} ${r.LEC_PRENOM_AR || r.LEC_PRENOM || ''}</div>
+                            <div class="name-la-big">${(r.LEC_NOM || '') + ' ' + (r.LEC_PRENOM || '')}</div>
+                        </div>
+
+                        <div class="recto-qr-box">
+                            <img src="${qrUrl}">
+                            <div class="recto-id-number">${r.LEC_RFID || r.LEC_ID}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) { console.error("Render Error:", err); }
+        }
+
+        function handleLogout() { localStorage.removeItem('libraryUser'); window.location.href = '/'; }
+        function openChangePassword() { document.getElementById('changePassModal').classList.add('active'); }
+        function closeChangePassword() { document.getElementById('changePassModal').classList.remove('active'); }
+
+        async function submitChangePassword() {
+            const oldP = document.getElementById('oldPass').value;
+            const newP = document.getElementById('newPass').value;
+            const confirmP = document.getElementById('confirmPass').value;
+            if (!oldP || !newP) return alert('الرجاء ملء جميع الحقول');
+            if (newP !== confirmP) return alert('تأكيد كلمة المرور غير مطابق');
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lecteurId: user.lecteurId || user.id, oldPassword: oldP, newPassword: newP })
+                });
+                if (res.ok) { alert('تم تغيير كلمة المرور بنجاح'); closeChangePassword(); }
+                else { const d = await res.json(); alert(d.error || 'خطأ'); }
+            } catch (err) { alert('خطأ في الاتصال'); }
+        }
+
+        function openChangeEmail() { document.getElementById('changeEmailModal').classList.add('active'); }
+        function closeChangeEmail() { document.getElementById('changeEmailModal').classList.remove('active'); }
+
+        async function submitChangeEmail() {
+            const newEmail = document.getElementById('newEmail').value;
+            if (!newEmail) return alert('الرجاء إدخال البريد الإلكتروني');
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(newEmail)) return alert('الرجاء إدخال بريد إلكتروني صالح');
+
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            try {
+                const res = await fetch('/api/auth/change-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lecteurId: user.lecteurId || user.id, newEmail: newEmail })
+                });
+                if (res.ok) {
+                    alert('تم تغيير البريد الإلكتروني بنجاح. يرجى مراجعة بريدك الجديد لتأكيده.');
+                    closeChangeEmail();
+                    
+                    user.email = newEmail;
+                    user.emailVerified = false;
+                    localStorage.setItem('libraryUser', JSON.stringify(user));
+                    
+                    window.location.reload();
+                } else {
+                    const d = await res.json();
+                    alert(d.error || 'خطأ');
+                }
+            } catch (err) {
+                alert('خطأ في الاتصال بالخادم');
+            }
+        }
+
+        async function handlePhotoUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
+                const user = JSON.parse(localStorage.getItem('libraryUser'));
+                try {
+                    const res = await fetch('/api/auth/update-photo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ lecteurId: user.lecteurId || user.id, photo: base64 })
+                    });
+                    if (res.ok) { user.photo = base64; localStorage.setItem('libraryUser', JSON.stringify(user)); window.location.reload(); }
+                } catch (err) { console.error(err); }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function printRegistrationForm() {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            if (!user) return;
+            document.getElementById('p-nom').textContent = user.nom || '';
+            document.getElementById('p-prenom').textContent = user.prenom || '';
+            document.getElementById('p-nom-la').textContent = user.nomLatin || '';
+            document.getElementById('p-prenom-la').textContent = user.prenomLatin || '';
+            document.getElementById('p-dob').textContent = user.naissance || '';
+            document.getElementById('p-job').textContent = user.profession || '';
+            document.getElementById('p-phone').textContent = user.telephone || '';
+            document.getElementById('p-nin').textContent = user.nin || '';
+            document.getElementById('p-address').textContent = user.adresse || '';
+            const el = document.getElementById('registrationFormPrint');
+            el.style.display = 'block';
+            html2pdf().set({ margin: [0, 0], filename: 'Recu.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(el).save().then(() => el.style.display = 'none');
+        }
+
+        async function printEngagementForm(lang) {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            if (!user) {
+                alert('Utilisateur non connecté');
+                return;
+            }
+
+            try {
+                if (lang === 'ar') {
+                    const response = await fetch('/api/auth/export-engagement-pdf-ar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(user)
+                    });
+
+                    if (!response.ok) throw new Error('Erreur serveur');
+                    const result = await response.json();
+                    window.open(result.downloadUrl, '_blank');
+                } else {
+                    const response = await fetch('/api/auth/export-engagement-pdf-fr', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(user)
+                    });
+
+                    if (!response.ok) throw new Error('Erreur serveur');
+                    const result = await response.json();
+                    window.open(result.downloadUrl, '_blank');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('خطأ أثناء توليد الاستمارة');
+            }
+        }
+
+        function showRfidCard() {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            renderRfidCard('rfidRecto', user);
+
+            const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
+            const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const expiry = user.date_expiration || user.LEC_DATE_EXPIRATION;
+            const expiryStr = expiry ? new Date(expiry).toLocaleDateString('fr-FR') : 'Indéfinie';
+
+            document.getElementById('rfidVerso').innerHTML = `
+                <div class="rfid-card-new back">
+                    <img src="/public/images/bplpb_logo.jpg" class="verso-logo-centered" onerror="this.src='../logo.jpg'">
+                    <div class="verso-ar-text">
+                        <p>هذه البطاقة شخصية</p>
+                        <p>هذه البطاقة صالحة لمدة سنة</p>
+                        <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ التسجيل: ${regDateStr}</p>
+                        <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ انتهاء الصلاحية: ${expiryStr}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('rfidModal').classList.add('active');
+        }
+
+        function closeRfidModal() { document.getElementById('rfidModal').classList.remove('active'); }
+        function printCardPart(part) { window.print(); }
+
+        async function resendEmailVerification() {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            const btn = event.target;
+            const originalText = btn.innerText;
+
+            try {
+                btn.disabled = true;
+                btn.innerText = 'جاري الإرسال...';
+
+                const response = await fetch('/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lecteurId: user.lecteurId })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('تم إرسال رابط التأكيد إلى بريدك الإلكتروني.');
+                    btn.innerText = 'تم الإرسال';
+                } else {
+                    alert(data.error || 'خطأ أثناء الإرسال');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('خطأ في الاتصال بالخادم');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,157 @@
+    <!-- Engagement Form -->
+    <div id="engagementFormPrint" style="display:none; width:210mm; background:#fff; color:#000; font-family:'Noto Sans Arabic','Arial',sans-serif; direction:rtl;">
+        <div style="padding:5mm 12mm 8mm 12mm;">
+            <!-- HEADER (compact) -->
+            <table style="width:100%; border-bottom:1.5px solid #000; padding-bottom:5px; margin-bottom:8px;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="width:70px; text-align:center; vertical-align:top;">
+                        <img src="/logo.jpg" style="width:55px;" onerror="this.src='../images/c.PNG'">
+                        <div style="font-size:5pt; font-weight:900;">BPLPB</div>
+                        <div style="font-size:4pt;">BIBLIOTHÈQUE</div>
+                    </td>
+                    <td style="text-align:center; vertical-align:middle; padding:0 8px; line-height:1.3;">
+                        <p style="margin:0; font-size:10pt; font-weight:700;">الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                        <p style="margin:0; font-size:7pt; font-family:Arial; color:#2E7D32; font-weight:700;">République Algérienne Démocratique et Populaire</p>
+                        <p style="margin:0; font-size:9pt; font-weight:700;">وزارة الثقافة و الفنون</p>
+                        <p style="margin:0; font-size:7pt; font-family:Arial; color:#2E7D32; font-weight:700;">Ministère de la Culture et des Arts</p>
+                        <p style="margin:0; font-size:7pt; font-family:Arial; color:#2E7D32; font-weight:700;">Bibliothèque principale de la lecture publique de la wilaya de Bejaia</p>
+                        <p style="margin:0; font-size:8pt; font-weight:700;">المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</p>
+                        <p style="margin:0; font-size:8pt; font-weight:700;">الشهيد الطاهر عمرو شن</p>
+                    </td>
+                    <td style="width:70px; text-align:center; vertical-align:top;">
+                        <img src="/minsitere.png" style="width:55px;" onerror="this.src='../images/c.PNG'">
+                    </td>
+                </tr>
+            </table>
+
+            <!-- TITLE -->
+            <h2 id="eng-title-text" style="text-align:center; margin:10px 0 8px; font-size:16pt; font-weight:900; color:#8B0000; text-decoration:underline;">بطاقة التسجيل و التزام القارئ</h2>
+
+            <!-- INTRO -->
+            <p id="eng-intro" style="text-align:right; font-weight:700; font-size:10pt; margin-bottom:8px;">أنا الموقع أدناه :</p>
+
+            <!-- ALL FIELDS IN ONE TABLE -->
+            <table style="width:100%; border-collapse:collapse;" cellpadding="0" cellspacing="0">
+                <!-- Row 1: Nom + Photo -->
+                <tr>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;">اللقب :</span>
+                        <span style="font-weight:700; font-size:9pt; margin-right:3px;" id="eng-nom"></span>
+                    </td>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:ltr;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-nom-lat">Nom :</span>
+                        <span style="font-weight:700; font-size:9pt; margin-left:3px;" id="eng-nom-lat"></span>
+                    </td>
+                    <td rowspan="2" style="border:1px solid #bbb; width:95px; text-align:center; vertical-align:top; padding:3px;">
+                        <img id="eng-photo" src="" style="width:85px; height:100px; object-fit:cover; border:1px solid #999;">
+                    </td>
+                </tr>
+                <!-- Row 2: Prénom -->
+                <tr>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;">الاسم :</span>
+                        <span style="font-weight:700; font-size:9pt; margin-right:3px;" id="eng-prenom"></span>
+                    </td>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:ltr;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-prenom-lat">Prénom :</span>
+                        <span style="font-weight:700; font-size:9pt; margin-left:3px;" id="eng-prenom-lat"></span>
+                    </td>
+                </tr>
+                <!-- Row 3: Gender / DOB / Job -->
+                <tr>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;" id="cell-gender">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-gender">الجنس :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-gender"></span>
+                    </td>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;" id="cell-dob">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-dob">تاريخ و مكان الميلاد :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-dob"></span>
+                    </td>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-job">المهنة :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-job"></span>
+                    </td>
+                </tr>
+                <!-- Row 4: Code / Date -->
+                <tr>
+                    <td colspan="2" style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-code">رمز القارئ :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-code"></span>
+                    </td>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-date">تاريخ التسجيل :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-date"></span>
+                    </td>
+                </tr>
+                <!-- Row 5: NIN -->
+                <tr>
+                    <td colspan="3" style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-nin">رقم التعريف الوطني :</span>
+                        <span style="font-weight:700; font-size:9pt; font-family:monospace; letter-spacing:1px;" id="eng-nin"></span>
+                    </td>
+                </tr>
+                <!-- Row 6: Email -->
+                <tr>
+                    <td colspan="3" style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-email">عنوان البريد :</span>
+                        <span style="font-weight:700; font-size:9pt; direction:ltr; unicode-bidi:embed;" id="eng-email"></span>
+                    </td>
+                </tr>
+                <!-- Row 7: Address (taller) -->
+                <tr>
+                    <td colspan="3" style="border:1px solid #bbb; padding:5px 8px; height:35px; vertical-align:top; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-address">عنوان الإقامة :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-address"></span>
+                    </td>
+                </tr>
+                <!-- Row 8: Wilaya (full width) -->
+                <tr>
+                    <td colspan="3" style="border:1px solid #bbb; padding:5px 8px; height:30px; vertical-align:top; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-wilaya">ولاية :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-wilaya">بجاية</span>
+                    </td>
+                </tr>
+                <!-- Row 9: Country / Phone -->
+                <tr>
+                    <td style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-country">البلد :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-country">الجزائر</span>
+                    </td>
+                    <td colspan="2" style="border:1px solid #bbb; padding:5px 8px; direction:rtl;">
+                        <span style="font-weight:700; font-size:8pt; color:#666;" id="label-phone">الهاتف :</span>
+                        <span style="font-weight:700; font-size:9pt;" id="eng-phone"></span>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- COMMITMENT -->
+            <div style="margin-top:15px;">
+                <p id="label-commitment" style="font-weight:900; font-size:11pt; text-decoration:underline; margin-bottom:8px;">أتعهد بـ</p>
+                <div id="eng-rules" style="padding-right:10px; font-size:9pt; line-height:1.7; font-weight:600;">
+                    <p style="margin:0 0 3px;">الاستحفاظ على ممتلكات المكتبة خلال ترددي عليها واحترام قانونها الداخلي</p>
+                    <p style="margin:0 0 3px;">الالتزام بإعادة الكتب التي أستعيرها في الوقت المحدد</p>
+                    <p style="margin:0 0 3px;">إعلامكم بإقامتي الجديدة في حالة تغيرها</p>
+                    <p style="margin:0 0 3px;">الاستحفاظ على بطاقة القارئ</p>
+                    <p style="margin:0 0 3px;">يجب عليّ تقديم بطاقة القارئ عند كل دخول إلى المكتبة</p>
+                </div>
+            </div>
+
+            <!-- SIGNATURE -->
+            <table style="width:100%; margin-top:40px;" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td style="width:50%; text-align:left; vertical-align:top;">
+                        <p id="label-signature" style="font-family:Arial; font-size:12pt; font-weight:900; color:#2E7D32;">Signature</p>
+                    </td>
+                    <td style="width:50%; text-align:right; vertical-align:top;">
+                        <p id="label-legal" style="font-family:Arial; font-size:12pt; font-weight:900; color:#2E7D32;">L'égalisation</p>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- FOOTER -->
+            <div style="margin-top:40px;">
+                <p id="label-obs" style="font-weight:900; font-size:9pt; color:#8B0000; text-align:right;">ملاحظة</p>
+                <p id="eng-footer-note" style="text-align:center; font-weight:900; font-size:9pt; color:#8B0000; margin-top:4px;">هذا الالتزام صالح لمدة عام واحد من تاريخ التسجيل</p>
+            </div>
+        </div>
+    </div>

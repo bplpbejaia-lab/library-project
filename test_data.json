@@ -1,0 +1,13 @@
+{
+    "nom": "اختبار",
+    "prenom": "اختبار",
+    "nomLatin": "TEST",
+    "prenomLatin": "TEST",
+    "lecteurId": "TEST-123",
+    "nin": "123456789012345678",
+    "profession": "اختبار",
+    "email": "test@example.com",
+    "adresse": "حي الاختبار، بجاية",
+    "date_enregistrement": "2026-05-11",
+    "naissance": "2000-01-01"
+}

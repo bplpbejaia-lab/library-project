@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل - مكتبة بجاية الرئيسية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2E7D32",
+                        "background-light": "#f6f8f6",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #c62828;
+            --accent-color: #388e3c;
+            --danger-color: #d32f2f;
+            --dark-color: #263238;
+            --light-color: #f5f5f5;
+            --gray-color: #607d8b;
+            --border-color: #bdbdbd;
+            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 100px 20px 40px;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .container {
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            border: 1px solid rgba(46, 125, 50, 0.1);
+            padding: 40px 30px;
+        }
+
+        /* Login Modal */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-overlay.active {
+            display: flex;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 28px;
+            padding: 48px 40px 40px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(46, 125, 50, 0.08);
+            position: relative;
+            animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes slideUpModal {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        .login-modal .close-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #607d8b;
+        }
+
+        .login-modal .close-btn:hover {
+            background: #e8f5e9;
+            color: #2E7D32;
+            transform: rotate(90deg);
+        }
+
+        .login-modal .modal-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+        }
+
+        .login-modal h2 {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a2e1a;
+            margin-bottom: 6px;
+        }
+
+        .login-modal .subtitle {
+            text-align: center;
+            color: #607d8b;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .login-modal .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .login-modal .input-group .material-symbols-outlined {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e9e9e;
+            font-size: 22px;
+            pointer-events: none;
+        }
+
+        .login-modal input[type='text'],
+        .login-modal input[type='password'] {
+            width: 100%;
+            padding: 14px 48px 14px 14px;
+            border: 2px solid #e8ece8;
+            border-radius: 14px;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 0.95rem;
+            color: #1a2e1a;
+            background: #fafbfa;
+            transition: all 0.3s;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .login-modal input:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            background: white;
+        }
+
+        .login-modal .login-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2E7D32, #43a047);
+            color: white;
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 6px;
+            box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+        }
+
+        .login-modal .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46, 125, 50, 0.35);
+        }
+
+        .login-modal .forgot-link {
+            display: block;
+            text-align: center;
+            color: #2E7D32;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 16px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .login-modal .forgot-link:hover {
+            color: #1a5e1f;
+        }
+
+        .login-modal .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0;
+            color: #9e9e9e;
+            font-size: 0.8rem;
+        }
+
+        .login-modal .divider::before,
+        .login-modal .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e8ece8;
+        }
+
+        .login-modal .register-link {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #607d8b;
+            margin-top: 4px;
+        }
+
+        .login-modal .register-link a {
+            color: #2E7D32;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .login-modal .register-link a:hover {
+            color: #1a5e1f;
+        }
+
+        @keyframes profileDropdownShow {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .profile-dropdown-animate {
+            animation: profileDropdownShow 0.2s ease-out forwards;
+            transform-origin: top left;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--gray-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--danger-color);
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background-color: #fafafa;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .password-group {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            left: 15px;
+            top: 38px;
+            cursor: pointer;
+            color: var(--gray-color);
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+        }
+
+        .password-requirements {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: var(--gray-color);
+        }
+
+        .requirement i {
+            margin-left: 10px;
+            width: 16px;
+        }
+
+        .requirement.met {
+            color: var(--primary-color);
+        }
+
+        .requirement.met i {
+            color: var(--primary-color);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 20px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(46, 125, 50, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-alert {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: right;
+        }
+
+        .success-alert.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .checkbox-group input {
+            margin-top: 5px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            text-align: right;
+        }
+
+        .checkbox-group a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .info-text {
+            background: rgba(46, 125, 50, 0.05);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            border-right: 3px solid var(--primary-color);
+            text-align: right;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid var(--light-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Printable Form Styles */
+        #registrationFormPrint {
+            display: none;
+            width: 210mm;
+            padding: 15mm;
+            background: white;
+            font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+            color: black;
+            direction: rtl;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #registrationFormPrint, #registrationFormPrint * {
+                visibility: visible;
+                display: block !important;
+            }
+            #registrationFormPrint {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+                padding: 10mm;
+                width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .print-header {
+            display: grid;
+            grid-template-columns: 200px 1fr 180px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #000;
+        }
+
+        .header-logo-left {
+            text-align: center;
+        }
+        .header-logo-left img {
+            height: 100px;
+            width: auto;
+        }
+        .header-logo-left p {
+            font-size: 8pt;
+            font-weight: 900;
+            margin-top: 5px;
+            line-height: 1.1;
+        }
+
+        .header-logo-right img {
+            height: 120px;
+            width: auto;
+        }
+
+        .header-text-center {
+            text-align: center;
+            padding: 0 5px;
+        }
+
+        .header-text-center p {
+            margin: 0;
+            font-size: 9pt;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .print-title {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .print-title h2 {
+            font-size: 22pt;
+            font-weight: 900;
+            text-decoration: underline;
+            display: inline-block;
+        }
+
+        .print-body {
+            font-size: 13pt;
+            padding: 0 40px;
+        }
+
+        .intro {
+            font-weight: 900;
+            margin-bottom: 20px;
+            font-size: 15pt;
+        }
+
+        .data-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 30px;
+            padding-right: 60px;
+        }
+
+        .data-row {
+            display: grid;
+            grid-template-columns: 1fr 180px;
+            align-items: center;
+        }
+
+        .data-row span:last-child {
+            font-weight: 900;
+            text-align: right;
+        }
+        
+        .data-row span:first-child {
+            text-align: right;
+            padding-right: 20px;
+            font-weight: 500;
+        }
+
+        .commitment-section {
+            margin-top: 30px;
+            padding-right: 20px;
+        }
+
+        .commitment-section p {
+            font-weight: 900;
+            margin-bottom: 15px;
+            font-size: 14pt;
+        }
+
+        .commitment-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .commitment-section li {
+            margin-bottom: 10px;
+            font-weight: 900;
+            font-size: 12pt;
+        }
+        .commitment-section li::before {
+            content: "- ";
+        }
+
+        .footer-sign {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding: 0 80px;
+        }
+
+        .sign-block {
+            font-weight: 900;
+            font-size: 13pt;
+        }
+
+        .validity {
+            text-align: center;
+            margin-top: 100px;
+            font-weight: 900;
+            font-size: 11pt;
+        }
+
+        /* Success button print */
+        .print-btn-success {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #2e7d32;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .print-btn-success:hover {
+            background: #1b5e20;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar (same as homepage) -->
+    <header class="fixed top-0 w-full z-50 glass-nav border-b border-primary/10 shadow-sm shadow-primary/5">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <!-- Logo Gauche -->
+                <div class="flex-shrink-0">
+                    <img alt="Logo Gauche" class="h-16 w-auto object-contain" src="../images/c.PNG" />
+                </div>
+                <!-- Center Menu -->
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">عن المكتبة <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="../pages/technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-bold text-primary tracking-wide" href="#">خدمات <span
+                                class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(244,63,94,0.08);color:#f43f5e;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">feedback</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الشكاوى</div>
+                                    <div class="dropdown-desc">أرسل ملاحظاتك واقتراحاتك</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">النشاطات الثقافية <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/cultural-activities.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">celebration</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">برنامج النشاطات الثقافية</div>
+                                    <div class="dropdown-desc">الفعاليات والأنشطة القادمة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">child_care</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الأطفال</div>
+                                    <div class="dropdown-desc">أنشطة ترفيهية وتعليمية للصغار</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">menu_book</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">منتدى الكتاب</div>
+                                    <div class="dropdown-desc">مناقشات أدبية وثقافية</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">groups</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">المؤلفين المحليين</div>
+                                    <div class="dropdown-desc">بوابة الكتّاب والمؤلفين المحليين</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">اتصل بنا</a>
+                </nav>
+                <!-- Logo Droite -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <button
+                        class="hidden lg:flex items-center gap-1.5 text-slate-700 hover:text-primary px-3 py-2 text-[17px] font-semibold">
+                        <span class="material-symbols-outlined text-[22px]">translate</span>
+                        <span>العربية</span>
+                    </button>
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="document.getElementById('loginOverlay').classList.add('active')">تسجيل
+                            الدخول</button>
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-white bg-primary hover:opacity-90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                            onclick="window.location.href='/pages/g.html'">التسجيل</button>
+                    </div>
+                    <!-- Profile Dropdown (Hidden by default) -->
+                    <div id="user-profile-menu" class="hidden relative">
+                        <button id="profile-trigger"
+                            class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                            <img id="user-avatar" src="" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                            <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                        </button>
+                        <div id="profile-dropdown"
+                            class="hidden absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100]">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p id="user-display-name" class="text-sm font-bold text-slate-900"></p>
+                                <p id="user-display-email" class="text-xs text-slate-500"></p>
+                            </div>
+                            <div class="py-2">
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">person</span> حسابي
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">history</span> سجل الإعارة
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">settings</span> الإعدادات
+                                </a>
+                            </div>
+                            <div class="border-t border-slate-100 pt-2">
+                                <button id="logout-btn"
+                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">logout</span> تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <img alt="Ministry Logo" class="h-16 w-auto object-contain" src="../images/image.png" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+
+
+
+
+
+
+
+
+    <div class="container">
+        <div class="header">
+            <h1>تسجيل جديد</h1>
+            <p>انضم إلى مكتبتنا اليوم</p>
+        </div>
+
+        <div class="success-alert" id="successAlert">
+            <i class="fas fa-check-circle"></i> تم التسجيل بنجاح! سيتم التحقق من بريدك الإلكتروني.
+        </div>
+
+        <form id="registrationForm">
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i> جميع الحقول المميزة بعلامة (*) إجبارية
+            </div>
+
+            <!-- الاسم الأول والأخير -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label required" for="prenom">الاسم الأول</label>
+                    <input type="text" id="prenom" class="form-input" placeholder="الاسم الأول" required>
+                    <div class="error-message" id="prenomError"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" for="nom">الاسم الأخير</label>
+                    <input type="text" id="nom" class="form-input" placeholder="الاسم الأخير" required>
+                    <div class="error-message" id="nomError"></div>
+                </div>
+            </div>
+
+            <!-- البريد الإلكتروني والهاتف -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label required" for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" class="form-input" placeholder="البريد الإلكتروني" required>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" for="telephone">رقم الهاتف</label>
+                    <input type="tel" id="telephone" class="form-input" placeholder="رقم الهاتف" required>
+                    <div class="error-message" id="telephoneError"></div>
+                </div>
+            </div>
+
+            <!-- تاريخ الميلاد والفئة -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label required" for="dateNaissance">تاريخ الميلاد</label>
+                    <input type="date" id="dateNaissance" class="form-input" required>
+                    <div class="error-message" id="dateError"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" for="categorie">الفئة</label>
+                    <select id="categorie" class="form-select" required>
+                        <option value="">اختر فئة</option>
+                        <option value="1">طالب</option>
+                        <option value="2">موظف</option>
+                        <option value="3">معلم</option>
+                        <option value="4">عام</option>
+                    </select>
+                    <div class="error-message" id="categorieError"></div>
+                </div>
+            </div>
+
+            <!-- العنوان والرقم الوطني -->
+            <div class="form-group">
+                <label class="form-label required" for="adresse">العنوان</label>
+                <input type="text" id="adresse" class="form-input" placeholder="العنوان الكامل" required>
+                <div class="error-message" id="adresseError"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="nin">الرقم الوطني</label>
+                <input type="text" id="nin" class="form-input" placeholder="الرقم الوطني" maxlength="18">
+                <div class="error-message" id="ninError"></div>
+            </div>
+
+            <!-- كلمة المرور -->
+            <div class="form-group">
+                <label class="form-label required" for="password">كلمة المرور</label>
+                <div class="password-group">
+                    <input type="password" id="password" class="form-input" placeholder="كلمة مرور قوية" required>
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="password-requirements">
+                    <div class="requirement" id="lengthReq">
+                        <span>8 أحرف على الأقل</span><i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="requirement" id="uppercaseReq">
+                        <span>حرف واحد كبير على الأقل</span><i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="requirement" id="numberReq">
+                        <span>رقم واحد على الأقل</span><i class="fas fa-times-circle"></i>
+                    </div>
+                </div>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <!-- تأكيد كلمة المرور -->
+            <div class="form-group">
+                <label class="form-label required" for="confirmPassword">تأكيد كلمة المرور</label>
+                <div class="password-group">
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="أعد إدخال كلمة المرور"
+                        required>
+                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="confirmError"></div>
+            </div>
+
+            <!-- الشروط والأحكام -->
+            <div class="checkbox-group">
+                <label for="conditions">
+                    أوافق على
+                    <a href="#">شروط وأحكام الاستخدام</a>
+                    و
+                    <a href="#">سياسة الخصوصية</a>
+                </label>
+                <input type="checkbox" id="conditions" required>
+            </div>
+
+            <!-- زر الإرسال -->
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fas fa-user-plus"></i> إنشاء حساب
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: var(--gray-color);">جاري المعالجة...</p>
+            </div>
+        </form>
+
+        <div class="back-link">
+            <a href="../">← العودة إلى الصفحة الرئيسية</a>
+        </div>
+    </div>
+
+    <!-- Fiche d'inscription imprimable (cachée) -->
+    <div id="registrationFormPrint">
+        <div class="print-header">
+            <div class="header-logo-left">
+                <img src="/logo.jpg" alt="Logo" onerror="this.src='../images/c.PNG'">
+                <p>BIBLIOTHÈQUE</p>
+                <p>PRINCIPALE DE LA LECTURE PUBLIQUE</p>
+                <p>BEJAIA</p>
+            </div>
+            <div class="header-text-center">
+                <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                <p>République Algérienne Démocratique et Populaire</p>
+                <p>وزارة الثقافة و الفنون</p>
+                <p>Ministère de la Culture et des Arts</p>
+                <p>Bibliothéque principale de la lecture publique de la wilaya de Bejaia</p>
+                <p>المـــكتبـــة الــــــرئيسيـــة للمـــطالعـــة العموميــة لـــوالية بـجايـــة</p>
+                <p>الشهيد الطاهر عمرو نش</p>
+            </div>
+            <div class="header-logo-right">
+                <img src="/minsitere.png" alt="Logo" onerror="this.src='../images/image.png'">
+            </div>
+        </div>
+        
+        <div class="print-title">
+            <h2>بطاقة التسجيل والتزام القارئ</h2>
+        </div>
+        
+        <div class="print-body">
+            <p class="intro">أنا الموقع أدناه :</p>
+            <div class="data-grid">
+                <div class="data-row"><span id="print-nom-ar"></span> <span>اللقب:</span></div>
+                <div class="data-row"><span id="print-prenom-ar"></span> <span>الاسم:</span></div>
+                <div class="data-row"><span id="print-nom-la"></span> <span>اللقب بالاتينية :</span></div>
+                <div class="data-row"><span id="print-prenom-la"></span> <span>الاسم بالاتينية :</span></div>
+                <div class="data-row"><span id="print-dob"></span> <span>تاريخ الولادة:</span></div>
+                <div class="data-row"><span id="print-profession"></span> <span>المهنة:</span></div>
+                <div class="data-row"><span id="print-sexe"></span> <span>الجنس:</span></div>
+                <div class="data-row"><span id="print-reg-date"></span> <span>تاريخ التسجيل:</span></div>
+                <div class="data-row"><span id="print-nin"></span> <span>رقم التعريف الوطني:</span></div>
+                <div class="data-row"><span id="print-address"></span> <span>العنوان:</span></div>
+                <div class="data-row"><span id="print-commune"></span> <span>البلدية:</span></div>
+                <div class="data-row"><span id="print-wilaya"></span> <span>الولاية:</span></div>
+                <div class="data-row"><span id="print-phone"></span> <span>رقم الهاتف:</span></div>
+                <div class="data-row"><span id="print-pays"></span> <span>البلد:</span></div>
+            </div>
+            
+            <div class="commitment-section">
+                <p>اتعهد ب</p>
+                <ul>
+                    <li>الاستحفاظ على ممتلكات المكتبة خلال ترددي عليها واحترام قانونها الداخلي.</li>
+                    <li>الالتزام بإعادة الكتب التي أستعيرها في الوقت المحدد.</li>
+                    <li>إإعلامكم بإقامتي الجديدة في حالة تغيرها.</li>
+                    <li>الاستحفاظ على بطاقة القارئ.</li>
+                </ul>
+            </div>
+            
+            <div class="footer-sign">
+                <div class="sign-block">Signature:</div>
+                <div class="sign-block">L'égalisation:</div>
+            </div>
+            
+            <div class="validity">
+                هذا الالتزام صالحا لمدة عام واحد من تاريخ التسجيل
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const successAlert = document.getElementById('successAlert');
+
+        // Password visibility toggle
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            e.preventDefault();
+            const input = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function (e) {
+            e.preventDefault();
+            const input = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Password requirements validation
+        document.getElementById('password').addEventListener('input', function () {
+            const password = this.value;
+
+            updateRequirement('lengthReq', password.length >= 8);
+            updateRequirement('uppercaseReq', /[A-Z]/.test(password));
+            updateRequirement('numberReq', /[0-9]/.test(password));
+        });
+
+        function updateRequirement(id, met) {
+            const element = document.getElementById(id);
+            if (met) {
+                element.classList.add('met');
+                element.querySelector('i').classList.remove('fa-times-circle');
+                element.querySelector('i').classList.add('fa-check-circle');
+            } else {
+                element.classList.remove('met');
+                element.querySelector('i').classList.remove('fa-check-circle');
+                element.querySelector('i').classList.add('fa-times-circle');
+            }
+        }
+
+        // Form validation and submission
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+            });
+
+            // Get form data
+            const data = {
+                nom: document.getElementById('nom').value.trim(),
+                prenom: document.getElementById('prenom').value.trim(),
+                email: document.getElementById('email').value.trim().toLowerCase(),
+                telephone: document.getElementById('telephone').value.trim(),
+                dateNaissance: document.getElementById('dateNaissance').value,
+                categorie: document.getElementById('categorie').value,
+                adresse: document.getElementById('adresse').value.trim(),
+                nin: document.getElementById('nin').value.trim(),
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            };
+
+            // Validation
+            let isValid = true;
+            const errors = {};
+
+            if (!data.nom) {
+                errors.nom = 'الاسم الأخير مطلوب';
+                isValid = false;
+            }
+            if (!data.prenom) {
+                errors.prenom = 'الاسم الأول مطلوب';
+                isValid = false;
+            }
+            if (!data.email || !isValidEmail(data.email)) {
+                errors.email = 'بريد إلكتروني صحيح مطلوب';
+                isValid = false;
+            }
+            if (!data.telephone) {
+                errors.telephone = 'رقم الهاتف مطلوب';
+                isValid = false;
+            }
+            if (!data.dateNaissance) {
+                errors.date = 'تاريخ الميلاد مطلوب';
+                isValid = false;
+            }
+            if (!data.categorie) {
+                errors.categorie = 'الفئة مطلوبة';
+                isValid = false;
+            }
+            if (!data.adresse) {
+                errors.adresse = 'العنوان مطلوب';
+                isValid = false;
+            }
+            if (data.password.length < 8) {
+                errors.password = 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل';
+                isValid = false;
+            }
+            if (!/[A-Z]/.test(data.password)) {
+                errors.password = 'كلمة المرور يجب أن تحتوي على حرف واحد كبير على الأقل';
+                isValid = false;
+            }
+            if (!/[0-9]/.test(data.password)) {
+                errors.password = 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل';
+                isValid = false;
+            }
+            if (data.password !== data.confirmPassword) {
+                errors.confirm = 'كلمات المرور غير متطابقة';
+                isValid = false;
+            }
+            if (!document.getElementById('conditions').checked) {
+                errors.conditions = 'يجب قبول الشروط والأحكام';
+                isValid = false;
+            }
+
+            // Show errors
+            if (!isValid) {
+                Object.keys(errors).forEach(key => {
+                    const errorElement = document.getElementById(key + 'Error');
+                    if (errorElement) {
+                        errorElement.textContent = errors[key];
+                        errorElement.classList.add('show');
+                    }
+                });
+                return;
+            }
+
+            // Submit form
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/register-step1', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nom: data.nom,
+                        prenom: data.prenom,
+                        email: data.email,
+                        telephone: data.telephone,
+                        dateNaissance: data.dateNaissance,
+                        categorie: parseInt(data.categorie),
+                        adresse: data.adresse,
+                        nin: data.nin || null,
+                        password: data.password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'خطأ في التسجيل');
+                }
+
+                // Show success message
+                successAlert.innerHTML = `
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-check-circle text-2xl"></i>
+                            <span>تم التسجيل بنجاح! سيتم التحقق من طلبك من قبل الإدارة.</span>
+                        </div>
+                        <button onclick="printRegistrationForm()" class="print-btn-success no-print">
+                            <i class="fas fa-print"></i> طباعة وصل التسجيل والالتزام
+                        </button>
+                    </div>
+                `;
+                successAlert.classList.add('show');
+                
+                // Fill print form
+                document.getElementById('print-nom-ar').textContent = data.nom;
+                document.getElementById('print-prenom-ar').textContent = data.prenom;
+                document.getElementById('print-nom-la').textContent = data.nom; // Simplified for now
+                document.getElementById('print-prenom-la').textContent = data.prenom; // Simplified for now
+                document.getElementById('print-dob').textContent = data.dateNaissance;
+                document.getElementById('print-profession').textContent = document.getElementById('categorie').options[document.getElementById('categorie').selectedIndex].text;
+                document.getElementById('print-sexe').textContent = "ذكر/أنثى"; // Need input or guess
+                document.getElementById('print-reg-date').textContent = new Date().toLocaleDateString('ar-DZ');
+                document.getElementById('print-nin').textContent = data.nin || '---';
+                document.getElementById('print-address').textContent = data.adresse;
+                document.getElementById('print-commune').textContent = "بجاية";
+                document.getElementById('print-wilaya').textContent = "بجاية";
+                document.getElementById('print-phone').textContent = data.telephone;
+                document.getElementById('print-pays').textContent = "الجزائر";
+
+                // Optional: Scroll to success alert
+                successAlert.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error:', error);
+                const errorElement = document.getElementById('emailError');
+                errorElement.textContent = error.message || 'حدث خطأ أثناء التسجيل';
+                errorElement.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                loading.style.display = 'none';
+            }
+        });
+
+        function printRegistrationForm() {
+            const link = document.createElement('a');
+            link.href = '/engagement.html';
+            link.download = '1754215192533-engagement________________.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+
+    <!-- Login Modal -->
+    <div id="loginOverlay" class="login-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="login-modal">
+            <button class="close-btn" onclick="document.getElementById('loginOverlay').classList.remove('active')">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+            <div class="modal-icon">
+                <span class="material-symbols-outlined" style="font-size:2.2rem;color:white;">lock_open</span>
+            </div>
+            <h2>تسجيل الدخول</h2>
+            <p class="subtitle">مرحباً بعودتك! أدخل بياناتك للدخول إلى حسابك</p>
+            <div class="input-group">
+                <span class="material-symbols-outlined">person</span>
+                <input type="text" placeholder="اسم المستخدم أو البريد الإلكتروني" id="loginUsername" />
+            </div>
+            <div class="input-group">
+                <span class="material-symbols-outlined">lock</span>
+                <input type="password" placeholder="كلمة المرور" id="loginPassword" />
+            </div>
+            <button class="login-btn" onclick="handleLogin()">دخول</button>
+            <a href="#" class="forgot-link">نسيت كلمة المرور؟</a>
+            <div class="divider">أو</div>
+            <p class="register-link">ليس لديك حساب؟ <a href="../pages/g.html">سجّل الآن</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            const authContainer = document.getElementById('auth-container');
+            const userProfileMenu = document.getElementById('user-profile-menu');
+            const profileTrigger = document.getElementById('profile-trigger');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            const userAvatar = document.getElementById('user-avatar');
+            const userDisplayName = document.getElementById('user-display-name');
+            const userDisplayEmail = document.getElementById('user-display-email');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user) {
+                authContainer.classList.add('hidden');
+                userProfileMenu.classList.remove('hidden');
+                userAvatar.src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+                userDisplayName.textContent = user.prenom + ' ' + user.nom;
+                userDisplayEmail.textContent = user.email;
+            }
+
+            profileTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = profileDropdown.classList.contains('hidden');
+                if (isHidden) {
+                    profileDropdown.classList.remove('hidden');
+                    profileDropdown.classList.add('profile-dropdown-animate');
+                } else {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('click', () => {
+                profileDropdown.classList.add('hidden');
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('libraryUser');
+                window.location.reload();
+            });
+        });
+
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) {
+                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem('libraryUsers') || '[]');
+            const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+            if (user) {
+                localStorage.setItem('libraryUser', JSON.stringify(user));
+                document.getElementById('loginOverlay').classList.remove('active');
+                window.location.reload();
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('loginOverlay').classList.remove('active');
+            }
+        });
+    </script>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>

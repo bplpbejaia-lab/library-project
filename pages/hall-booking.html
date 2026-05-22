@@ -1,0 +1,620 @@
+﻿<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>حجز القاعات - المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2E7D32",
+                        "primary-light": "#4CAF50",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+            overflow-x: hidden;
+            background-color: #f6f8f6;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            z-index: 10;
+        }
+
+        .nav-item>a {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 260px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: top center;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            z-index: 200;
+            margin-top: 12px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateX(50%) translateY(0);
+        }
+
+        .nav-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 4px;
+            transform: translateX(50%) rotate(45deg);
+            box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1d1d1f;
+            font-size: 0.92rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.06);
+            color: #2E7D32;
+        }
+
+        .nav-dropdown-item .dropdown-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .nav-dropdown-item:hover .dropdown-icon {
+            transform: scale(1.08);
+        }
+
+        .nav-dropdown-item .dropdown-text {
+            flex: 1;
+        }
+
+        .nav-dropdown-item .dropdown-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .nav-dropdown-item .dropdown-desc {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+
+        .nav-dropdown-divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.06);
+            margin: 4px 12px;
+        }
+
+        /* Booking Specific Styles */
+        .hero-section {
+            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+            padding-top: 160px;
+            padding-bottom: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('../images/hall1.png') center/cover;
+            opacity: 0.2;
+            mix-blend-mode: overlay;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-elegant {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            background: #ffffff;
+            transition: all 0.3s;
+            text-align: right;
+        }
+
+        .input-elegant:focus {
+            border-color: #2E7D32;
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+            outline: none;
+        }
+
+        .btn-booking {
+            background: linear-gradient(135deg, #2E7D32 0%, #43a047 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.3);
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-booking:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(46, 125, 50, 0.4);
+        }
+
+        .hall-image-card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            aspect-ratio: 16/10;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .group:hover .hall-image-card {
+            transform: scale(1.05);
+        }
+
+        .hall-image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease;
+        }
+
+        .hall-image-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .floating-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            color: #2E7D32;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-dark {
+            background-color: #121212;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light">
+    <!-- Navbar -->
+    <header
+        class="absolute top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5 transition-all duration-300">
+        <div class="w-full px-6 sm:px-8 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <!-- Logo Gauche -->
+                <div class="flex-shrink-0">
+                    <img alt="Logo Gauche" class="h-16 w-auto object-contain" src="../images/c.PNG" />
+                </div>
+                <!-- Center Menu -->
+                <nav class="hidden md:flex items-center gap-10 flex-1 justify-center mx-8">
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="../">الرئيسية</a>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">عن المكتبة <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/director-word.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">كلمة مدير المكتبة</div>
+                                    <div class="dropdown-desc">رسالة ترحيبية من إدارة المكتبة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/library-goals.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">target</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">أهداف ومهام المكتبة</div>
+                                    <div class="dropdown-desc">رؤيتنا وأهدافنا الاستراتيجية</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="../pages/technical-card.html">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">credit_card</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">البطاقة الفنية للمكتبة</div>
+                                    <div class="dropdown-desc">معلومات تقنية وإحصائيات</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/internal-regulations.html">
+                                <div class="dropdown-icon" style="background:rgba(14,165,233,0.08);color:#0ea5e9;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">gavel</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">النظام الداخلي للمكتبة</div>
+                                    <div class="dropdown-desc">قواعد ولوائح الاستخدام</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-bold text-primary tracking-wide" href="#">خدمات <span
+                                class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/g.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">person_add</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">الإنخراط في المكتبة</div>
+                                    <div class="dropdown-desc">سجّل للحصول على بطاقة الانخراط</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/books-catalog.html">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">library_books</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فهرس المكتبة</div>
+                                    <div class="dropdown-desc">تصفح الكتب والمراجع المتاحة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="../pages/hall-booking.html">
+                                <div class="dropdown-icon" style="background:rgba(236,72,153,0.08);color:#ec4899;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">meeting_room</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">حجز القاعات</div>
+                                    <div class="dropdown-desc">احجز قاعة للفعاليات والاجتماعات</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(244,63,94,0.08);color:#f43f5e;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">feedback</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الشكاوى</div>
+                                    <div class="dropdown-desc">أرسل ملاحظاتك واقتراحاتك</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                            href="#">النشاطات الثقافية <span class="material-symbols-outlined text-[14px]"
+                                style="margin-right:2px;">expand_more</span></a>
+                        <div class="nav-dropdown">
+                            <a class="nav-dropdown-item" href="../pages/cultural-activities.html">
+                                <div class="dropdown-icon" style="background:rgba(46,125,50,0.08);color:#2E7D32;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">celebration</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">برنامج النشاطات الثقافية</div>
+                                    <div class="dropdown-desc">الفعاليات والأنشطة القادمة</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(245,158,11,0.08);color:#f59e0b;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">child_care</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">فضاء الأطفال</div>
+                                    <div class="dropdown-desc">أنشطة ترفيهية وتعليمية للصغار</div>
+                                </div>
+                            </a>
+                            <div class="nav-dropdown-divider"></div>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">menu_book</span>
+                                </div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">منتدى الكتاب</div>
+                                    <div class="dropdown-desc">مناقشات أدبية وثقافية</div>
+                                </div>
+                            </a>
+                            <a class="nav-dropdown-item" href="#">
+                                <div class="dropdown-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6;"><span
+                                        class="material-symbols-outlined" style="font-size:1.2rem;">groups</span></div>
+                                <div class="dropdown-text">
+                                    <div class="dropdown-title">المؤلفين المحليين</div>
+                                    <div class="dropdown-desc">بوابة الكتّاب والمؤلفين المحليين</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <a class="text-[17px] font-semibold text-slate-700 hover:text-primary transition-colors"
+                        href="#">اتصل بنا</a>
+                </nav>
+                <!-- Logo Droite -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <button
+                        class="hidden lg:flex items-center gap-1.5 text-slate-700 hover:text-primary px-3 py-2 text-[17px] font-semibold">
+                        <span class="material-symbols-outlined text-[22px]">translate</span>
+                        <span>العربية</span>
+                    </button>
+                    <div id="auth-container" class="flex items-center gap-3">
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                            onclick="document.getElementById('loginOverlay').classList.add('active')">تسجيل
+                            الدخول</button>
+                        <button
+                            class="px-5 py-2.5 text-[17px] font-bold text-white bg-primary hover:opacity-90 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                            onclick="window.location.href='/pages/g.html'">التسجيل</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="container mx-auto px-6 relative z-10 text-center text-white">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full mb-6 border border-white/20">
+                    <span class="material-symbols-outlined text-[20px] text-primary-light">meeting_room</span>
+                    <span class="text-sm font-semibold">خدمة حجز القاعات الاحترافية</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">احجز مساحتك الإبداعية بمكتبتنا</h1>
+                <p class="text-xl text-white/80 max-w-2xl mx-auto font-light leading-relaxed">نوفر لكم قاعات مجهزة بأحدث
+                    الوسائل التكنولوجية لتنظيم فعالياتكم، اجتماعاتكم وورش العمل في جو من الهدوء والإبداع</p>
+            </div>
+        </section>
+
+        <section class="container mx-auto px-6 -mt-20 relative z-20 mb-24">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Halls List -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="glass-card p-8">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-8 flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-3xl">domain</span>
+                            القاعات المتاحة
+                        </h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Hall 1 -->
+                            <div class="group">
+                                <div class="hall-image-card mb-4">
+                                    <img src="../images/hall1.png" alt="قاعة المحاضرات الكبرى">
+                                    <div class="floating-badge">قاعة كبرى</div>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-800 mb-2">قاعة المحاضرات الكبرى</h3>
+                                <div class="flex items-center gap-4 text-slate-500 text-sm mb-4">
+                                    <span class="flex items-center gap-1"><span
+                                            class="material-symbols-outlined text-[18px]">groups</span> 150 شخص</span>
+                                    <span class="flex items-center gap-1"><span
+                                            class="material-symbols-outlined text-[18px]">devices</span> مجهزة
+                                        بالكامل</span>
+                                </div>
+                                <p class="text-slate-600 leading-relaxed text-sm mb-6">مثالية للمؤتمرات الكبيرة، الندوات
+                                    الفكرية، وعروض الأفلام. مجهزة بنظام صوتي متطور وجهاز عرض عالي الدقة.</p>
+                            </div>
+
+                            <!-- Hall 2 -->
+                            <div class="group">
+                                <div class="hall-image-card mb-4">
+                                    <img src="../images/hall2.png" alt="قاعة تواصل للأعمال">
+                                    <div class="floating-badge">متوسطة</div>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-800 mb-2">قاعة الاجتماعات "تواصل"</h3>
+                                <div class="flex items-center gap-4 text-slate-500 text-sm mb-4">
+                                    <span class="flex items-center gap-1"><span
+                                            class="material-symbols-outlined text-[18px]">groups</span> 12-15 شخص</span>
+                                    <span class="flex items-center gap-1"><span
+                                            class="material-symbols-outlined text-[18px]">wifi</span> واي فاي
+                                        سريع</span>
+                                </div>
+                                <p class="text-slate-600 leading-relaxed text-sm mb-6">مساحة هادئة ومريحة مخصصة
+                                    لاجتماعات فرق العمل، ورش العمل الصغيرة، والدورات التدريبية المكثفة.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-card p-6 text-center">
+                            <div
+                                class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <span class="material-symbols-outlined text-2xl">event_available</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-2">تأكيد فوري</h4>
+                            <p class="text-xs text-slate-500">معالجة سريعة لطلبات الحجز</p>
+                        </div>
+                        <div class="glass-card p-6 text-center">
+                            <div
+                                class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <span class="material-symbols-outlined text-2xl">support_agent</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-2">دعم فني</h4>
+                            <p class="text-xs text-slate-500">مرافقة تقنية طوال فترة نشاطكم</p>
+                        </div>
+                        <div class="glass-card p-6 text-center">
+                            <div
+                                class="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <span class="material-symbols-outlined text-2xl">coffee</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-2">خدمة الضيافة</h4>
+                            <p class="text-xs text-slate-500">إمكانية ترتيب فترات استراحة</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Form -->
+                <div class="lg:col-span-1">
+                    <div class="glass-card p-8 sticky top-32">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">طلب الحجز</h2>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">الاسم الكامل /
+                                    الجهة</label>
+                                <input type="text" class="input-elegant" placeholder="أدخل اسمك أو اسم المؤسسة">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">البريد الإلكتروني</label>
+                                <input type="email" class="input-elegant" placeholder="contact@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">اختار القاعة</label>
+                                <select class="input-elegant">
+                                    <option>قاعة المحاضرات الكبرى</option>
+                                    <option>قاعة الاجتماعات "تواصل"</option>
+                                    <option>فضاء ورش العمل</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">التاريخ</label>
+                                    <input type="date" class="input-elegant">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">الفترة</label>
+                                    <select class="input-elegant">
+                                        <option>صباحاً</option>
+                                        <option>مساءً</option>
+                                        <option>يوم كامل</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pt-4">
+                                <button type="button" class="btn-booking w-full justify-center">
+                                    <span>إرسال طلب الحجز</span>
+                                    <span class="material-symbols-outlined">send</span>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-400 text-center mt-4 italic">سيقوم فريقنا بالتواصل معكم في
+                                أقرب وقت لتأكيد التفاصيل</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Green End-of-Page Decoration -->
+    <div style="position:relative;margin-top:40px;">
+        <div style="height:3px;background:linear-gradient(90deg, transparent, #2E7D32, #4CAF50, #2E7D32, transparent);">
+        </div>
+        <div
+            style="padding:20px 0 16px;text-align:center;background:linear-gradient(180deg, rgba(46,125,50,0.03), transparent);">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, transparent, #2E7D32);"></div>
+                <span class="material-symbols-outlined"
+                    style="color:#2E7D32;font-size:16px;opacity:0.6;">local_library</span>
+                <div style="width:40px;height:1px;background:linear-gradient(90deg, #2E7D32, transparent);"></div>
+            </div>
+            <p style="font-size:11px;color:#94a3b8;margin:0;">© 2026 المكتبة الرئيسية للمطالعة العمومية لولاية بجاية.
+                جميع الحقوق محفوظة.</p>
+        </div>
+    </div>
+
+    <!-- Login Modal (Duplicated for simplicity here) -->
+    <div id="loginOverlay"
+        class="fixed inset-0 bg-black/50 backdrop-blur-md z-[2000] hidden items-center justify-center">
+        <!-- ... modal content ... -->
+    </div>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>

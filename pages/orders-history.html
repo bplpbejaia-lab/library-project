@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>سجل طلباتي - المكتبة الرئيسية لبجاية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="/css/responsive.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2E7D32",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "Noto Sans Arabic", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', 'Noto Sans Arabic', sans-serif;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        .order-card {
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(46, 125, 50, 0.08);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .status-pending {
+            background: #fff8e1;
+            color: #f57c00;
+            border: 1px solid #ffe082;
+        }
+
+        .status-approved {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .status-rejected {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            min-width: 240px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 50;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        .nav-item:hover .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(50%) translateY(0);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+    <!-- Navbar -->
+    <header
+        class="fixed top-0 left-0 right-0 w-full z-[100] glass-nav shadow-[0_4px_24px_rgba(0,0,0,0.06)] border-b border-primary/5">
+        <div class="w-full px-6 lg:px-10">
+            <div class="flex justify-between items-center h-[72px]">
+                <div class="flex-shrink-0 flex items-center gap-4">
+                    <img alt="Logo" class="h-12 w-auto" src="../images/c.PNG" />
+                    <h1 class="text-xl font-bold text-primary hidden md:block">المكتبة الرئيسية لبجاية</h1>
+                </div>
+
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="../" class="font-bold text-slate-700 hover:text-primary transition-colors">الرئيسية</a>
+                    <a href="books-catalog.html"
+                        class="font-bold text-slate-700 hover:text-primary transition-colors">فهرس الكتب</a>
+                    <a href="#" class="font-bold text-slate-700 hover:text-primary transition-colors">عن المكتبة</a>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <div id="user-profile-menu" class="relative group">
+                        <button id="profile-trigger"
+                            class="flex items-center gap-3 p-1 rounded-full hover:bg-slate-100 transition-all border border-slate-200">
+                            <img id="user-avatar" src="" alt="Profile"
+                                class="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                            <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                        </button>
+                        <div id="profile-dropdown"
+                            class="hidden absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div class="px-4 py-3 border-b border-slate-100">
+                                <p id="user-display-name" class="text-sm font-bold text-slate-900"></p>
+                                <p id="user-display-email" class="text-xs text-slate-500"></p>
+                            </div>
+                            <div class="py-2">
+                                <a href="profile.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">person</span> حسابي
+                                </a>
+                                <a href="orders-history.html"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-primary bg-primary/5 font-bold transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">history</span> سجل طلباتي
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">settings</span> الإعدادات
+                                </a>
+                            </div>
+                            <div class="border-t border-slate-100 pt-2">
+                                <button onclick="logout()"
+                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">logout</span> تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <!-- Hero Section -->
+        <div class="text-right mb-12">
+            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-4">
+                <a href="../" class="hover:text-primary transition-colors">الرئيسية</a>
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                <span class="text-primary font-bold">سجل الطلبات</span>
+            </nav>
+            <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">تاريخ طلبات الإعارة</h2>
+            <p class="text-slate-500">تابع حالة طلباتك للكتب المحجوزة والمستلمة</p>
+        </div>
+
+        <!-- Orders Container -->
+        <div id="orders-container" class="space-y-6">
+            <!-- Shimmer Loading -->
+            <div class="animate-pulse space-y-4">
+                <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
+                <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Auth Check
+        const user = JSON.parse(localStorage.getItem('libraryUser'));
+        if (!user) {
+            window.location.href = '../';
+        }
+
+        // Setup Header
+        document.getElementById('user-avatar').src = user.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.prenom + ' ' + user.nom) + '&background=2E7D32&color=fff';
+        document.getElementById('user-display-name').textContent = user.prenom + ' ' + user.nom;
+        document.getElementById('user-display-email').textContent = user.email;
+
+        // Dropdown Toggle
+        const trigger = document.getElementById('profile-trigger');
+        const dropdown = document.getElementById('profile-dropdown');
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        window.addEventListener('click', () => dropdown.classList.add('hidden'));
+
+        function logout() {
+            localStorage.removeItem('libraryUser');
+            window.location.href = '../';
+        }
+
+        async function fetchHistory() {
+            const container = document.getElementById('orders-container');
+            const lec_id = user.lecteurId || user.username || 'unknown';
+
+            try {
+                const res = await fetch(`/api/orders/list/${lec_id}`);
+                if (!res.ok) throw new Error('Failed to fetch data');
+                const orders = await res.json();
+
+                if (!Array.isArray(orders) || orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-20">
+                            <div class="mb-6">
+                                <span class="material-symbols-outlined text-[64px] text-slate-200">history</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">ليس لديك أي طلبات حالياً</h3>
+                            <p class="text-slate-500 mb-8">يمكنك البدء في استعارة الكتب من فهرس المكتبة</p>
+                            <a href="../pages/books-catalog.html" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+                                <span class="material-symbols-outlined">search</span>
+                                تصفح الكتب
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = orders.map(order => {
+                    const statusConfig = {
+                        'PENDING': { text: 'قيد الانتظار', class: 'status-pending', icon: 'hourglass_empty' },
+                        'APPROVED': { text: 'تمت الموافقة', class: 'status-approved', icon: 'check_circle' },
+                        'REJECTED': { text: 'مرفوض', class: 'status-rejected', icon: 'cancel' }
+                    };
+                    const st = statusConfig[order.status] || { text: order.status, class: 'bg-slate-100 text-slate-600', icon: 'info' };
+                    const date = order.order_date ? new Date(order.order_date).toLocaleDateString('ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' }) : 'تاريخ غير معروف';
+
+                    return `
+                        <div class="order-card bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm flex flex-col md:flex-row">
+                            <div class="w-full md:w-48 h-48 md:h-auto bg-slate-50 relative flex-shrink-0">
+                                <img src="../images/1.webp" class="w-full h-full object-cover p-2 rounded-2xl opacity-80" alt="Book shadow cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent"></div>
+                            </div>
+                            <div class="p-6 flex-1 flex flex-col">
+                                <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+                                    <div>
+                                        <div class="flex items-center gap-2 text-[12px] text-slate-400 font-bold mb-1 uppercase tracking-wider">
+                                            <span>رقم الطلب: #${order.id}</span>
+                                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                            <span>${date}</span>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-slate-900 mb-1">${order.title || 'بدون عنوان'}</h3>
+                                    </div>
+                                    <div class="status-badge ${st.class}">
+                                        <span class="material-symbols-outlined text-[18px]">${st.icon}</span>
+                                        ${st.text}
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-auto pt-4 border-t border-slate-50 flex flex-wrap items-center justify-between gap-4">
+                                    <div class="flex items-center gap-4">
+                                        ${order.EXP_ID ? `
+                                            <div class="bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10">
+                                                <p class="text-[10px] text-primary/60 font-bold uppercase leading-none mb-1">معرف النسخة</p>
+                                                <p class="font-bold text-primary text-sm">${order.EXP_ID}</p>
+                                            </div>
+                                        ` : `
+                                            <div class="bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
+                                                <p class="text-[10px] text-orange-400 font-bold uppercase leading-none mb-1">الحالة</p>
+                                                <p class="font-bold text-orange-600 text-sm">بانتظار تخصيص نسخة</p>
+                                            </div>
+                                        `}
+                                    </div>
+                                    
+                                    <button class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+                                        تفاصيل الكتاب <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                container.innerHTML = `<div class="p-8 text-center text-rose-500 font-bold">حدث خطأ في تحميل البيانات</div>`;
+            }
+        }
+
+        fetchHistory();
+    </script>
+    <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>
