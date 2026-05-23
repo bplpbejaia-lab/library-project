@@ -57,7 +57,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendVerificationEmail(email, token, lecteurId) {
-    const verifyUrl = `http://localhost:3001/api/auth/verify-email?token=${token}&id=${lecteurId}`;
+    const verifyUrl = `https://bplp-bejaia.dz/api/auth/verify-email?token=${token}&id=${lecteurId}`;
     const mailOptions = {
         from: '"Bibliothèque de Béjaïa" <bplpbejaia@gmail.com>',
         to: email,
