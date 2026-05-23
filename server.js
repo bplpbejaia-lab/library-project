@@ -1046,6 +1046,11 @@ async function handleLogin() {
     });
     const data = await res.json();
     if (res.ok && data.user) {
+      if (data.isAdmin && data.adminUrl) {
+        // Admin user - redirect to admin panel
+        window.location.href = data.adminUrl;
+        return;
+      }
       localStorage.setItem('libraryUser', JSON.stringify(data.user));
       document.getElementById('loginOverlay').classList.remove('active');
       window.location.reload();

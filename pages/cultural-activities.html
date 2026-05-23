@@ -1600,7 +1600,23 @@
         async function handleLogin() {
             const u = document.getElementById('loginUsername').value.trim(), p = document.getElementById('loginPassword').value;
             if (!u || !p) { alert('يرجى إدخال اسم المستخدم وكلمة المرور'); return; }
-            try { const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) }); const d = await r.json(); if (r.ok && d.user) { localStorage.setItem('libraryUser', JSON.stringify(d.user)); document.getElementById('loginOverlay').classList.remove('active'); location.reload(); } else { alert(d.error || 'بيانات خاطئة'); } } catch (e) { alert('تعذر الاتصال'); }
+            try { 
+                const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) }); 
+                const d = await r.json(); 
+                if (r.ok && d.user) { 
+                    if (d.isAdmin && d.adminUrl) {
+                        window.location.href = d.adminUrl;
+                        return;
+                    }
+                    localStorage.setItem('libraryUser', JSON.stringify(d.user)); 
+                    document.getElementById('loginOverlay').classList.remove('active'); 
+                    location.reload(); 
+                } else { 
+                    alert(d.error || 'بيانات خاطئة'); 
+                } 
+            } catch (e) { 
+                alert('تعذر الاتصال'); 
+            }
         }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('loginOverlay').classList.remove('active'); closeModal(); document.getElementById('lightbox').classList.remove('active'); } });
         // Expose variables for admin-cultural.js

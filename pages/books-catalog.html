@@ -2099,6 +2099,10 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.user) {
+                    if (data.isAdmin && data.adminUrl) {
+                        window.location.href = data.adminUrl;
+                        return;
+                    }
                     localStorage.setItem('libraryUser', JSON.stringify(data.user));
                     const overlay = document.getElementById('loginOverlay');
                     if (overlay) overlay.classList.remove('active');

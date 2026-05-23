@@ -145,6 +145,40 @@ export async function login(fastify, opts) {
                 return reply.status(400).send({ error: 'Identifiant et mot de passe requis' });
             }
 
+            const hashedPassword = hashPassword(password);
+
+            // 1. Check UTILISATEUR table first (admin/staff users)
+            try {
+                const adminResult = await pool.query(
+                    `SELECT * FROM "UTILISATEUR" WHERE "UTL_LOGIN" = $1 OR "UTL_EMAIL" = $1`,
+                    [username]
+                );
+                if (adminResult.rows.length > 0) {
+                    const admin = adminResult.rows[0];
+                    // Check password: try legacy XOR 23, SHA256 hash match, then plain text match
+                    const storedPwd = (admin.UTL_PASSWORD || '').trim();
+                    const encryptedInputPwd = Array.from(password).map(c => String.fromCharCode(c.charCodeAt(0) ^ 23)).join('');
+                    if (storedPwd === encryptedInputPwd || storedPwd === hashedPassword || storedPwd === password) {
+                        console.log('Admin login successful for:', username);
+                        return reply.send({
+                            user: {
+                                username: admin.UTL_LOGIN,
+                                nom: admin.UTL_NOM || '',
+                                prenom: admin.UTL_PRENOM || '',
+                                email: admin.UTL_EMAIL || '',
+                                role: admin.UTL_ROLE || 1
+                            },
+                            isAdmin: true,
+                            adminUrl: '/admin/'
+                        });
+                    }
+                }
+            } catch (adminErr) {
+                // UTILISATEUR table might not exist, continue to LECTEUR check
+                console.log('Admin table check skipped:', adminErr.message);
+            }
+
+            // 2. Check LECTEUR table (regular readers)
             const result = await pool.query(
                 `SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1 OR "LEC_EMAIL" = $1`,
                 [username]
@@ -156,7 +190,6 @@ export async function login(fastify, opts) {
             }
 
             const user = result.rows[0];
-            const hashedPassword = hashPassword(password);
 
             console.log('Stored password hash (raw):', user.LEC_PASSWORD);
             console.log('Input password hash (raw):', hashedPassword);
