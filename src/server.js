@@ -55,7 +55,8 @@ fastify.register(require('@fastify/static'), {
 fastify.register(require('@fastify/static'), {
     root: path.join(__dirname, '../../Library_Project/images'),
     prefix: '/images/',
-    decorateReply: false
+    decorateReply: false,
+    allowedPath: () => true
 });
 
 // Serve uploaded ID cards
