@@ -160,34 +160,130 @@ const i18n = {
             "catalog-status-borrowed": "معار",
 
             // Registration Page (g.html)
-            "g-title": "إنشاء حساب قارئ جديد",
-            "g-subtitle": "سجل الآن لتستفيد من الإعارة الخارجية والولوج لكافة الخدمات الرقمية للمكتبة",
-            "g-step-personal": "البيانات الشخصية",
-            "g-step-contact": "معلومات الاتصال",
-            "g-step-documents": "تحميل الوثائق",
-            "g-label-nom-ar": "اللقب (بالعربية)",
-            "g-label-prenom-ar": "الاسم (بالعربية)",
-            "g-label-nom-la": "Nom (en Latin)",
-            "g-label-prenom-la": "Prénom (en Latin)",
-            "g-label-dob": "تاريخ الميلاد",
-            "g-label-pob": "مكان الميلاد",
-            "g-label-gender": "الجنسية",
+            "g-header-title": "التسجيل في المكتبة",
+            "g-header-subtitle": "مكتبة بجاية الرئيسية للمطالعة العمومية",
+            "g-step-1": "المعلومات الشخصية",
+            "g-step-2": "صورة الهوية",
+            "g-step-3": "معلومات التواصل",
+            "g-step-4": "المستندات المؤيدة",
+            "g-step-5": "الملخص والتحقق",
+            "g-step1-title": "المعلومات الشخصية",
+            "g-step1-desc": "يرجى إدخال معلوماتك الشخصية لبطاقة المكتبة",
+            "g-step2-title": "صورة الهوية",
+            "g-step2-desc": "أضف صورة لبطاقة المكتبة",
+            "g-step3-title": "معلومات التواصل",
+            "g-step3-desc": "أدخل بيانات التواصل الخاصة بك والشبكات الاجتماعية",
+            "g-step4-title": "المستندات المؤيدة",
+            "g-step4-desc": "حمل المستندات اللازمة لتسجيلك",
+            "g-step5-title": "الملخص والتحقق",
+            "g-step5-desc": "تحقق من معلوماتك وأنشئ بيانات اعتمادك",
+            "g-label-nom": "اللقب",
+            "g-placeholder-nom": "اللقب",
+            "g-label-prenom": "الاسم",
+            "g-placeholder-prenom": "الاسم",
+            "g-label-nom-latin": "اللقب باللاتينية",
+            "g-placeholder-nom-latin": "Nom en latin",
+            "g-label-prenom-latin": "الاسم باللاتينية",
+            "g-placeholder-prenom-latin": "Prénom en latin",
+            "g-label-gender-title": "النوع",
             "g-gender-m": "ذكر",
             "g-gender-f": "أنثى",
-            "g-label-profession": "المهنة / الصفة",
-            "g-label-nationalite": "الجنسية",
-            "g-label-email": "البريد الإلكتروني",
-            "g-label-phone": "رقم الهاتف",
-            "g-label-password": "كلمة المرور",
-            "g-label-address": "العنوان الكامل",
-            "g-label-wilaya": "الولاية",
-            "g-label-nin": "رقم التعريف الوطني (NIN)",
-            "g-label-cni-front": "بطاقة التعريف الوطنية (الوجه الأمامي)",
-            "g-label-cni-back": "بطاقة التعريف الوطنية (الوجه الخلفي)",
-            "g-label-photo": "الصورة الشخصية",
+            "g-label-nationality-title": "الجنسية",
+            "g-opt-choose-nationality": "اختر جنسيتك",
+            "g-opt-nationality-dz": "جزائري",
+            "g-opt-nationality-fr": "فرنسي",
+            "g-opt-nationality-ma": "مغربي",
+            "g-opt-nationality-tn": "تونسي",
+            "g-opt-nationality-other": "أخرى",
+            "g-label-dob": "تاريخ الميلاد",
+            "g-label-pob": "مكان الميلاد",
+            "g-placeholder-pob": "اختر ولاية الميلاد",
+            "g-label-nin-title": "رقم الهوية الوطنية",
+            "g-placeholder-nin": "123456789012345678",
+            "g-hint-nin": "18 رقم بدون مسافات",
+            "g-label-is-parent": "التسجيل كـ ولي أمر (لتسجيل الأطفال بنفس الرقم الوطني)",
+            "g-label-job-title": "المهنة",
+            "g-opt-choose-job": "اختر مهنتك",
+            "g-opt-job-pupil": "تلميذ",
+            "g-opt-job-student": "طالب",
+            "g-opt-job-teacher": "معلم",
+            "g-opt-job-merchant": "تاجر",
+            "g-opt-job-gov": "موظف حكومي",
+            "g-opt-job-exec": "إطار",
+            "g-opt-job-researcher": "باحث",
+            "g-opt-job-retired": "متقاعد",
+            "g-opt-job-other": "أخرى",
+            "g-photo-preview-name": "بنسالم ناصم",
+            "g-photo-upload-title": "رفع صورة",
+            "g-photo-upload-desc": "اختر صورة من جهازك",
+            "g-btn-browse": "استعراض",
+            "g-photo-capture-title": "التقط صورة",
+            "g-photo-capture-desc": "استخدم كاميرا الويب لالتقاط صورة",
+            "g-btn-open-camera": "فتح الكاميرا",
+            "g-btn-delete-photo": "حذف الصورة",
+            "g-success-box-title": "رائع! تسجيلك يسير بشكل مثالي",
+            "g-success-box-desc": "لقد قمنا بتسجيل معلوماتك الشخصية بنجاح. يرجى الآن إدخال بيانات التواصل الخاصة بك.",
+            "g-label-email-title": "البريد الإلكتروني",
+            "g-placeholder-email": "your@email.com",
+            "g-label-phone-title": "الهاتف",
+            "g-placeholder-phone": "06 00 00 00 00",
+            "g-label-whatsapp-title": "واتساب",
+            "g-label-same-as-phone": "نفس رقم الهاتف",
+            "g-label-address-title": "العنوان",
+            "g-placeholder-address": "العنوان الكامل",
+            "g-label-city-title": "المدينة",
+            "g-placeholder-city": "اختر مدينة الإقامة",
+            "g-label-zip-title": "الرمز البريدي",
+            "g-placeholder-zip": "الرمز البريدي",
+            "g-social-title": "شبكات التواصل الاجتماعي (اختيارية)",
+            "g-social-desc": "تابعنا على شبكاتنا الاجتماعية للبقاء على اطلاع بأحدث الأخبار",
+            "g-cni-front-title": "بطاقة الهوية (الوجه الأمامي)",
+            "g-cni-front-desc": "صورة واضحة للوجه الأمامي",
+            "g-doc-not-chosen": "لم يتم اختيار مستند",
+            "g-btn-scan": "مسح ضوئي",
+            "g-btn-upload": "رفع",
+            "g-cni-back-title": "بطاقة الهوية (الوجه الخلفي)",
+            "g-cni-back-desc": "صورة واضحة للوجه الخلفي",
+            "g-info-important-title": "معلومات مهمة :",
+            "g-info-item-1": "بطاقة الهوية (الوجهين) إلزامية لجميع المسجلين",
+            "g-info-item-2": "تأكد من وضوح الصورة والبيانات",
+            "g-info-item-3": "الصيغ المقبولة: JPG, PNG, PDF (حد أقصى 5MB)",
+            "g-info-item-4": "يمكنك مسح المستندات بكاميرتك",
+            "g-summary-nin-label": "الرقم الوطني:",
+            "g-summary-identity-title": "الهوية",
+            "g-summary-gender-label": "النوع",
+            "g-summary-dob-label": "تاريخ الميلاد",
+            "g-summary-pob-label": "مكان الميلاد",
+            "g-summary-nationality-label": "الجنسية",
+            "g-summary-prof-contact-title": "المهنة والتواصل",
+            "g-summary-job-label": "المهنة",
+            "g-summary-email-label": "البريد الإلكتروني",
+            "g-summary-phone-label": "الهاتف",
+            "g-summary-whatsapp-label": "واتساب",
+            "g-summary-address-title": "العنوان",
+            "g-summary-address-label": "العنوان الكامل",
+            "g-summary-city-label": "المدينة",
+            "g-summary-zip-label": "الرمز البريدي",
+            "g-summary-docs-status-title": "حالة المستندات",
+            "g-summary-cni-front-label": "بطاقة الهوية",
+            "g-summary-cni-back-label": "بطاقة الهوية (الخلف)",
+            "g-summary-status-pending": "قيد الانتظار",
+            "g-cred-username-title": "اسم المستخدم",
+            "g-cred-username-sub": "اختر اسم مستخدم فريد",
+            "g-cred-username-placeholder": "اختر اسم مستخدم",
+            "g-cred-username-hint": "الحد الأدنى 4 أحرف وأرقام فقط",
+            "g-cred-password-title": "كلمة المرور",
+            "g-cred-password-sub": "اختر أي كلمة مرور",
+            "g-cred-password-placeholder": "كلمة المرور",
+            "g-cred-confirm-title": "تأكيد كلمة المرور",
+            "g-cred-confirm-sub": "كرر كلمة المرور",
+            "g-cred-confirm-placeholder": "كرر كلمة المرور",
+            "g-conditions-label": "أقر بأنني قد اطلعت وأوافق على شروط الاستخدام للمكتبة و سياسة الخصوصية.",
+            "g-terms-link": "شروط الاستخدام",
+            "g-privacy-link": "سياسة الخصوصية",
+            "g-btn-finish": "إنهاء التسجيل",
             "g-btn-next": "التالي",
             "g-btn-prev": "السابق",
-            "g-btn-submit": "إرسال ملف التسجيل",
 
             // Director Word Page (Specifics)
             "director-bismillah": "بسم الله الرحمن الرحيم",
@@ -511,34 +607,130 @@ const i18n = {
             "catalog-status-borrowed": "Emprunté",
 
             // Registration Page (g.html)
-            "g-title": "Créer un nouveau compte lecteur",
-            "g-subtitle": "Inscrivez-vous maintenant pour bénéficier du prêt externe et de tous nos services en ligne",
-            "g-step-personal": "Infos Personnelles",
-            "g-step-contact": "Contact & Connexion",
-            "g-step-documents": "Téléversement",
-            "g-label-nom-ar": "Nom (en Arabe)",
-            "g-label-prenom-ar": "Prénom (en Arabe)",
-            "g-label-nom-la": "Nom (en Latin)",
-            "g-label-prenom-la": "Prénom (en Latin)",
-            "g-label-dob": "Date de naissance",
-            "g-label-pob": "Lieu de naissance",
-            "g-label-gender": "Genre",
+            "g-header-title": "Inscription à la Bibliothèque",
+            "g-header-subtitle": "Bibliothèque Principale de la Lecture Publique de Béjaïa",
+            "g-step-1": "Infos Personnelles",
+            "g-step-2": "Photo d'Identité",
+            "g-step-3": "Coordonnées de Contact",
+            "g-step-4": "Pièces Justificatives",
+            "g-step-5": "Résumé & Validation",
+            "g-step1-title": "Informations Personnelles",
+            "g-step1-desc": "Veuillez entrer vos coordonnées personnelles pour la carte de bibliothèque",
+            "g-step2-title": "Photo d'Identité",
+            "g-step2-desc": "Ajouter une photo pour la carte de bibliothèque",
+            "g-step3-title": "Coordonnées de Contact",
+            "g-step3-desc": "Entrez vos coordonnées de contact et vos réseaux sociaux",
+            "g-step4-title": "Pièces Justificatives",
+            "g-step4-desc": "Téléversez les documents nécessaires pour votre inscription",
+            "g-step5-title": "Résumé & Validation",
+            "g-step5-desc": "Vérifiez vos informations et créez vos identifiants de connexion",
+            "g-label-nom": "Nom",
+            "g-placeholder-nom": "Nom",
+            "g-label-prenom": "Prénom",
+            "g-placeholder-prenom": "Prénom",
+            "g-label-nom-latin": "Nom (en Latin)",
+            "g-placeholder-nom-latin": "Nom en latin",
+            "g-label-prenom-latin": "Prénom (en Latin)",
+            "g-placeholder-prenom-latin": "Prénom en latin",
+            "g-label-gender-title": "Genre",
             "g-gender-m": "Homme",
             "g-gender-f": "Femme",
-            "g-label-profession": "Profession / Statut",
-            "g-label-nationalite": "Nationalité",
-            "g-label-email": "Adresse E-mail",
-            "g-label-phone": "Téléphone",
-            "g-label-password": "Mot de passe",
-            "g-label-address": "Adresse complète",
-            "g-label-wilaya": "Wilaya",
-            "g-label-nin": "Numéro d'identité national (NIN)",
-            "g-label-cni-front": "Carte d'identité (Recto)",
-            "g-label-cni-back": "Carte d'identité (Verso)",
-            "g-label-photo": "Photo d'identité",
+            "g-label-nationality-title": "Nationalité",
+            "g-opt-choose-nationality": "Choisissez votre nationalité",
+            "g-opt-nationality-dz": "Algérienne",
+            "g-opt-nationality-fr": "Française",
+            "g-opt-nationality-ma": "Marocaine",
+            "g-opt-nationality-tn": "Tunisienne",
+            "g-opt-nationality-other": "Autre",
+            "g-label-dob": "Date de Naissance",
+            "g-label-pob": "Lieu de Naissance",
+            "g-placeholder-pob": "Choisissez la wilaya de naissance",
+            "g-label-nin-title": "Numéro d'Identité National",
+            "g-placeholder-nin": "123456789012345678",
+            "g-hint-nin": "18 chiffres sans espaces",
+            "g-label-is-parent": "S'inscrire comme parent (pour enregistrer des enfants avec le même NIN)",
+            "g-label-job-title": "Profession",
+            "g-opt-choose-job": "Choisissez votre profession",
+            "g-opt-job-pupil": "Élève",
+            "g-opt-job-student": "Étudiant",
+            "g-opt-job-teacher": "Enseignant",
+            "g-opt-job-merchant": "Commerçant",
+            "g-opt-job-gov": "Fonctionnaire",
+            "g-opt-job-exec": "Cadre",
+            "g-opt-job-researcher": "Chercheur",
+            "g-opt-job-retired": "Retraité",
+            "g-opt-job-other": "Autre",
+            "g-photo-preview-name": "Aperçu de la photo",
+            "g-photo-upload-title": "Téléverser une photo",
+            "g-photo-upload-desc": "Choisissez une photo depuis votre appareil",
+            "g-btn-browse": "Parcourir",
+            "g-photo-capture-title": "Prendre une photo",
+            "g-photo-capture-desc": "Utilisez votre webcam pour prendre une photo",
+            "g-btn-open-camera": "Ouvrir la caméra",
+            "g-btn-delete-photo": "Supprimer la photo",
+            "g-success-box-title": "Super ! Votre inscription progresse parfaitement",
+            "g-success-box-desc": "Nous avons enregistré vos coordonnées personnelles avec succès. Veuillez maintenant entrer vos coordonnées de contact.",
+            "g-label-email-title": "Adresse E-mail",
+            "g-placeholder-email": "votre@email.com",
+            "g-label-phone-title": "Numéro de Téléphone",
+            "g-placeholder-phone": "06 00 00 00 00",
+            "g-label-whatsapp-title": "WhatsApp",
+            "g-label-same-as-phone": "Même numéro de téléphone",
+            "g-label-address-title": "Adresse",
+            "g-placeholder-address": "Adresse complète",
+            "g-label-city-title": "Ville / Commune",
+            "g-placeholder-city": "Choisissez la commune de résidence",
+            "g-label-zip-title": "Code Postal",
+            "g-placeholder-zip": "Code postal",
+            "g-social-title": "Réseaux Sociaux (Optionnel)",
+            "g-social-desc": "Suivez-nous sur nos réseaux sociaux pour rester informé",
+            "g-cni-front-title": "Carte d'Identité (Recto)",
+            "g-cni-front-desc": "Une photo nette du recto",
+            "g-doc-not-chosen": "Aucun document sélectionné",
+            "g-btn-scan": "Scanner",
+            "g-btn-upload": "Téléverser",
+            "g-cni-back-title": "Carte d'Identité (Verso)",
+            "g-cni-back-desc": "Une photo nette du verso",
+            "g-info-important-title": "Informations Importantes :",
+            "g-info-item-1": "La carte d'identité (recto/verso) est obligatoire pour tous les adhérents",
+            "g-info-item-2": "Assurez-vous que l'image et les données sont bien lisibles",
+            "g-info-item-3": "Formats acceptés : JPG, PNG, PDF (taille max 5 Mo)",
+            "g-info-item-4": "Vous pouvez directement numériser vos pièces avec votre caméra",
+            "g-summary-nin-label": "Numéro National (NIN) :",
+            "g-summary-identity-title": "Identité",
+            "g-summary-gender-label": "Genre",
+            "g-summary-dob-label": "Date de Naissance",
+            "g-summary-pob-label": "Lieu de Naissance",
+            "g-summary-nationality-label": "Nationalité",
+            "g-summary-prof-contact-title": "Profession & Contact",
+            "g-summary-job-label": "Profession",
+            "g-summary-email-label": "Adresse E-mail",
+            "g-summary-phone-label": "Téléphone",
+            "g-summary-whatsapp-label": "WhatsApp",
+            "g-summary-address-title": "Adresse",
+            "g-summary-address-label": "Adresse Complète",
+            "g-summary-city-label": "Ville / Commune",
+            "g-summary-zip-label": "Code Postal",
+            "g-summary-docs-status-title": "Statut des Documents",
+            "g-summary-cni-front-label": "Carte d'Identité",
+            "g-summary-cni-back-label": "Carte d'Identité (Verso)",
+            "g-summary-status-pending": "En attente",
+            "g-cred-username-title": "Nom d'Utilisateur",
+            "g-cred-username-sub": "Choisissez un identifiant de connexion unique",
+            "g-cred-username-placeholder": "Choisissez un nom d'utilisateur",
+            "g-cred-username-hint": "Au moins 4 caractères alphanumériques uniquement",
+            "g-cred-password-title": "Mot de Passe",
+            "g-cred-password-sub": "Choisissez votre mot de passe",
+            "g-cred-password-placeholder": "Mot de passe",
+            "g-cred-confirm-title": "Confirmer le Mot de Passe",
+            "g-cred-confirm-sub": "Saisissez à nouveau votre mot de passe",
+            "g-cred-confirm-placeholder": "Saisissez à nouveau votre mot de passe",
+            "g-conditions-label": "Je déclare avoir pris connaissance et accepter les conditions d'utilisation et la politique de confidentialité.",
+            "g-terms-link": "les conditions d'utilisation",
+            "g-privacy-link": "la politique de confidentialité",
+            "g-btn-finish": "Finaliser l'Inscription",
             "g-btn-next": "Suivant",
             "g-btn-prev": "Précédent",
-            "g-btn-submit": "Envoyer l'inscription",
 
             // Director Word Page (Specifics)
             "director-bismillah": "Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux",
@@ -862,34 +1054,130 @@ const i18n = {
             "catalog-status-borrowed": "Borrowed",
 
             // Registration Page (g.html)
-            "g-title": "Create a New Reader Account",
-            "g-subtitle": "Register now to enjoy external book lending and access all digital library services",
-            "g-step-personal": "Personal Details",
-            "g-step-contact": "Contact & Login",
-            "g-step-documents": "Uploads",
-            "g-label-nom-ar": "Last Name (Arabic)",
-            "g-label-prenom-ar": "First Name (Arabic)",
-            "g-label-nom-la": "Last Name (Latin)",
-            "g-label-prenom-la": "First Name (Latin)",
-            "g-label-dob": "Date of Birth",
-            "g-label-pob": "Place of Birth",
-            "g-label-gender": "Gender",
+            "g-header-title": "Library Registration",
+            "g-header-subtitle": "Bejaia Main Public Reading Library",
+            "g-step-1": "Personal Info",
+            "g-step-2": "ID Photo",
+            "g-step-3": "Contact Info",
+            "g-step-4": "Supporting Docs",
+            "g-step-5": "Summary & Submit",
+            "g-step1-title": "Personal Information",
+            "g-step1-desc": "Please enter your personal details for your library card",
+            "g-step2-title": "ID Photo",
+            "g-step2-desc": "Add a photo for your library card",
+            "g-step3-title": "Contact Information",
+            "g-step3-desc": "Enter your contact details and social networks",
+            "g-step4-title": "Supporting Documents",
+            "g-step4-desc": "Upload the documents required for registration",
+            "g-step5-title": "Summary & Verification",
+            "g-step5-desc": "Verify your information and create your credentials",
+            "g-label-nom": "Last Name",
+            "g-placeholder-nom": "Last Name",
+            "g-label-prenom": "First Name",
+            "g-placeholder-prenom": "First Name",
+            "g-label-nom-latin": "Last Name (in Latin)",
+            "g-placeholder-nom-latin": "Last Name in Latin",
+            "g-label-prenom-latin": "First Name (in Latin)",
+            "g-placeholder-prenom-latin": "First Name in Latin",
+            "g-label-gender-title": "Gender",
             "g-gender-m": "Male",
             "g-gender-f": "Female",
-            "g-label-profession": "Profession / Status",
-            "g-label-nationalite": "Nationality",
-            "g-label-email": "Email Address",
-            "g-label-phone": "Phone Number",
-            "g-label-password": "Password",
-            "g-label-address": "Full Address",
-            "g-label-wilaya": "Wilaya",
-            "g-label-nin": "National Identification Number (NIN)",
-            "g-label-cni-front": "National ID (Front Side)",
-            "g-label-cni-back": "National ID (Back Side)",
-            "g-label-photo": "Profile Photo",
+            "g-label-nationality-title": "Nationality",
+            "g-opt-choose-nationality": "Select your nationality",
+            "g-opt-nationality-dz": "Algerian",
+            "g-opt-nationality-fr": "French",
+            "g-opt-nationality-ma": "Moroccan",
+            "g-opt-nationality-tn": "Tunisian",
+            "g-opt-nationality-other": "Other",
+            "g-label-dob": "Date of Birth",
+            "g-label-pob": "Place of Birth",
+            "g-placeholder-pob": "Choose your state of birth",
+            "g-label-nin-title": "National ID Number",
+            "g-placeholder-nin": "123456789012345678",
+            "g-hint-nin": "18 digits without spaces",
+            "g-label-is-parent": "Register as a parent (to register children with the same National ID)",
+            "g-label-job-title": "Profession",
+            "g-opt-choose-job": "Choose your profession",
+            "g-opt-job-pupil": "Pupil",
+            "g-opt-job-student": "Student",
+            "g-opt-job-teacher": "Teacher",
+            "g-opt-job-merchant": "Merchant",
+            "g-opt-job-gov": "Public Servant",
+            "g-opt-job-exec": "Executive",
+            "g-opt-job-researcher": "Researcher",
+            "g-opt-job-retired": "Retired",
+            "g-opt-job-other": "Other",
+            "g-photo-preview-name": "Photo Preview",
+            "g-photo-upload-title": "Upload Photo",
+            "g-photo-upload-desc": "Choose a photo from your device",
+            "g-btn-browse": "Browse",
+            "g-photo-capture-title": "Take Photo",
+            "g-photo-capture-desc": "Use your webcam to take a photo",
+            "g-btn-open-camera": "Open Camera",
+            "g-btn-delete-photo": "Delete Photo",
+            "g-success-box-title": "Great! Your registration is proceeding perfectly",
+            "g-success-box-desc": "We have successfully saved your personal details. Please proceed to enter your contact info.",
+            "g-label-email-title": "Email Address",
+            "g-placeholder-email": "your@email.com",
+            "g-label-phone-title": "Phone Number",
+            "g-placeholder-phone": "06 00 00 00 00",
+            "g-label-whatsapp-title": "WhatsApp",
+            "g-label-same-as-phone": "Same as phone number",
+            "g-label-address-title": "Address",
+            "g-placeholder-address": "Full Address",
+            "g-label-city-title": "City / Municipality",
+            "g-placeholder-city": "Choose your municipality of residence",
+            "g-label-zip-title": "Postal Code",
+            "g-placeholder-zip": "Postal code",
+            "g-social-title": "Social Networks (Optional)",
+            "g-social-desc": "Follow us on our social networks to stay updated",
+            "g-cni-front-title": "National ID Card (Front)",
+            "g-cni-front-desc": "A clear photo of the front side",
+            "g-doc-not-chosen": "No document selected",
+            "g-btn-scan": "Scan",
+            "g-btn-upload": "Upload",
+            "g-cni-back-title": "National ID Card (Back)",
+            "g-cni-back-desc": "A clear photo of the back side",
+            "g-info-important-title": "Important Info:",
+            "g-info-item-1": "National ID (both sides) is mandatory for all members",
+            "g-info-item-2": "Make sure the image and details are highly legible",
+            "g-info-item-3": "Accepted formats: JPG, PNG, PDF (max size 5MB)",
+            "g-info-item-4": "You can scan documents directly using your camera",
+            "g-summary-nin-label": "National ID (NIN):",
+            "g-summary-identity-title": "Identity",
+            "g-summary-gender-label": "Gender",
+            "g-summary-dob-label": "Date of Birth",
+            "g-summary-pob-label": "Place of Birth",
+            "g-summary-nationality-label": "Nationality",
+            "g-summary-prof-contact-title": "Profession & Contact",
+            "g-summary-job-label": "Profession",
+            "g-summary-email-label": "Email Address",
+            "g-summary-phone-label": "Phone Number",
+            "g-summary-whatsapp-label": "WhatsApp",
+            "g-summary-address-title": "Address",
+            "g-summary-address-label": "Full Address",
+            "g-summary-city-label": "City / Municipality",
+            "g-summary-zip-label": "Postal Code",
+            "g-summary-docs-status-title": "Documents Status",
+            "g-summary-cni-front-label": "ID Card",
+            "g-summary-cni-back-label": "ID Card (Back)",
+            "g-summary-status-pending": "Pending",
+            "g-cred-username-title": "Username",
+            "g-cred-username-sub": "Choose a unique username for logging in",
+            "g-cred-username-placeholder": "Choose a username",
+            "g-cred-username-hint": "At least 4 alphanumeric characters only",
+            "g-cred-password-title": "Password",
+            "g-cred-password-sub": "Choose your password",
+            "g-cred-password-placeholder": "Password",
+            "g-cred-confirm-title": "Confirm Password",
+            "g-cred-confirm-sub": "Repeat your password",
+            "g-cred-confirm-placeholder": "Repeat your password",
+            "g-conditions-label": "I declare that I have read and agree to the Terms of Use and Privacy Policy.",
+            "g-terms-link": "the Terms of Use",
+            "g-privacy-link": "the Privacy Policy",
+            "g-btn-finish": "Finish Registration",
             "g-btn-next": "Next",
             "g-btn-prev": "Previous",
-            "g-btn-submit": "Submit Application",
 
             // Director Word Page (Specifics)
             "director-bismillah": "In the name of Allah, the Most Gracious, the Most Merciful",
@@ -1201,34 +1489,130 @@ const i18n = {
             "catalog-status-borrowed": "Arettal",
 
             // Registration Page (g.html)
-            "g-title": "Ayerred n Umaslad Amaynut",
-            "g-subtitle": "Jerred tura iwakken ad t-awiḍ arettal d unermis ɣer yimeẓla n web",
-            "g-step-personal": "Talɣut Tudmawt",
-            "g-step-contact": "Anermis & Akayad",
-            "g-step-documents": "Uli Isemlan",
-            "g-label-nom-ar": "Isem n twacult (s taɛrabt)",
-            "g-label-prenom-ar": "Isem (s taɛrabt)",
-            "g-label-nom-la": "Isem n twacult (s tlatint)",
-            "g-label-prenom-la": "Isem (s tlatint)",
-            "g-label-dob": "Azemz n tlalit",
-            "g-label-pob": "Addeg n tlalit",
-            "g-label-gender": "Tawsit",
+            "g-header-title": "Tiggezt di Temkarḍit",
+            "g-header-subtitle": "Tamkarḍit Tamezwarut n Tɣuri Tazayezt di Bgayet",
+            "g-step-1": "Isalan n Timadit",
+            "g-step-2": "Tugna n Unekcum",
+            "g-step-3": "Tansiwin & Unermis",
+            "g-step-4": "Isemlanin Inamuren",
+            "g-step-5": "Agzul & Tiggezt",
+            "g-step1-title": "Isalan n Timadit",
+            "g-step1-desc": "Tazmilt n yisalan inamuren i tkarḍit n temkarḍit",
+            "g-step2-title": "Tugna n Unekcum",
+            "g-step2-desc": "Rnu tugna n udem i tkarḍit n temkarḍit",
+            "g-step3-title": "Tansiwin & Unermis",
+            "g-step3-desc": "Kcem tansiwin n unermis d ttawilan n yisenfaren",
+            "g-step4-title": "Isemlanin Inamuren",
+            "g-step4-desc": "Sers isemlanin imeskarayen n teggezt inek",
+            "g-step5-title": "Agzul & Tiggezt",
+            "g-step5-desc": "Senqed isalan inek ar zdat n usali n uyan",
+            "g-label-nom": "Isem n Twacult",
+            "g-placeholder-nom": "Isem n Twacult",
+            "g-label-prenom": "Isem",
+            "g-placeholder-prenom": "Isem",
+            "g-label-nom-latin": "Isem n Twacult (s Tlatint)",
+            "g-placeholder-nom-latin": "Nom en latin",
+            "g-label-prenom-latin": "Isem (s Tlatint)",
+            "g-placeholder-prenom-latin": "Prénom en latin",
+            "g-label-gender-title": "Tawsit",
             "g-gender-m": "Argaz",
             "g-gender-f": "Tameṭṭut",
-            "g-label-profession": "Axeddim / Addad",
-            "g-label-nationalite": "Taɣlent",
-            "g-label-email": "Tansa E-mail",
-            "g-label-phone": "Uṭṭun n usir",
-            "g-label-password": "Awal n uɛaddi",
-            "g-label-address": "Tansa tačurant",
-            "g-label-wilaya": "Tawilayt",
-            "g-label-nin": "Uṭṭun n ucali anamur (NIN)",
-            "g-label-cni-front": "Tafriqt n ucali (Zdat)",
-            "g-label-cni-back": "Tafriqt n ucali (Deffir)",
-            "g-label-photo": "Tugna n ucali",
-            "g-btn-next": "Afus d-iteddun",
-            "g-btn-prev": "Afus yezrin",
-            "g-btn-submit": "Azen ajerred",
+            "g-label-nationality-title": "Taɣlent",
+            "g-opt-choose-nationality": "Fren taɣlent inek",
+            "g-opt-nationality-dz": "Tazzayrit",
+            "g-opt-nationality-fr": "Tafrensist",
+            "g-opt-nationality-ma": "Tamarokit",
+            "g-opt-nationality-tn": "Tatunsit",
+            "g-opt-nationality-other": "Tayeḍ",
+            "g-label-dob": "Azemz n Tlalit",
+            "g-label-pob": "Addeg n Tlalit",
+            "g-placeholder-pob": "Fren tawilayt n tlalit",
+            "g-label-nin-title": "Uṭṭun n Ucali Anamur",
+            "g-placeholder-nin": "123456789012345678",
+            "g-hint-nin": "18 n yiguza war tilem",
+            "g-label-is-parent": "Tiggezt n Umasar (i warra-inek s uṭṭun anamur)",
+            "g-label-job-title": "Axeddim",
+            "g-opt-choose-job": "Fren axeddim inek",
+            "g-opt-job-pupil": "Anelmad",
+            "g-opt-job-student": "Amsdawan",
+            "g-opt-job-teacher": "Aselmad",
+            "g-opt-job-merchant": "Aznag",
+            "g-opt-job-gov": "Amasar n unabaq",
+            "g-opt-job-exec": "Amasar",
+            "g-opt-job-researcher": "Amyag",
+            "g-opt-job-retired": "Asegbar",
+            "g-opt-job-other": "Ayaḍ",
+            "g-photo-preview-name": "Senqed tugna",
+            "g-photo-upload-title": "Sers tugna",
+            "g-photo-upload-desc": "Fren tugna seg ubila inek",
+            "g-btn-browse": "Parcourir",
+            "g-photo-capture-title": "Tṭef tugna",
+            "g-photo-capture-desc": "Seqdec takamra n web inek",
+            "g-btn-open-camera": "Ldi takamra",
+            "g-btn-delete-photo": "Kkes tugna",
+            "g-success-box-title": "Ayuz! Azal n teggezt inek ilha nezzeh",
+            "g-success-box-desc": "Nsekles isalan-inek n timadit s tezmert. Kcem isalan-inek n unermis tura.",
+            "g-label-email-title": "Tansa E-mail",
+            "g-placeholder-email": "your@email.com",
+            "g-label-phone-title": "Uṭṭun n usir",
+            "g-placeholder-phone": "06 00 00 00 00",
+            "g-label-whatsapp-title": "WhatsApp",
+            "g-label-same-as-phone": "D uṭṭun-nni n usir",
+            "g-label-address-title": "Tansa",
+            "g-placeholder-address": "Tansa tačurant",
+            "g-label-city-title": "Taɣremt / Taɣiwant",
+            "g-placeholder-city": "Fren taɣiwant n tnezduɣt",
+            "g-label-zip-title": "Uṭṭun n lbusta",
+            "g-placeholder-zip": "Uṭṭun n lbusta",
+            "g-social-title": "Isenfaren imetiyen (D ufran)",
+            "g-social-desc": "Dfer-aɣ di yisenfaren-nneɣ imetiyen iwakken ad tafeḍ isalan imaynuten",
+            "g-cni-front-title": "Tafriqt n Ucali (Zdat)",
+            "g-cni-front-desc": "Tugna tazedgant n zdat",
+            "g-doc-not-chosen": "Ur yelli kra n ufyir i yettwafrnen",
+            "g-btn-scan": "Skanner",
+            "g-btn-upload": "Téléverser",
+            "g-cni-back-title": "Tafriqt n Ucali (Deffir)",
+            "g-cni-back-desc": "Tugna tazedgant n deffir",
+            "g-info-important-title": "Isalan imeskarayen:",
+            "g-info-item-1": "Tafriqt n ucali (zdat/deffir) d tin yettwaṭalben i yal win yuran",
+            "g-info-item-2": "Senqed aḍris d tugna ma lhan nezzeh",
+            "g-info-item-3": "Imeɣraden yettwaqblen: JPG, PNG, PDF (max 5MB)",
+            "g-info-item-4": "Tzmer ad tskannred isemlanin s tkamra inek",
+            "g-summary-nin-label": "Uṭṭun Anamur (NIN) :",
+            "g-summary-identity-title": "Tawsit & Timadit",
+            "g-summary-gender-label": "Tawsit",
+            "g-summary-dob-label": "Azemz n Tlalit",
+            "g-summary-pob-label": "Addeg n Tlalit",
+            "g-summary-nationality-label": "Taɣlent",
+            "g-summary-prof-contact-title": "Axeddim & Unermis",
+            "g-summary-job-label": "Axeddim",
+            "g-summary-email-label": "Tansa E-mail",
+            "g-summary-phone-label": "Uṭṭun n usir",
+            "g-summary-whatsapp-label": "WhatsApp",
+            "g-summary-address-title": "Tansa",
+            "g-summary-address-label": "Tansa Tačurant",
+            "g-summary-city-label": "Taɣremt / Taɣiwant",
+            "g-summary-zip-label": "Uṭṭun n Lbusta",
+            "g-summary-docs-status-title": "Addad n yisemlanin",
+            "g-summary-cni-front-label": "Tafriqt n Ucali",
+            "g-summary-cni-back-label": "Tafriqt n Ucali (Deffir)",
+            "g-summary-status-pending": "Aql-it deg ugani",
+            "g-cred-username-title": "Isem n Useqdac",
+            "g-cred-username-sub": "Fren isem n useqdac anaslaw",
+            "g-cred-username-placeholder": "Fren isem n useqdac",
+            "g-cred-username-hint": "A drus 4 n yisekkilen neɣ n yiguza kan",
+            "g-cred-password-title": "Awal n Uɛaddi",
+            "g-cred-password-sub": "Fren awal n uɛaddi inek",
+            "g-cred-password-placeholder": "Awal n uɛaddi",
+            "g-cred-confirm-title": "Sentem Awal n Uɛaddi",
+            "g-cred-confirm-sub": "Kcem daɣen awal n uɛaddi inek",
+            "g-cred-confirm-placeholder": "Kcem daɣen awal n uɛaddi inek",
+            "g-conditions-label": "Nenna-d belli nɣra yerna neqbel tiwtilin n useqdec d tsertit n tbaḍnit.",
+            "g-terms-link": "tiwtilin n useqdec",
+            "g-privacy-link": "tasertit n tbaḍnit",
+            "g-btn-finish": "Fak Tiggezt",
+            "g-btn-next": "Afus zdat",
+            "g-btn-prev": "Afus deffir",
 
             // Director Word Page (Specifics)
             "director-bismillah": "S yisem n Yakuc, Anegbay, Amezwar",
@@ -1526,60 +1910,415 @@ const i18n = {
 
         // Registration Page (g.html)
         if (path.includes("g.html")) {
-            const elTitle = document.querySelector("h1");
-            if (elTitle && elTitle.textContent.includes("حساب")) elTitle.textContent = dict["g-title"];
-            const elSub = document.querySelector("h1 + p");
-            if (elSub && elSub.textContent.includes("سجل")) elSub.textContent = dict["g-subtitle"];
+            // Translate Header
+            const h1Title = document.querySelector(".header h1");
+            if (h1Title) h1Title.textContent = dict["g-header-title"];
+            const pSubtitle = document.querySelector(".header p");
+            if (pSubtitle) pSubtitle.textContent = dict["g-header-subtitle"];
 
-            // Step headers
-            const stepMap = [dict["g-step-personal"], dict["g-step-contact"], dict["g-step-documents"]];
-            document.querySelectorAll(".step-label").forEach((el, idx) => {
-                if (stepMap[idx]) el.textContent = stepMap[idx];
-            });
-
-            // Labels
-            const registerLabels = {
-                "اللقب (بالعربية)": "g-label-nom-ar",
-                "الاسم (بالعربية)": "g-label-prenom-ar",
-                "Nom (en Latin)": "g-label-nom-la",
-                "Prénom (en Latin)": "g-label-prenom-la",
-                "تاريخ الميلاد": "g-label-dob",
-                "مكان الميلاد": "g-label-pob",
-                "النوع": "g-label-gender",
-                "المهنة / الصفة": "g-label-profession",
-                "الجنسية": "g-label-nationalite",
-                "البريد الإلكتروني": "g-label-email",
-                "رقم الهاتف": "g-label-phone",
-                "كلمة المرور": "g-label-password",
-                "العنوان الكامل": "g-label-address",
-                "الولاية": "g-label-wilaya",
-                "رقم التعريف الوطني": "g-label-nin",
-                "بطاقة التعريف الوطنية (الوجه الأمامي)": "g-label-cni-front",
-                "بطاقة التعريف الوطنية (الوجه الخلفي)": "g-label-cni-back",
-                "الصورة الشخصية": "g-label-photo"
-            };
-            document.querySelectorAll("label").forEach(el => {
-                const txt = el.textContent.trim();
-                for (const [arTxt, key] of Object.entries(registerLabels)) {
-                    if (txt.includes(arTxt)) {
-                        el.textContent = dict[key];
-                        break;
-                    }
+            // Translate Progress Steps
+            const steps = document.querySelectorAll(".progress-container .step");
+            const stepLabels = [
+                dict["g-step-1"],
+                dict["g-step-2"],
+                dict["g-step-3"],
+                dict["g-step-4"],
+                dict["g-step-5"]
+            ];
+            steps.forEach((el, idx) => {
+                const labelSpan = el.querySelector(".step-label");
+                if (labelSpan && stepLabels[idx]) {
+                    labelSpan.innerHTML = stepLabels[idx].replace(" ", "<br>");
                 }
             });
 
-            // Gender selector options
-            document.querySelectorAll("select[name='genre'] option").forEach(el => {
-                if (el.value === "M" || el.textContent.includes("ذكر")) el.textContent = dict["g-gender-m"];
-                if (el.value === "F" || el.textContent.includes("أنثى")) el.textContent = dict["g-gender-f"];
+            // Translate Section Headers & Descriptions
+            const formSections = [
+                { id: "step1", title: "g-step1-title", desc: "g-step1-desc" },
+                { id: "step2", title: "g-step2-title", desc: "g-step2-desc" },
+                { id: "step3", title: "g-step3-title", desc: "g-step3-desc" },
+                { id: "step4", title: "g-step4-title", desc: "g-step4-desc" },
+                { id: "step5", title: "g-step5-title", desc: "g-step5-desc" }
+            ];
+            formSections.forEach(sec => {
+                const secEl = document.getElementById(sec.id);
+                if (secEl) {
+                    const titleEl = secEl.querySelector(".section-title");
+                    if (titleEl) titleEl.textContent = dict[sec.title];
+                    const descEl = secEl.querySelector(".section-description");
+                    if (descEl) descEl.textContent = dict[sec.desc];
+                }
             });
 
-            // Buttons
-            document.querySelectorAll("button").forEach(el => {
-                const txt = el.textContent.trim();
-                if (txt.includes("التالي")) el.textContent = dict["g-btn-next"];
-                if (txt.includes("السابق")) el.textContent = dict["g-btn-prev"];
-                if (txt.includes("إرسال")) el.textContent = dict["g-btn-submit"];
+            // Translate Inputs & Placeholders & Labels inside Step 1
+            const step1 = document.getElementById("step1");
+            if (step1) {
+                // Labels & Inputs
+                const mappings = [
+                    { id: "nom", label: "g-label-nom", placeholder: "g-placeholder-nom", icon: "person" },
+                    { id: "prenom", label: "g-label-prenom", placeholder: "g-placeholder-prenom", icon: "person" },
+                    { id: "nomLatin", label: "g-label-nom-latin", placeholder: "g-placeholder-nom-latin", icon: "translate" },
+                    { id: "prenomLatin", label: "g-label-prenom-latin", placeholder: "g-placeholder-prenom-latin", icon: "translate" },
+                    { id: "lieuNaissance", label: "g-label-pob", placeholder: "g-placeholder-pob", icon: "location_on" },
+                    { id: "nin", label: "g-label-nin-title", placeholder: "g-placeholder-nin", icon: "badge" }
+                ];
+                mappings.forEach(m => {
+                    const input = document.getElementById(m.id);
+                    if (input) {
+                        input.placeholder = dict[m.placeholder];
+                        // Find parent form-group to translate label
+                        const group = input.closest(".form-group");
+                        if (group) {
+                            const label = group.querySelector(".form-label");
+                            if (label) {
+                                label.innerHTML = dict[m.label] + ` <span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">${m.icon}</span>`;
+                            }
+                        }
+                    }
+                });
+
+                // Radio options (Gender)
+                const genderGroup = step1.querySelector("input[name='genre']").closest(".form-group");
+                if (genderGroup) {
+                    const label = genderGroup.querySelector(".form-label");
+                    if (label) {
+                        label.innerHTML = dict["g-label-gender-title"] + ` <span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">wc</span>`;
+                    }
+                    const options = genderGroup.querySelectorAll(".radio-option");
+                    if (options[0]) {
+                        const span = options[0].querySelector("span:not(.radio-custom)");
+                        if (span) span.textContent = dict["g-gender-m"];
+                    }
+                    if (options[1]) {
+                        const span = options[1].querySelector("span:not(.radio-custom)");
+                        if (span) span.textContent = dict["g-gender-f"];
+                    }
+                }
+
+                // Nationality Dropdown
+                const natSelect = document.getElementById("nationalite");
+                if (natSelect) {
+                    const group = natSelect.closest(".form-group");
+                    if (group) {
+                        const label = group.querySelector(".form-label");
+                        if (label) {
+                            label.innerHTML = dict["g-label-nationality-title"] + ` <span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">flag</span>`;
+                        }
+                    }
+                    const opts = natSelect.querySelectorAll("option");
+                    if (opts[0]) opts[0].textContent = dict["g-opt-choose-nationality"];
+                    if (opts[1]) opts[1].textContent = dict["g-opt-nationality-dz"];
+                    if (opts[2]) opts[2].textContent = dict["g-opt-nationality-fr"];
+                    if (opts[3]) opts[3].textContent = dict["g-opt-nationality-ma"];
+                    if (opts[4]) opts[4].textContent = dict["g-opt-nationality-tn"];
+                    if (opts[5]) opts[5].textContent = dict["g-opt-nationality-other"];
+                }
+
+                // Date of Birth
+                const dobInput = document.getElementById("naissance");
+                if (dobInput) {
+                    const group = dobInput.closest(".form-group");
+                    if (group) {
+                        const label = group.querySelector(".form-label");
+                        if (label) {
+                            label.innerHTML = dict["g-label-dob"] + ` <span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">calendar_month</span>`;
+                        }
+                    }
+                }
+
+                // NIN Hint & Parent Option
+                const ninSmall = step1.querySelector("small");
+                if (ninSmall) {
+                    ninSmall.innerHTML = `<span class="material-symbols-outlined text-[16px] ${lang === 'ar' ? 'ml-2' : 'mr-2'}">info</span> ` + dict["g-hint-nin"];
+                }
+                const parentLabel = step1.querySelector("label[for='isParent']");
+                if (parentLabel) {
+                    parentLabel.textContent = dict["g-label-is-parent"];
+                }
+
+                // Profession Dropdown
+                const profSelect = document.getElementById("profession");
+                if (profSelect) {
+                    const group = profSelect.closest(".form-group");
+                    if (group) {
+                        const label = group.querySelector(".form-label");
+                        if (label) {
+                            label.innerHTML = dict["g-label-job-title"] + ` <span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">work</span>`;
+                        }
+                    }
+                    const opts = profSelect.querySelectorAll("option");
+                    if (opts[0]) opts[0].textContent = dict["g-opt-choose-job"];
+                    if (opts[1]) opts[1].textContent = dict["g-opt-job-pupil"];
+                    if (opts[2]) opts[2].textContent = dict["g-opt-job-student"];
+                    if (opts[3]) opts[3].textContent = dict["g-opt-job-teacher"];
+                    if (opts[4]) opts[4].textContent = dict["g-opt-job-merchant"];
+                    if (opts[5]) opts[5].textContent = dict["g-opt-job-gov"];
+                    if (opts[6]) opts[6].textContent = dict["g-opt-job-exec"];
+                    if (opts[7]) opts[7].textContent = dict["g-opt-job-researcher"];
+                    if (opts[8]) opts[8].textContent = dict["g-opt-job-retired"];
+                    if (opts[9]) opts[9].textContent = dict["g-opt-job-other"];
+                }
+            }
+
+            // Step 2: Photo Upload
+            const step2 = document.getElementById("step2");
+            if (step2) {
+                const photoName = document.getElementById("photoNameDisplay");
+                if (photoName && photoName.textContent.trim() === "بنسالم ناصم") {
+                    photoName.textContent = dict["g-photo-preview-name"];
+                }
+
+                // Upload card
+                const uploadCard = document.getElementById("uploadOption");
+                if (uploadCard) {
+                    const h4 = uploadCard.querySelector("h4");
+                    if (h4) h4.textContent = dict["g-photo-upload-title"];
+                    const p = uploadCard.querySelector("p");
+                    if (p) p.textContent = dict["g-photo-upload-desc"];
+                    const btn = uploadCard.querySelector("button");
+                    if (btn) {
+                        btn.innerHTML = `<span class="material-symbols-outlined">folder_open</span> ` + dict["g-btn-browse"];
+                    }
+                }
+
+                // Capture card
+                const webcamCard = document.getElementById("webcamOption");
+                if (webcamCard) {
+                    const h4 = webcamCard.querySelector("h4");
+                    if (h4) h4.textContent = dict["g-photo-capture-title"];
+                    const p = webcamCard.querySelector("p");
+                    if (p) p.textContent = dict["g-photo-capture-desc"];
+                    const btn = webcamCard.querySelector("button");
+                    if (btn) {
+                        btn.innerHTML = `<span class="material-symbols-outlined">photo_camera</span> ` + dict["g-btn-open-camera"];
+                    }
+                }
+
+                // Remove btn
+                const removeBtn = document.getElementById("removePhotoBtn");
+                if (removeBtn) {
+                    removeBtn.innerHTML = `<span class="material-symbols-outlined">delete</span> ` + dict["g-btn-delete-photo"];
+                }
+            }
+
+            // Step 3: Contact Info
+            const step3 = document.getElementById("step3");
+            if (step3) {
+                // Success message box
+                const successBox = step3.querySelector(".success-message");
+                if (successBox) {
+                    const h3 = successBox.querySelector("h3");
+                    if (h3) h3.textContent = dict["g-success-box-title"];
+                    const p = successBox.querySelector("p");
+                    if (p) p.innerHTML = dict["g-success-box-desc"].replace(". ", ".<br>");
+                }
+
+                // Mappings
+                const mappings = [
+                    { id: "email", label: "g-label-email-title", placeholder: "g-placeholder-email", icon: "mail", pos: "left" },
+                    { id: "telephone", label: "g-label-phone-title", placeholder: "g-placeholder-phone", icon: "phone", pos: "right" },
+                    { id: "adresse", label: "g-label-address-title", placeholder: "g-placeholder-address", icon: "home", pos: "right" },
+                    { id: "ville", label: "g-label-city-title", placeholder: "g-placeholder-city", icon: "location_city", pos: "right" },
+                    { id: "codePostal", label: "g-label-zip-title", placeholder: "g-placeholder-zip", icon: "pin_drop", pos: "left" }
+                ];
+                mappings.forEach(m => {
+                    const input = document.getElementById(m.id);
+                    if (input) {
+                        input.placeholder = dict[m.placeholder];
+                        const group = input.closest(".form-group");
+                        if (group) {
+                            const label = group.querySelector(".form-label");
+                            if (label) {
+                                if (m.pos === "left") {
+                                    label.innerHTML = `<span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'ml-2' : 'mr-2'}">${m.icon}</span> ` + dict[m.label];
+                                } else {
+                                    label.innerHTML = dict[m.label] + ` <span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">${m.icon}</span>`;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Whatsapp specific
+                const waInput = document.getElementById("whatsapp");
+                if (waInput) {
+                    waInput.placeholder = dict["g-placeholder-phone"];
+                    const group = waInput.closest(".form-group");
+                    if (group) {
+                        const label = group.querySelector(".form-label");
+                        if (label) {
+                            label.innerHTML = dict["g-label-whatsapp-title"] + ` <i class="fab fa-whatsapp ${lang === 'ar' ? 'mr-2' : 'ml-2'}"></i>`;
+                        }
+                    }
+                    const checkLabel = group.querySelector(".whatsapp-checkbox label");
+                    if (checkLabel) {
+                        checkLabel.textContent = dict["g-label-same-as-phone"];
+                    }
+                }
+
+                // Social section
+                const socialSec = step3.querySelector(".social-media-section");
+                if (socialSec) {
+                    const h3 = socialSec.querySelector("h3");
+                    if (h3) {
+                        h3.innerHTML = `<span class="material-symbols-outlined text-[20px] ${lang === 'ar' ? 'ml-2' : 'mr-2'}" style="color: var(--primary-color);">share</span> ` + dict["g-social-title"];
+                    }
+                    const p = socialSec.querySelector("p");
+                    if (p) p.textContent = dict["g-social-desc"];
+                }
+            }
+
+            // Step 4: Supporting documents
+            const step4 = document.getElementById("step4");
+            if (step4) {
+                const docItems = step4.querySelectorAll(".document-item");
+                if (docItems[0]) {
+                    const title = docItems[0].querySelector(".document-title");
+                    if (title) title.textContent = dict["g-cni-front-title"];
+                    const desc = docItems[0].querySelector(".document-description");
+                    if (desc) desc.textContent = dict["g-cni-front-desc"];
+                    const preview = document.querySelector("#cniPreview span:not(.material-symbols-outlined)");
+                    if (preview && preview.textContent.includes("لم يتم")) preview.textContent = dict["g-doc-not-chosen"];
+                    const scanBtn = document.getElementById("scanCniBtn");
+                    if (scanBtn) scanBtn.innerHTML = `<span class="material-symbols-outlined">photo_camera</span> ` + dict["g-btn-scan"];
+                    const uploadBtn = document.getElementById("uploadCniBtn");
+                    if (uploadBtn) uploadBtn.innerHTML = `<span class="material-symbols-outlined">upload</span> ` + dict["g-btn-upload"];
+                }
+                if (docItems[1]) {
+                    const title = docItems[1].querySelector(".document-title");
+                    if (title) title.textContent = dict["g-cni-back-title"];
+                    const desc = docItems[1].querySelector(".document-description");
+                    if (desc) desc.textContent = dict["g-cni-back-desc"];
+                    const preview = document.querySelector("#cniBackPreview span:not(.material-symbols-outlined)");
+                    if (preview && preview.textContent.includes("لم يتم")) preview.textContent = dict["g-doc-not-chosen"];
+                    const scanBtn = document.getElementById("scanCniBackBtn");
+                    if (scanBtn) scanBtn.innerHTML = `<span class="material-symbols-outlined">photo_camera</span> ` + dict["g-btn-scan"];
+                    const uploadBtn = document.getElementById("uploadCniBackBtn");
+                    if (uploadBtn) uploadBtn.innerHTML = `<span class="material-symbols-outlined">upload</span> ` + dict["g-btn-upload"];
+                }
+
+                // Important information box
+                const infoBox = step4.querySelector("div[style*='rgba(46, 125, 50']");
+                if (infoBox) {
+                    const title = infoBox.querySelector("strong");
+                    if (title) title.textContent = dict["g-info-important-title"];
+                    const items = infoBox.querySelectorAll("li");
+                    if (items[0]) items[0].textContent = dict["g-info-item-1"];
+                    if (items[1]) items[1].textContent = dict["g-info-item-2"];
+                    if (items[2]) items[2].textContent = dict["g-info-item-3"];
+                    if (items[3]) items[3].textContent = dict["g-info-item-4"];
+                }
+            }
+
+            // Step 5: Summary & Credentials
+            const step5 = document.getElementById("step5");
+            if (step5) {
+                // Header in summary
+                const ninLabel = document.querySelector(".summary-id-modern");
+                if (ninLabel) {
+                    ninLabel.innerHTML = `<span class="material-symbols-outlined text-[18px] ${lang === 'ar' ? 'ml-2' : 'mr-2'}">badge</span> ` + dict["g-summary-nin-label"] + ' <span id="summaryNinModern">-</span>';
+                }
+
+                // Info Cards
+                const infoCards = step5.querySelectorAll(".info-card-modern");
+                if (infoCards[0]) {
+                    const title = infoCards[0].querySelector(".info-title-modern");
+                    if (title) title.innerHTML = dict["g-summary-identity-title"] + ` <span class="material-symbols-outlined text-[20px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">person</span>`;
+                    const labels = infoCards[0].querySelectorAll(".info-label-modern");
+                    if (labels[0]) labels[0].textContent = dict["g-summary-gender-label"];
+                    if (labels[1]) labels[1].textContent = dict["g-summary-dob-label"];
+                    if (labels[2]) labels[2].textContent = dict["g-summary-pob-label"];
+                    if (labels[3]) labels[3].textContent = dict["g-summary-nationality-label"];
+                }
+                if (infoCards[1]) {
+                    const title = infoCards[1].querySelector(".info-title-modern");
+                    if (title) title.innerHTML = dict["g-summary-prof-contact-title"] + ` <span class="material-symbols-outlined text-[20px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">work</span>`;
+                    const labels = infoCards[1].querySelectorAll(".info-label-modern");
+                    if (labels[0]) labels[0].textContent = dict["g-summary-job-label"];
+                    if (labels[1]) labels[1].textContent = dict["g-summary-email-label"];
+                    if (labels[2]) labels[2].textContent = dict["g-summary-phone-label"];
+                    if (labels[3]) labels[3].textContent = dict["g-summary-whatsapp-label"];
+                }
+                if (infoCards[2]) {
+                    const title = infoCards[2].querySelector(".info-title-modern");
+                    if (title) title.innerHTML = dict["g-summary-address-title"] + ` <i class="fas fa-home ${lang === 'ar' ? 'mr-2' : 'ml-2'}"></i>`;
+                    const labels = infoCards[2].querySelectorAll(".info-label-modern");
+                    if (labels[0]) labels[0].textContent = dict["g-summary-address-label"];
+                    if (labels[1]) labels[1].textContent = dict["g-summary-city-label"];
+                    if (labels[2]) labels[2].textContent = dict["g-summary-zip-label"];
+                }
+
+                // Documents status modern
+                const docStatusSec = step5.querySelector(".documents-status-modern");
+                if (docStatusSec) {
+                    const h4 = docStatusSec.querySelector("h4");
+                    if (h4) h4.innerHTML = dict["g-summary-docs-status-title"] + ` <span class="material-symbols-outlined text-[20px] ${lang === 'ar' ? 'mr-2' : 'ml-2'}">description</span>`;
+                    const titles = docStatusSec.querySelectorAll(".status-title-modern");
+                    if (titles[0]) titles[0].textContent = dict["g-summary-cni-front-label"];
+                    if (titles[1]) titles[1].textContent = dict["g-summary-cni-back-label"];
+                    const descs = docStatusSec.querySelectorAll(".status-desc-modern");
+                    descs.forEach(desc => {
+                        if (desc.textContent.includes("قيد الانتظار") || desc.textContent.includes("En attente") || desc.textContent.includes("Pending") || desc.textContent.includes("deg ugani")) {
+                            desc.textContent = dict["g-summary-status-pending"];
+                        }
+                    });
+                }
+
+                // Credentials Minimalist Section
+                const credFields = step5.querySelectorAll(".credentials-minimalist .cred-field");
+                const credInfos = [
+                    { title: "g-cred-username-title", sub: "g-cred-username-sub", placeholder: "g-cred-username-placeholder", icon: "person", id: "username" },
+                    { title: "g-cred-password-title", sub: "g-cred-password-sub", placeholder: "g-cred-password-placeholder", icon: "lock", id: "password" },
+                    { title: "g-cred-confirm-title", sub: "g-cred-confirm-sub", placeholder: "g-cred-confirm-placeholder", icon: "lock_reset", id: "confirmPassword" }
+                ];
+                credFields.forEach((field, idx) => {
+                    const info = credInfos[idx];
+                    if (info) {
+                        const titleEl = field.querySelector(".cred-title");
+                        if (titleEl) titleEl.textContent = dict[info.title];
+                        const subEl = field.querySelector(".cred-subtitle");
+                        if (subEl) subEl.textContent = dict[info.sub];
+                        const input = document.getElementById(info.id);
+                        if (input) input.placeholder = dict[info.placeholder];
+                        if (info.id === "username") {
+                            const hintEl = field.querySelector(".cred-hint");
+                            if (hintEl) hintEl.innerHTML = `<span class="material-symbols-outlined">info</span> ` + dict["g-cred-username-hint"];
+                        }
+                    }
+                });
+
+                // Checkbox Conditions
+                const condLabel = step5.querySelector("label[for='conditions']");
+                if (condLabel) {
+                    condLabel.innerHTML = dict["g-conditions-label"]
+                        .replace("شروط الاستخدام", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-terms-link"]}</a>`)
+                        .replace("les conditions d'utilisation", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-terms-link"]}</a>`)
+                        .replace("the Terms of Use", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-terms-link"]}</a>`)
+                        .replace("tiwtilin n useqdec", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-terms-link"]}</a>`)
+                        .replace("سياسة الخصوصية", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-privacy-link"]}</a>`)
+                        .replace("la politique de confidentialité", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-privacy-link"]}</a>`)
+                        .replace("the Privacy Policy", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-privacy-link"]}</a>`)
+                        .replace("tasertit n tbaḍnit", `<a href="#" style="color: var(--primary-color); font-weight: 500;">${dict["g-privacy-link"]}</a>`);
+                }
+            }
+
+            // Buttons throughout all steps
+            document.querySelectorAll(".navigation-buttons button").forEach(btn => {
+                if (btn.id === "submitBtn") {
+                    btn.innerHTML = `<i class="fas fa-check-circle"></i> ` + dict["g-btn-finish"];
+                } else if (btn.classList.contains("btn-next")) {
+                    if (lang === "ar") {
+                        btn.innerHTML = `<span class="material-symbols-outlined">arrow_back</span> ` + dict["g-btn-next"];
+                    } else {
+                        btn.innerHTML = dict["g-btn-next"] + ` <span class="material-symbols-outlined">arrow_forward</span>`;
+                    }
+                } else if (btn.classList.contains("btn-prev")) {
+                    if (lang === "ar") {
+                        btn.innerHTML = dict["g-btn-prev"] + ` <span class="material-symbols-outlined">arrow_forward</span>`;
+                    } else {
+                        btn.innerHTML = `<span class="material-symbols-outlined">arrow_back</span> ` + dict["g-btn-prev"];
+                    }
+                }
             });
         }
 
