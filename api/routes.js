@@ -1217,6 +1217,25 @@ export async function uploadDocument(fastify, opts) {
 }
 
 // Books Routes
+// Helper to get category default cover image
+function getCategoryImage(categoryCode) {
+    const code = String(categoryCode || '').trim();
+    const firstChar = code.charAt(0);
+    switch (firstChar) {
+        case '0': return '../images/categories/generalites.png';
+        case '1': return '../images/categories/philosophy.jpg';
+        case '2': return '../images/categories/relegion.webp';
+        case '3': return '../images/categories/science sociale.webp';
+        case '4': return '../images/categories/langues.webp';
+        case '5': return '../images/categories/science naturelle.jpg';
+        case '6': return '../images/categories/technologies.png';
+        case '7': return '../images/categories/arts.jpg';
+        case '8': return '../images/categories/literature.webp';
+        case '9': return '../images/categories/histoire.jpg';
+        default: return '../images/categories/generalites.png';
+    }
+}
+
 export async function listBooks(fastify, opts) {
     fastify.get('/api/books/list', async (request, reply) => {
         try {
@@ -1294,12 +1313,21 @@ export async function listBooks(fastify, opts) {
                     COALESCE(n."DOC_NOTE", '') as notes,
                     COALESCE(n."DOC_ISBN", '') as isbn,
                     COALESCE(n."DOC_KEYWORDS", '') as keywords,
+                    COALESCE(NULLIF(STRING_AGG(DISTINCT dom."CLA_ID", ', '), ''), '') as category_code,
                     (SELECT STRING_AGG("EXP_ID", ', ') FROM public."NOTICE_EXEMPLAIRE" WHERE "DOC_ID" = n."DOC_ID") as exp_ids
                 FROM public."NOTICE" n
                 LEFT JOIN public."COLLECTION" c ON n."COL_ID" = c."COL_ID"
                 LEFT JOIN public."NOTICE_AUTEUR" na ON n."DOC_ID" = na."DOC_ID"
                 LEFT JOIN public."VEDETTE" v ON na."VED_ID" = v."VED_ID"
                 LEFT JOIN public."LANGUE" l ON n."LAN_ID" = l."LAN_ID"
+                LEFT JOIN public."NOTICE_CLASSIFICATION" nc ON n."DOC_ID" = nc."DOC_ID"
+                LEFT JOIN public."CLASSIFICATION" cls ON nc."CLA_ID" = cls."CLA_ID"
+                LEFT JOIN public."CLASSIFICATION" dom
+                    ON dom."CLA_ID" = CASE
+                        WHEN cls."CLA_ID" IS NULL THEN NULL
+                        WHEN RIGHT(cls."CLA_ID", 2) = '00' THEN cls."CLA_ID"
+                        ELSE LEFT(cls."CLA_ID", 1) || '00'
+                    END
                 ${whereClause}
                 GROUP BY n."DOC_ID", n."DOC_TITRE_PROPRE", n."DOC_ANNEE", c."COL_TITRE_PROPRE", n."DOC_NBR_EXEMPLAIRE", l."LAN_LIBELLE", n."DOC_NOTE", n."DOC_ISBN", n."DOC_KEYWORDS"
                 ORDER BY n."DOC_ID" DESC
@@ -1309,7 +1337,6 @@ export async function listBooks(fastify, opts) {
             const listParams = [...params, limit, offset];
             const result = await pool.query(query, listParams);
 
-            const bookCovers = ['../images/1.webp', '../images/3.webp'];
             const books = result.rows.map((row, i) => ({
                 id: row.id,
                 expIds: row.exp_ids,
@@ -1323,7 +1350,7 @@ export async function listBooks(fastify, opts) {
                 notes: row.notes,
                 isbn: row.isbn,
                 keywords: row.keywords,
-                img: bookCovers[i % 2]
+                img: getCategoryImage(row.category_code)
             }));
 
             reply.send({ books, total: totalCount });
@@ -1637,7 +1664,6 @@ export async function listBooksByDomain(fastify, opts) {
                 LIMIT $${paramCount} OFFSET $${paramCount + 1}
             `, [...params, limit, offset]);
 
-            const bookCovers = ['../images/1.webp', '../images/3.webp'];
             const books = result.rows.map((row, i) => ({
                 id: row.id,
                 expIds: row.exp_ids,
@@ -1653,7 +1679,7 @@ export async function listBooksByDomain(fastify, opts) {
                 notes: row.notes,
                 isbn: row.isbn,
                 keywords: row.keywords,
-                img: bookCovers[i % 2]
+                img: getCategoryImage(row.category_code)
             }));
 
             reply.send({ books, total: totalCount });
@@ -1689,7 +1715,12 @@ export async function getDomainFilters(fastify, opts) {
             );
 
             reply.send({
-                categories: categoriesResult.rows.map(row => ({ id: row.id, name: row.name, count: Number(row.count) })),
+                categories: categoriesResult.rows.map(row => ({
+                    id: row.id,
+                    name: row.name,
+                    count: Number(row.count),
+                    img: getCategoryImage(row.id)
+                })),
                 languages: languagesResult.rows
             });
         } catch (error) {
