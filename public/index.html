@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Bibliothèque de Béjaïa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/css/admin.css">
+    <link rel="stylesheet" href="/admin/public/css/admin.css">
 </head>
 
 <body>
@@ -19,42 +19,42 @@
         </div>
 
         <div class="nav-links">
-            <a href="/" class="nav-item active">
+            <a href="/admin/" class="nav-item active">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a href="/lecteurs.html" class="nav-item">
+            <a href="/admin/lecteurs.html" class="nav-item">
                 <i class="fas fa-users"></i>
                 <span class="nav-text">Lecteurs</span>
                 <span class="badge" id="badge-lecteurs">...</span>
             </a>
-            <a href="/books.html" class="nav-item">
+            <a href="/admin/books.html" class="nav-item">
                 <i class="fas fa-book"></i>
                 <span class="nav-text">Livres</span>
                 <span class="badge" id="badge-books">...</span>
             </a>
-            <a href="/orders.html" class="nav-item">
+            <a href="/admin/orders.html" class="nav-item">
                 <i class="fas fa-exchange-alt"></i>
                 <span class="nav-text">Commandes</span>
                 <span class="badge" id="badge-orders">...</span>
             </a>
-            <a href="/returns.html" class="nav-item">
+            <a href="/admin/returns.html" class="nav-item">
                 <i class="fas fa-undo-alt"></i>
                 <span class="nav-text">Retours</span>
             </a>
-            <a href="/stats.html" class="nav-item">
+            <a href="/admin/stats.html" class="nav-item">
                 <i class="fas fa-chart-line"></i>
                 <span class="nav-text">Stats</span>
             </a>
-            <a href="/registrations.html" class="nav-item">
+            <a href="/admin/registrations.html" class="nav-item">
                 <i class="fas fa-user-check"></i>
                 <span class="nav-text">Inscriptions</span>
             </a>
-            <a href="/access_control.html" class="nav-item">
+            <a href="/admin/access_control.html" class="nav-item">
                 <i class="fas fa-door-open"></i>
                 <span class="nav-text">Contrôle d'accès</span>
             </a>
-            <a href="/utilisateurs.html" class="nav-item">
+            <a href="/admin/utilisateurs.html" class="nav-item">
                 <i class="fas fa-user-shield"></i>
                 <span class="nav-text">Utilisateurs</span>
             </a>
@@ -166,7 +166,7 @@
             <div class="table-header">
                 <h2>Commandes récentes</h2>
                 <div class="table-actions">
-                    <a href="/orders.html" class="btn btn-primary">
+                    <a href="/admin/orders.html" class="btn btn-primary">
                         <i class="fas fa-arrow-right"></i> Voir tout
                     </a>
                 </div>
@@ -192,7 +192,7 @@
             <div class="table-header">
                 <h2>Derniers lecteurs inscrits</h2>
                 <div class="table-actions">
-                    <a href="/lecteurs.html" class="btn btn-secondary">
+                    <a href="/admin/lecteurs.html" class="btn btn-secondary">
                         <i class="fas fa-arrow-right"></i> Voir tout
                     </a>
                 </div>
@@ -223,11 +223,11 @@
         async function load() {
             try {
                 const [books, lecteurs, orders, bookStats, lecteurStats] = await Promise.all([
-                    fetch('/api/admin/books').then(r => r.json()),
-                    fetch('/api/admin/lecteurs').then(r => r.json()),
-                    fetch('/api/admin/orders').then(r => r.json()),
-                    fetch('/api/admin/books/stats').then(r => r.json()).catch(() => ({ total: books.length })),
-                    fetch('/api/admin/lecteurs/stats').then(r => r.json()).catch(() => ({ total: lecteurs.length }))
+                    fetch('/admin/api/admin/books').then(r => r.json()),
+                    fetch('/admin/api/admin/lecteurs').then(r => r.json()),
+                    fetch('/admin/api/admin/orders').then(r => r.json()),
+                    fetch('/admin/api/admin/books/stats').then(r => r.json()).catch(() => ({ total: books.length })),
+                    fetch('/admin/api/admin/lecteurs/stats').then(r => r.json()).catch(() => ({ total: lecteurs.length }))
                 ]);
 
                 document.getElementById('stat-books').textContent = Number(bookStats.total).toLocaleString();
@@ -261,7 +261,7 @@
                     <td><span class="status-badge status-${o.status}">${o.status === 'PENDING' ? 'EN ATTENTE' : o.status === 'APPROVED' ? 'APPROUVÉ' : o.status === 'RETURNED' ? 'RETOURNÉ' : 'REJETÉ'}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <a href="/orders.html" class="action-btn view" title="Voir"><i class="fas fa-eye"></i></a>
+                            <a href="/admin/orders.html" class="action-btn view" title="Voir"><i class="fas fa-eye"></i></a>
                         </div>
                     </td>
                 </tr>

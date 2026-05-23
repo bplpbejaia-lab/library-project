@@ -448,7 +448,7 @@
 
         async function loadLogs() {
             try {
-                const res = await fetch('/api/admin/access/logs');
+                const res = await fetch('/admin/api/admin/access/logs');
                 const logs = await res.json();
                 if (logs.length > 0) {
                     document.getElementById('noLogsPlaceholder').style.display = 'none';
@@ -460,7 +460,7 @@
         }
 
         function setupSSE() {
-            const evtSource = new EventSource("/api/admin/orders/events");
+            const evtSource = new EventSource("/admin/api/admin/orders/events");
             
             evtSource.addEventListener("access_change", (event) => {
                 const data = JSON.parse(event.data);
@@ -559,7 +559,7 @@
 
         async function updateStats() {
             try {
-                const res = await fetch('/api/admin/access/stats');
+                const res = await fetch('/admin/api/admin/access/stats');
                 const stats = await res.json();
                 
                 document.getElementById('statTotalScans').textContent = stats.total || 0;
@@ -651,7 +651,7 @@
         async function simulateScan(rfid) {
             if (!rfid) return;
             try {
-                await fetch('/api/admin/access/scan', {
+                await fetch('/admin/api/admin/access/scan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ rfid })

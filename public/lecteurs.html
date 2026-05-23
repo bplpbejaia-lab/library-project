@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Gestion des Lecteurs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/css/admin.css">
+    <link rel="stylesheet" href="/admin/public/css/admin.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Noto+Kufi+Arabic:wght@400;700;900&display=swap"
         rel="stylesheet">
@@ -362,24 +362,24 @@
             <p>Administration</p>
         </div>
         <div class="nav-links">
-            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
+            <a href="/admin/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
                     class="nav-text">Dashboard</span></a>
-            <a href="/lecteurs.html" class="nav-item active">
+            <a href="/admin/lecteurs.html" class="nav-item active">
                 <i class="fas fa-users"></i><span class="nav-text">Lecteurs</span>
                 <span class="badge" id="badge-lecteurs">...</span>
             </a>
-            <a href="/books.html" class="nav-item"><i class="fas fa-book"></i><span class="nav-text">Livres</span></a>
-            <a href="/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
+            <a href="/admin/books.html" class="nav-item"><i class="fas fa-book"></i><span class="nav-text">Livres</span></a>
+            <a href="/admin/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
                     class="nav-text">Commandes</span></a>
-            <a href="/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
+            <a href="/admin/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
                     class="nav-text">Retours</span></a>
-            <a href="/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
+            <a href="/admin/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
                     class="nav-text">Stats</span></a>
-            <a href="/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
+            <a href="/admin/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
                     class="nav-text">Inscriptions</span></a>
-            <a href="/access_control.html" class="nav-item"><i class="fas fa-door-open"></i><span
+            <a href="/admin/access_control.html" class="nav-item"><i class="fas fa-door-open"></i><span
                     class="nav-text">Contrôle d'accès</span></a>
-            <a href="/utilisateurs.html" class="nav-item"><i class="fas fa-user-shield"></i><span
+            <a href="/admin/utilisateurs.html" class="nav-item"><i class="fas fa-user-shield"></i><span
                     class="nav-text">Utilisateurs</span></a>
         </div>
         <div class="admin-info">
@@ -771,7 +771,7 @@
             try {
                 const period = getPeriod();
                 const url = `/api/admin/lecteurs?limit=${PAGE_SIZE}&offset=${currentOffset}&period=${period}`;
-                const [res, statsRes] = await Promise.all([fetch(url), fetch('/api/admin/lecteurs/stats')]);
+                const [res, statsRes] = await Promise.all([fetch(url.startsWith('/') ? '/admin' + url : url), fetch('/admin/api/admin/lecteurs/stats')]);
                 const data = await res.json();
                 const rows = data.rows || [];
                 totalReaders = data.total || 0;
@@ -914,7 +914,7 @@
             if (!confirm(`Voulez-vous renouveler ${selected.length} lecteur(s) pour une année supplémentaire ?`)) return;
 
             try {
-                const res = await fetch('/api/admin/lecteurs/bulk-renew', {
+                const res = await fetch('/admin/api/admin/lecteurs/bulk-renew', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ids: selected })
@@ -1197,7 +1197,7 @@
                 <div class="card-print-container">
                     <!-- FRONT OF THE CARD (RECTO) -->
                     <div class="rfid-card-new front">
-                        <img src="/public/images/rfid_bg.png" class="recto-bg-books" style="opacity: 0.15;">
+                        <img src="/admin/public/images/rfid_bg.png" class="recto-bg-books" style="opacity: 0.15;">
                         
                         <div class="recto-header">
                             <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
@@ -1235,7 +1235,7 @@
 
                     <!-- BACK OF THE CARD -->
                     <div class="rfid-card-new back">
-                        <img src="/public/images/bplpb_logo.jpg" class="verso-logo-centered" onerror="this.src='/public/images/library_logo.png'">
+                        <img src="/admin/public/images/bplpb_logo.jpg" class="verso-logo-centered" onerror="this.src='/admin/public/images/library_logo.png'">
                         <div class="verso-ar-text">
                             <p>هذه البطاقة شخصية</p>
                             <p>هذه البطاقة صالحة لمدة سنة</p>

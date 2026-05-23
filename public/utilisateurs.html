@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Gestion des Utilisateurs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/css/admin.css">
+    <link rel="stylesheet" href="/admin/public/css/admin.css">
 </head>
 
 <body>
@@ -17,21 +17,21 @@
             <p>Administration</p>
         </div>
         <div class="nav-links">
-            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
+            <a href="/admin/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
                     class="nav-text">Dashboard</span></a>
-            <a href="/lecteurs.html" class="nav-item"><i class="fas fa-users"></i><span
+            <a href="/admin/lecteurs.html" class="nav-item"><i class="fas fa-users"></i><span
                     class="nav-text">Lecteurs</span></a>
-            <a href="/books.html" class="nav-item"><i class="fas fa-book"></i><span
+            <a href="/admin/books.html" class="nav-item"><i class="fas fa-book"></i><span
                     class="nav-text">Livres</span></a>
-            <a href="/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
+            <a href="/admin/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
                     class="nav-text">Commandes</span></a>
-            <a href="/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
+            <a href="/admin/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
                     class="nav-text">Retours</span></a>
-            <a href="/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
+            <a href="/admin/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
                     class="nav-text">Stats</span></a>
-            <a href="/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
+            <a href="/admin/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
                     class="nav-text">Inscriptions</span></a>
-            <a href="/utilisateurs.html" class="nav-item active"><i class="fas fa-user-shield"></i><span
+            <a href="/admin/utilisateurs.html" class="nav-item active"><i class="fas fa-user-shield"></i><span
                     class="nav-text">Utilisateurs</span></a>
         </div>
         <div class="admin-info">
@@ -189,7 +189,7 @@
             const tbody = document.getElementById('users-table');
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
             try {
-                const res = await fetch('/api/admin/utilisateurs');
+                const res = await fetch('/admin/api/admin/utilisateurs');
                 allUsers = await res.json();
                 renderUsers(allUsers);
                 document.getElementById('stat-total').textContent = allUsers.length;

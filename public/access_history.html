@@ -100,7 +100,7 @@
             if (date) url += `&date=${date}`;
             if (action) url += `&action=${action}`;
             
-            const res = await fetch(url);
+            const res = await fetch(url.startsWith('/') ? '/admin' + url : url);
             const logs = await res.json();
             renderLogs(logs);
         }

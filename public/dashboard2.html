@@ -891,12 +891,12 @@
 
             <div class="nav-section-title">Menu</div>
             <nav class="sidebar-nav">
-                <a href="/dashboard2.html" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
-                <a href="/lecteurs.html"><i class="fas fa-users"></i> Lecteurs <span class="badge"
+                <a href="/admin/dashboard2.html" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="/admin/lecteurs.html"><i class="fas fa-users"></i> Lecteurs <span class="badge"
                         id="nav-badge-lec">...</span></a>
-                <a href="/books.html"><i class="fas fa-book"></i> Livres</a>
-                <a href="/orders.html"><i class="fas fa-chart-line"></i> Commandes</a>
-                <a href="/"><i class="fas fa-user-friends"></i> Dashboard V1</a>
+                <a href="/admin/books.html"><i class="fas fa-book"></i> Livres</a>
+                <a href="/admin/orders.html"><i class="fas fa-chart-line"></i> Commandes</a>
+                <a href="/admin/"><i class="fas fa-user-friends"></i> Dashboard V1</a>
             </nav>
 
             <div class="nav-section-title">Général</div>
@@ -1078,9 +1078,9 @@
         async function loadDashboard() {
             try {
                 const [booksResp, lecteursResp, ordersResp] = await Promise.all([
-                    fetch('/api/admin/books').then(r => r.json()),
-                    fetch('/api/admin/lecteurs').then(r => r.json()),
-                    fetch('/api/admin/orders').then(r => r.json()),
+                    fetch('/admin/api/admin/books').then(r => r.json()),
+                    fetch('/admin/api/admin/lecteurs').then(r => r.json()),
+                    fetch('/admin/api/admin/orders').then(r => r.json()),
                 ]);
 
                 const books = Array.isArray(booksResp) ? booksResp : booksResp.rows || [];
