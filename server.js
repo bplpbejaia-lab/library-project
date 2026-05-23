@@ -1047,7 +1047,8 @@ async function handleLogin() {
     const data = await res.json();
     if (res.ok && data.user) {
       if (data.isAdmin && data.adminUrl) {
-        // Admin user - redirect to admin panel
+        // Admin user - store admin session and redirect to admin panel
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
         window.location.href = data.adminUrl;
         return;
       }

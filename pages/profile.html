@@ -989,7 +989,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-slate-400">رقم الهاتف</p>
-                                <p id="profilePhone" class="font-bold text-slate-800">...</p>
+                                <p id="profilePhone" class="font-bold text-slate-800" dir="ltr" style="text-align: right;">...</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
@@ -1181,7 +1181,7 @@
             <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">المهنة
                     :</span><span id="p-job"></span></div>
             <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">رقم الهاتف
-                    :</span><span id="p-phone"></span></div>
+                    :</span><span id="p-phone" dir="ltr" style="display: inline-block;"></span></div>
             <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">NIN
                     :</span><span id="p-nin"></span></div>
             <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">العنوان
@@ -1299,8 +1299,8 @@
                         id="eng-country"></span></div>
                 <div style="flex:1; padding:2mm; position:relative;"><span style="font-size:9pt; font-weight:900;"
                         id="label-phone">الهاتف :</span><span
-                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"
-                        id="eng-phone"></span></div>
+                        style="font-size:10pt; font-weight:900; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); direction: ltr;"
+                        id="eng-phone" dir="ltr"></span></div>
             </div>
         </div>
         <div style="position:absolute; top:180mm; left:15mm; right:15mm; direction:rtl;">
@@ -1405,7 +1405,26 @@
                 safeSetText('profileFullName', (user.nom || '').toUpperCase() + ' ' + (user.prenom || ''));
                 safeSetText('profileNomLatin', (user.nomLatin || '') + ' ' + (user.prenomLatin || ''));
                 safeSetText('profileBirthdate', user.naissance ? new Date(user.naissance).toLocaleDateString('fr-FR') : '...');
-                safeSetText('profileProfession', user.profession);
+                
+                // Map and translate profession
+                let translatedProf = user.profession || '';
+                const activeLang = localStorage.getItem("lang") || "ar";
+                const profKey = String(translatedProf).toLowerCase().trim();
+                const professionMap = {
+                    'eleve': { ar: 'تلميذ', fr: 'Élève', en: 'Pupil', kab: 'Élève' },
+                    'etudiant': { ar: 'طالب', fr: 'Étudiant', en: 'Student', kab: 'Étudiant' },
+                    'enseignant': { ar: 'معلم', fr: 'Enseignant', en: 'Teacher', kab: 'Enseignant' },
+                    'commercant': { ar: 'تاجر', fr: 'Commerçant', en: 'Merchant', kab: 'Commerçant' },
+                    'fonctionnaire': { ar: 'موظف حكومي', fr: 'Fonctionnaire', en: 'Public Servant', kab: 'Fonctionnaire' },
+                    'cadre': { ar: 'إطار', fr: 'Cadre', en: 'Executive', kab: 'Cadre' },
+                    'chercheur': { ar: 'باحث', fr: 'Chercheur', en: 'Researcher', kab: 'Chercheur' },
+                    'retraite': { ar: 'متقاعد', fr: 'Retraité', en: 'Retired', kab: 'Retraité' },
+                    'autre': { ar: 'أخرى', fr: 'Autre', en: 'Other', kab: 'Autre' }
+                };
+                if (professionMap[profKey]) {
+                    translatedProf = professionMap[profKey][activeLang] || professionMap[profKey]['ar'];
+                }
+                safeSetText('profileProfession', translatedProf);
                 safeSetText('profileNIN', user.nin);
                 safeSetText('profileEmail', user.email);
                 safeSetText('profilePhone', user.telephone);
@@ -1687,7 +1706,26 @@
             document.getElementById('p-nom-la').textContent = user.nomLatin || '';
             document.getElementById('p-prenom-la').textContent = user.prenomLatin || '';
             document.getElementById('p-dob').textContent = user.naissance || '';
-            document.getElementById('p-job').textContent = user.profession || '';
+            
+            // Map and translate profession
+            let translatedProf = user.profession || '';
+            const activeLang = localStorage.getItem("lang") || "ar";
+            const profKey = String(translatedProf).toLowerCase().trim();
+            const professionMap = {
+                'eleve': { ar: 'تلميذ', fr: 'Élève', en: 'Pupil', kab: 'Élève' },
+                'etudiant': { ar: 'طالب', fr: 'Étudiant', en: 'Student', kab: 'Étudiant' },
+                'enseignant': { ar: 'معلم', fr: 'Enseignant', en: 'Teacher', kab: 'Enseignant' },
+                'commercant': { ar: 'تاجر', fr: 'Commerçant', en: 'Merchant', kab: 'Commerçant' },
+                'fonctionnaire': { ar: 'موظف حكومي', fr: 'Fonctionnaire', en: 'Public Servant', kab: 'Fonctionnaire' },
+                'cadre': { ar: 'إطار', fr: 'Cadre', en: 'Executive', kab: 'Cadre' },
+                'chercheur': { ar: 'باحث', fr: 'Chercheur', en: 'Researcher', kab: 'Chercheur' },
+                'retraite': { ar: 'متقاعد', fr: 'Retraité', en: 'Retired', kab: 'Retraité' },
+                'autre': { ar: 'أخرى', fr: 'Autre', en: 'Other', kab: 'Autre' }
+            };
+            if (professionMap[profKey]) {
+                translatedProf = professionMap[profKey][activeLang] || professionMap[profKey]['ar'];
+            }
+            document.getElementById('p-job').textContent = translatedProf;
             document.getElementById('p-phone').textContent = user.telephone || '';
             document.getElementById('p-nin').textContent = user.nin || '';
             document.getElementById('p-address').textContent = user.adresse || '';

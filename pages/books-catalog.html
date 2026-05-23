@@ -2100,6 +2100,7 @@
                 const data = await res.json();
                 if (res.ok && data.user) {
                     if (data.isAdmin && data.adminUrl) {
+                        localStorage.setItem('adminUser', JSON.stringify(data.user));
                         window.location.href = data.adminUrl;
                         return;
                     }

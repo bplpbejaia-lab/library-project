@@ -1605,6 +1605,7 @@
                 const d = await r.json(); 
                 if (r.ok && d.user) { 
                     if (d.isAdmin && d.adminUrl) {
+                        localStorage.setItem('adminUser', JSON.stringify(d.user));
                         window.location.href = d.adminUrl;
                         return;
                     }
