@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Gestion des Commandes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/admin.css">
+</head>
+
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-book-reader"></i> Bibliothèque</h2>
+            <p>Administration</p>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
+                    class="nav-text">Dashboard</span></a>
+            <a href="/lecteurs.html" class="nav-item"><i class="fas fa-users"></i><span
+                    class="nav-text">Lecteurs</span></a>
+            <a href="/books.html" class="nav-item"><i class="fas fa-book"></i><span class="nav-text">Livres</span></a>
+            <a href="/orders.html" class="nav-item active">
+                <i class="fas fa-exchange-alt"></i><span class="nav-text">Commandes</span>
+                <span class="badge" id="badge-pending">...</span>
+            </a>
+            <a href="/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
+                    class="nav-text">Retours</span></a>
+            <a href="/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
+                    class="nav-text">Stats</span></a>
+            <a href="/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
+                    class="nav-text">Inscriptions</span></a>
+            <a href="/utilisateurs.html" class="nav-item"><i class="fas fa-user-shield"></i><span
+                    class="nav-text">Utilisateurs</span></a>
+        </div>
+        <div class="admin-info">
+            <div class="admin-profile">
+                <div class="admin-avatar"><i class="fas fa-user-tie"></i></div>
+                <div class="admin-details">
+                    <h4>Admin Bibliothèque</h4>
+                    <p>administrateur@bibliotheque.dz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Gestion des Commandes</h1>
+                <p>Suivi et approbation des demandes de prêt</p>
+            </div>
+            <div class="top-actions">
+                <button class="btn btn-primary" onclick="openNewOrder()"><i class="fas fa-plus"></i> Nouvelle
+                    commande</button>
+                <button class="btn btn-secondary" onclick="loadOrders()"><i class="fas fa-sync-alt"></i>
+                    Rafraîchir</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>En attente</h3>
+                        <div class="stat-number" id="stat-pending">...</div>
+                    </div>
+                    <div class="stat-icon pending"><i class="fas fa-hourglass-half"></i></div>
+                </div>
+                <div class="stat-change negative"><i class="fas fa-arrow-down"></i><span>À traiter</span></div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Approuvées</h3>
+                        <div class="stat-number" id="stat-approved">...</div>
+                    </div>
+                    <div class="stat-icon active"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Confirmées</span></div>
+            </div>
+            <div class="stat-card expired">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Rejetées</h3>
+                        <div class="stat-number" id="stat-rejected">...</div>
+                    </div>
+                    <div class="stat-icon expired"><i class="fas fa-times-circle"></i></div>
+                </div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Total</h3>
+                        <div class="stat-number" id="stat-total">...</div>
+                    </div>
+                    <div class="stat-icon total"><i class="fas fa-list"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Toutes les commandes</h2>
+                <div class="table-actions">
+                    <select class="filter-dropdown" id="statusFilter" onchange="filterOrders()">
+                        <option value="all">Tous les statuts</option>
+                        <option value="PENDING">En attente</option>
+                        <option value="APPROVED">Approuvées</option>
+                        <option value="REJECTED">Rejetées</option>
+                    </select>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Lecteur</th>
+                        <th>Livre demandé</th>
+                        <th>Date</th>
+                        <th>Exemplaire</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- New Order Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nouvelle commande de prêt</h3>
+                <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">ID Lecteur</label>
+                    <input type="text" class="form-control" id="orderLecId" placeholder="Ex: 1597">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ID Document (DOC_ID)</label>
+                    <input type="number" class="form-control" id="orderDocId" placeholder="Ex: 42">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOrderModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="submitOrder()"><i class="fas fa-paper-plane"></i>
+                    Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exemplar Selection Modal -->
+    <div class="modal" id="exemplarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Choisir un exemplaire</h3>
+                <button class="modal-close" onclick="closeExemplarModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="exemplarBookTitle" style="font-weight:600;margin-bottom:15px;color:var(--primary-color)"></p>
+                <div id="exemplar-list" class="exemplar-grid">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExemplarModal()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .exemplar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .exemplar-card {
+            padding: 12px 8px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            background: #fdfdfd;
+        }
+
+        .exemplar-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(46, 125, 50, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .exemplar-card.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('active'); });
+
+        let allOrders = [];
+        let currentOrderId = null;
+        let currentDocId = null;
+        const avatarColors = ['#2e7d32', '#1565c0', '#ef6c00', '#c62828', '#6a1b9a', '#00838f'];
+
+        async function loadOrders() {
+            const tbody = document.getElementById('orders-table');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            try {
+                const res = await fetch('/api/admin/orders');
+                allOrders = await res.json();
+                renderOrders(allOrders);
+                document.getElementById('stat-pending').textContent = allOrders.filter(o => o.status === 'PENDING').length;
+                document.getElementById('stat-approved').textContent = allOrders.filter(o => o.status === 'APPROVED').length;
+                document.getElementById('stat-rejected').textContent = allOrders.filter(o => o.status === 'REJECTED').length;
+                document.getElementById('stat-total').textContent = allOrders.length;
+                document.getElementById('badge-pending').textContent = allOrders.filter(o => o.status === 'PENDING').length;
+            } catch (e) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--secondary-color)">Erreur</td></tr>'; }
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('orders-table');
+            if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;opacity:0.5">Aucune commande</td></tr>'; return; }
+            tbody.innerHTML = orders.map((o, i) => `
+            <tr style="${o.status !== 'PENDING' ? 'opacity:0.6' : ''}">
+                <td><strong>${o.id}</strong></td>
+                <td>
+                    <div class="reader-info">
+                        <div class="reader-avatar" style="background:${o.LEC_PHOTO ? 'none' : avatarColors[i % avatarColors.length]}">
+                            ${o.LEC_PHOTO ? `<img src="${o.LEC_PHOTO}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : (o.LEC_NOM || '?')[0] + (o.LEC_PRENOM || '')[0]}
+                        </div>
+                        <div class="reader-details">
+                            <h4>${o.LEC_NOM || '?'} ${o.LEC_PRENOM || ''}</h4>
+                            <p>ID: ${o.LEC_ID}</p>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-weight:500;max-width:220px">${o.DOC_TITRE_PROPRE || 'N/A'}</td>
+                <td>${new Date(o.order_date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                <td>${o.EXP_ID ? '<span style="font-family:monospace;font-weight:600;color:var(--primary-color)">' + o.EXP_ID + '</span>' : '-'}</td>
+                <td><span class="status-badge status-${o.status}">${o.status === 'PENDING' ? 'EN ATTENTE' : o.status === 'APPROVED' ? 'APPROUVÉ' : o.status === 'RETURNED' ? 'RETOURNÉ' : 'REJETÉ'}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        ${o.status === 'PENDING' ? `
+                            <button class="action-btn approve" title="Confirmer un exemplaire" onclick="openExemplarSelection(${o.id}, ${o.DOC_ID}, '${(o.DOC_TITRE_PROPRE || '').replace(/'/g, "\\'")}')"><i class="fas fa-check"></i></button>
+                            <button class="action-btn delete" title="Rejeter" onclick="rejectOrder(${o.id})"><i class="fas fa-ban"></i></button>
+                        ` : `
+                            <button class="action-btn delete" title="Supprimer" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
+                        `}
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        }
+
+        async function openExemplarSelection(orderId, docId, title) {
+            currentOrderId = orderId;
+            currentDocId = docId;
+            document.getElementById('exemplarBookTitle').textContent = title;
+            const container = document.getElementById('exemplar-list');
+            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Recherche...</div>';
+
+            document.getElementById('exemplarModal').classList.add('open');
+
+            try {
+                const res = await fetch(`/api/admin/orders/available-exemplars/${docId}`);
+                const exemplars = await res.json();
+
+                if (exemplars.length === 0) {
+                    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:red">Oups! Aucun exemplaire disponible.</div>';
+                    return;
+                }
+
+                container.innerHTML = exemplars.map(ex => `
+                    <div class="exemplar-card" onclick="approveWithExemplar('${ex.EXP_ID}')">
+                        <i class="fas fa-bookmark" style="display:block;margin-bottom:5px;font-size:1.2rem;opacity:0.3"></i>
+                        ${ex.EXP_ID}
+                    </div>
+                `).join('');
+
+            } catch (e) { container.innerHTML = 'Erreur'; }
+        }
+
+        function closeExemplarModal() { document.getElementById('exemplarModal').classList.remove('open'); }
+
+        async function approveWithExemplar(expId) {
+            if (!confirm(`Attribuer l'exemplaire ${expId} à cette commande ?`)) return;
+            try {
+                const res = await fetch(`/api/admin/orders/${currentOrderId}/approve`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ exp_id: expId })
+                });
+                const data = await res.json();
+                if (data.error) console.log('Erreur: ' + data.error);
+                else {
+                    console.log('Succès ! Commande approuvée avec l\'exemplaire ' + data.EXP_ID);
+                    closeExemplarModal();
+                    loadOrders();
+                }
+            } catch (e) { console.log('Erreur réseau'); }
+        }
+
+        function filterOrders() {
+            const status = document.getElementById('statusFilter').value;
+            renderOrders(status === 'all' ? allOrders : allOrders.filter(o => o.status === status));
+        }
+
+        function openNewOrder() {
+            document.getElementById('orderLecId').value = '';
+            document.getElementById('orderDocId').value = '';
+            document.getElementById('orderModal').classList.add('open');
+        }
+
+        function closeOrderModal() { document.getElementById('orderModal').classList.remove('open'); }
+
+        async function submitOrder() {
+            const lec_id = document.getElementById('orderLecId').value;
+            const doc_id = document.getElementById('orderDocId').value;
+            if (!lec_id || !doc_id) { console.log('Veuillez remplir tous les champs'); return; }
+            await fetch('/api/admin/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lec_id, doc_id: parseInt(doc_id) }) });
+            closeOrderModal(); loadOrders();
+            console.log('Commande créée avec succès !');
+        }
+
+        async function rejectOrder(id) {
+            if (!confirm('Rejeter cette commande ?')) return;
+            await fetch(`/api/admin/orders/${id}/reject`, { method: 'PUT' });
+            loadOrders();
+        }
+
+        async function deleteOrder(id) {
+            if (!confirm('Supprimer cette commande ?')) return;
+            await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+            loadOrders();
+        }
+
+        window.addEventListener('click', e => {
+            if (e.target === document.getElementById('orderModal')) closeOrderModal();
+            if (e.target === document.getElementById('exemplarModal')) closeExemplarModal();
+        });
+
+        async function setupSSE() {
+            const eventSource = new EventSource('/api/admin/orders/events');
+
+            eventSource.onmessage = (event) => {
+                const { type, data } = JSON.parse(event.data);
+                if (type === 'new') {
+                    // Check if already exists
+                    if (!allOrders.find(o => o.id === data.id)) {
+                        allOrders.unshift(data);
+                        // Optional: play sound or show notification
+                        console.log('New order received:', data);
+                        renderOrders(allOrders);
+                        updateStats();
+                        notifyNewOrder();
+                    }
+                } else if (type === 'update') {
+                    const idx = allOrders.findIndex(o => o.id === data.id);
+                    if (idx !== -1) {
+                        allOrders[idx] = { ...allOrders[idx], ...data };
+                        renderOrders(allOrders);
+                        updateStats();
+                    }
+                }
+            };
+
+            eventSource.onerror = (e) => {
+                console.error('SSE connection lost, reconnecting...');
+                // Browser handles reconnection automatically for EventSource
+            };
+        }
+
+        function notifyNewOrder() {
+            // Visual feedback
+            const badge = document.getElementById('badge-pending');
+            badge.style.transform = 'scale(1.5)';
+            badge.style.color = '#ffeb3b';
+            setTimeout(() => {
+                badge.style.transform = 'scale(1)';
+                badge.style.color = '';
+            }, 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('stat-pending').textContent = allOrders.filter(o => o.status === 'PENDING').length;
+            document.getElementById('stat-approved').textContent = allOrders.filter(o => o.status === 'APPROVED').length;
+            document.getElementById('stat-rejected').textContent = allOrders.filter(o => o.status === 'REJECTED').length;
+            document.getElementById('stat-total').textContent = allOrders.length;
+            document.getElementById('badge-pending').textContent = allOrders.filter(o => o.status === 'PENDING').length;
+        }
+
+        loadOrders().then(() => setupSSE());
+    </script>
+</body>
+
+</html>

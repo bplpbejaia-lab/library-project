@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Gestion des Lecteurs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/admin.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Noto+Kufi+Arabic:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* RFID Card Print Styles are defined dynamically at the bottom of the style tag */
+
+        .rfid-card-new {
+            width: 85.6mm;
+            height: 53.98mm;
+            /* Dimensions exactes de la carte d'identité biométrique algérienne (Standard ID-1 : 85.60mm x 53.98mm) */
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin: 10px;
+            color: #333;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ── RECTO ── */
+        .rfid-card-new.front {
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .recto-bg-books {
+            position: absolute;
+            top: 65%;
+            left: 43%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            opacity: 0.15;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .recto-header {
+            position: absolute;
+            top: 8px;
+            width: 100%;
+            text-align: center;
+            line-height: 1.1;
+            z-index: 5;
+        }
+
+        .recto-header p {
+            margin: 0;
+            font-size: 6pt;
+            font-weight: 700;
+            color: #333;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            text-align: center;
+        }
+
+        .recto-header p:first-child {
+            font-size: 9.2pt;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 2px;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        .recto-header p:not(:first-child) {
+            font-size: 8.2pt;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 1px;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        .recto-photo-box {
+            position: absolute;
+            top: 52px;
+            right: 15px;
+            width: 65px;
+            height: 75px;
+            border: 1px solid #999;
+            background: #fff;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .recto-photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .recto-qr-box {
+            position: absolute;
+            bottom: 4px;
+            /* Tout en bas */
+            right: 15px;
+            width: 65px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .recto-qr-box img {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ddd;
+            padding: 1px;
+            background: white;
+        }
+
+        .recto-id-number {
+            font-size: 10px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin-top: 1px;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        .recto-title-bar {
+            position: absolute;
+            top: 85px;
+            left: 0;
+            right: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .title-green-box {
+            color: #2e7d32;
+            background: none;
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: 19px;
+            font-weight: 900;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            box-shadow: none;
+            position: relative;
+            z-index: 5;
+        }
+
+        .modern-decor {
+            background: none;
+            color: #2e7d32;
+            width: auto;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 5;
+            box-shadow: none;
+        }
+
+        .recto-names-area {
+            position: absolute;
+            top: 132px;
+            left: 0;
+            right: 35px;
+            text-align: center;
+            z-index: 5;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            line-height: 1.2;
+        }
+
+        .name-ar-big {
+            font-size: 16px;
+            font-weight: 900;
+            color: #000;
+        }
+
+        .name-la-big {
+            font-size: 12px;
+            font-weight: 800;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .recto-date-footer {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            right: 35px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 400;
+            color: #666;
+            direction: rtl;
+            z-index: 5;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        /* ── VERSO ── */
+        .rfid-card-new.back {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            /* Distribue l'espace verticalement */
+            padding: 15px;
+            text-align: center;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .verso-logo-centered {
+            max-width: 80%;
+            max-height: 120px;
+            /* Limite la hauteur pour laisser de la place au texte */
+            object-fit: contain;
+        }
+
+        .verso-ar-text {
+            direction: rtl;
+            width: 100%;
+        }
+
+        .verso-ar-text p {
+            margin: 2px 0;
+            font-size: 10px;
+            font-weight: 400;
+            color: #000;
+            line-height: 1.2;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        .card-print-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        @media screen and (max-width: 800px) {
+            .card-print-container {
+                flex-direction: column;
+            }
+        }
+
+        @media print {
+            html, body {
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                color: black !important;
+            }
+
+            body > *:not(#rfidModal) {
+                display: none !important;
+            }
+
+            #rfidModal {
+                position: static !important;
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+            }
+
+            #rfidModal .modal-content {
+                position: static !important;
+                width: 100% !important;
+                max-width: none !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+                border-radius: 0 !important;
+            }
+
+            #rfidModal .modal-header,
+            #rfidModal .modal-footer,
+            #rfidModal .no-print {
+                display: none !important;
+            }
+
+            #rfidPrintArea {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                display: block !important;
+                overflow: visible !important;
+            }
+
+            .card-print-container {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .rfid-card-new {
+                width: 85.6mm !important;
+                height: 53.98mm !important;
+                box-sizing: border-box !important;
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                margin: 0 auto !important;
+                page-break-inside: avoid !important;
+            }
+
+            .rfid-card-new.front {
+                page-break-after: always !important;
+            }
+        }
+
+        .source-badge-EXTERNE {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+
+        .source-badge-INTERNE {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border: 1px solid #ce93d8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-book-reader"></i> Bibliothèque</h2>
+            <p>Administration</p>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
+                    class="nav-text">Dashboard</span></a>
+            <a href="/lecteurs.html" class="nav-item active">
+                <i class="fas fa-users"></i><span class="nav-text">Lecteurs</span>
+                <span class="badge" id="badge-lecteurs">...</span>
+            </a>
+            <a href="/books.html" class="nav-item"><i class="fas fa-book"></i><span class="nav-text">Livres</span></a>
+            <a href="/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
+                    class="nav-text">Commandes</span></a>
+            <a href="/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
+                    class="nav-text">Retours</span></a>
+            <a href="/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
+                    class="nav-text">Stats</span></a>
+            <a href="/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
+                    class="nav-text">Inscriptions</span></a>
+            <a href="/access_control.html" class="nav-item"><i class="fas fa-door-open"></i><span
+                    class="nav-text">Contrôle d'accès</span></a>
+            <a href="/utilisateurs.html" class="nav-item"><i class="fas fa-user-shield"></i><span
+                    class="nav-text">Utilisateurs</span></a>
+        </div>
+        <div class="admin-info">
+            <div class="admin-profile">
+                <div class="admin-avatar"><i class="fas fa-user-tie"></i></div>
+                <div class="admin-details">
+                    <h4>Admin Bibliothèque</h4>
+                    <p>administrateur@bibliotheque.dz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Gestion des Lecteurs</h1>
+                <p>Administration des comptes lecteurs de la bibliothèque</p>
+            </div>
+            <div class="top-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un lecteur..." id="searchInput"
+                        oninput="filterReaders()">
+                </div>
+                <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-user-plus"></i> Ajouter un
+                    lecteur</button>
+                <button class="btn btn-secondary" onclick="exportData()"><i class="fas fa-download"></i>
+                    Exporter</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Total Lecteurs</h3>
+                        <div class="stat-number" id="stat-total">...</div>
+                    </div>
+                    <div class="stat-icon total"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Tous inscrits</span></div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Avec Email</h3>
+                        <div class="stat-number" id="stat-email">...</div>
+                    </div>
+                    <div class="stat-icon active"><i class="fas fa-envelope"></i></div>
+                </div>
+                <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Contactables</span></div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Avec Téléphone</h3>
+                        <div class="stat-number" id="stat-tel">...</div>
+                    </div>
+                    <div class="stat-icon pending"><i class="fas fa-phone"></i></div>
+                </div>
+            </div>
+            <div class="stat-card expired">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Expirés</h3>
+                        <div class="stat-number" id="stat-expired">...</div>
+                    </div>
+                    <div class="stat-icon expired"><i class="fas fa-user-times"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Liste des Lecteurs</h2>
+                <div class="table-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <select class="filter-dropdown" id="filterPeriod" onchange="resetAndLoad()">
+                        <option value="">Toutes les dates</option>
+                        <option value="today">Aujourd'hui</option>
+                        <option value="week">Cette semaine</option>
+                        <option value="month">Ce mois</option>
+                    </select>
+                    <select class="filter-dropdown" id="filterStatus" onchange="filterReaders()">
+                        <option value="">Tous les Statuts</option>
+                        <option value="0">En attente (0)</option>
+                        <option value="1">Validés (1)</option>
+                        <option value="expired">Cartes expirées</option>
+                    </select>
+                    <button class="btn btn-primary" id="bulkRenewBtn" style="display:none; background:#1565c0"
+                        onclick="bulkRenew()">
+                        <i class="fas fa-sync"></i> Renouveler la sélection (<span id="selectedCount">0</span>)
+                    </button>
+                    <select class="filter-dropdown" id="filterCategory" onchange="filterReaders()">
+                        <option value="">Toutes les Catégories</option>
+                        <option value="1">Étudiant</option>
+                        <option value="2">Enseignant</option>
+                        <option value="3">Employé</option>
+                        <option value="10">Chercheur</option>
+                        <option value="11">Autres</option>
+                    </select>
+                    <button class="btn btn-outline" onclick="resetAndLoad()" title="Rafraîchir"><i
+                            class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:40px; text-align:center;">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                            <div
+                                style="font-size: 8px; display: flex; flex-direction: column; line-height: 1.2; margin-top: 2px;">
+                                <a href="javascript:void(0)" onclick="selectAllFiltered(true)"
+                                    style="color: #2e7d32; text-decoration: none; font-weight: bold;">Tous</a>
+                                <a href="javascript:void(0)" onclick="selectAllFiltered(false)"
+                                    style="color: #c62828; text-decoration: none; font-weight: bold;">Aucun</a>
+                            </div>
+                        </th>
+                        <th style="width:280px">Lecteur</th>
+                        <th>Fonction</th>
+                        <th>Date Insc.</th>
+                        <th>Source</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="readers-table"></tbody>
+            </table>
+
+            <div id="loadMoreArea" style="text-align:center;padding:15px;display:none">
+                <span id="loadMoreInfo" style="font-size:0.85rem;color:#666;margin-right:10px"></span>
+                <button class="btn btn-outline" id="loadMoreBtn" onclick="loadMore()"><i
+                        class="fas fa-chevron-down"></i> Charger plus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal" id="readerModal">
+        <div class="modal-content" style="max-width:1100px; width:95%">
+            <div class="modal-header">
+                <h3 id="modalTitle">Ajouter un nouveau lecteur</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="display:flex; gap:20px; flex-direction: row; flex-wrap: wrap;">
+                <!-- Left Side: Previews & Uploads -->
+                <div style="flex: 1; min-width: 300px; border-right: 1px solid #eee; padding-right: 20px;">
+                    <h4 style="margin-bottom:15px; font-size:1.1rem; color:var(--primary-color)"><i
+                            class="fas fa-file-upload"></i> Photo & Documents</h4>
+
+                    <!-- Photo Upload Area -->
+                    <div style="margin-bottom:20px; text-align:center;">
+                        <div id="previewPhotoContainer"
+                            style="width:120px; height:150px; border:2px dashed #ddd; margin: 0 auto 10px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#f9f9f9; cursor:pointer;"
+                            onclick="document.getElementById('filePhoto').click()">
+                            <img id="previewPhoto" style="width:100%; height:100%; object-fit:cover; display:none;">
+                            <i class="fas fa-user-circle" id="photoPlaceholder" style="font-size:60px; color:#ddd;"></i>
+                            <input type="file" id="filePhoto" hidden accept="image/*"
+                                onchange="handleLocalPreview(this, 'previewPhoto', 'photoPlaceholder', 'lecPhoto')">
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline"
+                            onclick="document.getElementById('filePhoto').click()"><i class="fas fa-upload"></i> Changer
+                            Photo</button>
+                    </div>
+
+                    <div id="docsPreviews" style="display:flex; flex-direction:column; gap:12px;">
+                        <!-- Doc Slots -->
+                        <div class="doc-slot"
+                            style="padding:10px; background:#fcfcfc; border:1px solid #eee; border-radius:8px;">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-size:0.85rem; font-weight:600;">Formulaire Engagement</span>
+                                <button type="button" class="btn btn-sm btn-outline"
+                                    style="padding:2px 8px; font-size:11px;"
+                                    onclick="document.getElementById('fileEng').click()">Uploader</button>
+                                <input type="file" id="fileEng" hidden
+                                    onchange="handleLocalDocPreview(this, 'prevEng', 'lecDocEng')">
+                            </div>
+                            <div id="prevEngContainer"
+                                style="height:60px; border:1px solid #eee; border-radius:4px; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <img id="prevEng" style="width:100%; height:100%; object-fit:cover; display:none;">
+                                <span id="textEng" style="font-size:10px; color:#999;">Aucun document</span>
+                            </div>
+                        </div>
+
+                        <div class="doc-slot"
+                            style="padding:10px; background:#fcfcfc; border:1px solid #eee; border-radius:8px;">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-size:0.85rem; font-weight:600;">Fiche Inscription</span>
+                                <button type="button" class="btn btn-sm btn-outline"
+                                    style="padding:2px 8px; font-size:11px;"
+                                    onclick="document.getElementById('fileIns').click()">Uploader</button>
+                                <input type="file" id="fileIns" hidden
+                                    onchange="handleLocalDocPreview(this, 'prevIns', 'lecDocIns')">
+                            </div>
+                            <div id="prevInsContainer"
+                                style="height:60px; border:1px solid #eee; border-radius:4px; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <img id="prevIns" style="width:100%; height:100%; object-fit:cover; display:none;">
+                                <span id="textIns" style="font-size:10px; color:#999;">Aucun document</span>
+                            </div>
+                        </div>
+
+                        <div class="doc-slot"
+                            style="padding:10px; background:#fcfcfc; border:1px solid #eee; border-radius:8px;">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-size:0.85rem; font-weight:600;">Pièce d'identité</span>
+                                <button type="button" class="btn btn-sm btn-outline"
+                                    style="padding:2px 8px; font-size:11px;"
+                                    onclick="document.getElementById('fileIden').click()">Uploader</button>
+                                <input type="file" id="fileIden" hidden
+                                    onchange="handleLocalDocPreview(this, 'prevIden', 'lecDocIden')">
+                            </div>
+                            <div id="prevIdenContainer"
+                                style="height:60px; border:1px solid #eee; border-radius:4px; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center;">
+                                <img id="prevIden" style="width:100%; height:100%; object-fit:cover; display:none;">
+                                <span id="textIden" style="font-size:10px; color:#999;">Aucun document</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Form -->
+                <div style="flex: 2; min-width: 400px;">
+                    <form id="readerForm">
+                        <input type="hidden" id="editId">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">ID Lecteur</label>
+                                <input type="text" class="form-control" id="lecId">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">NIN</label>
+                                <input type="text" class="form-control" id="lecNin"
+                                    placeholder="Numéro d'identité nationale">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nom *</label>
+                                <input type="text" class="form-control" id="lecNom" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Prénom *</label>
+                                <input type="text" class="form-control" id="lecPrenom" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="lecEmail">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="lecTel">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Catégorie</label>
+                                <select class="form-control" id="lecCategory">
+                                    <option value="">-</option>
+                                    <option value="1">Étudiant</option>
+                                    <option value="2">Enseignant</option>
+                                    <option value="3">Employé</option>
+                                    <option value="10">Chercheur</option>
+                                    <option value="11">Autres</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date de naissance</label>
+                                <input type="date" class="form-control" id="lecBirthDate">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" class="form-control" id="lecAddress">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date d'expiration</label>
+                                <input type="date" class="form-control" id="lecExpiryDate">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Profession / Statut</label>
+                                <input type="text" class="form-control" id="lecProfession"
+                                    placeholder="Ex: Commerçant, Étudiant...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Numéro RFID</label>
+                                <input type="text" class="form-control" id="lecRfid"
+                                    placeholder="Passez la carte sur le lecteur...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lien Photo (Optionnel)</label>
+                                <input type="text" class="form-control" id="lecPhoto"
+                                    placeholder="Lien ou données image..." oninput="updatePhotoPreview(this.value)">
+                            </div>
+                        </div>
+                        <!-- Hidden doc data inputs -->
+                        <input type="hidden" id="lecDocEng">
+                        <input type="hidden" id="lecDocIns">
+                        <input type="hidden" id="lecDocIden">
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="btnViewFullDetails" style="display:none; margin-right: auto;"
+                    onclick="openDetailEditModal(document.getElementById('editId').value); closeModal();">
+                    <i class="fas fa-eye"></i> Plus de détails
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveReader()"><i class="fas fa-save"></i> Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailTitle">Détails du lecteur</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RFID Card Print Modal -->
+    <div class="modal" id="rfidModal">
+        <div class="modal-content" style="max-width:920px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1e293b, #0f172a) !important; color: white !important; padding: 24px 32px; border-bottom: none;">
+                <h3 style="margin:0; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 1.5rem; display: flex; align-items: center; gap: 12px; color: white !important;">
+                    <i class="fas fa-id-card-clip" style="color: #10b981;"></i> Tirage de carte RFID
+                </h3>
+                <button class="modal-close" onclick="closeRfidModal()" style="color: white !important; opacity: 0.8; font-size: 1.75rem; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">&times;</button>
+            </div>
+            <div class="modal-body" id="rfidPrintArea" style="padding: 32px; background: white;"></div>
+            <div class="modal-footer no-print" style="background: #f1f5f9; padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; width: 100%; box-sizing: border-box; flex-wrap: wrap; gap: 16px;">
+                <button class="btn btn-primary" onclick="printCardPart('both')" style="flex: 1; min-width: 160px; padding: 14px 20px; border-radius: 14px; font-weight: 700; background: #2563eb; color: white; border: none; box-shadow: 0 4px 14px rgba(37,99,235,0.35); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#1d4ed8'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#2563eb'; this.style.transform='none'">
+                    <i class="fas fa-print" style="margin-right: 8px;"></i> Imprimer Tout
+                </button>
+                <button class="btn btn-primary" onclick="printCardPart('recto')" style="flex: 1; min-width: 160px; padding: 14px 20px; border-radius: 14px; font-weight: 600; background: #10b981; color: white; border: none; box-shadow: 0 4px 12px rgba(16,185,129,0.25); font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#059669'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#10b981'; this.style.transform='none'">
+                    <i class="fas fa-print" style="margin-right: 8px;"></i> Imprimer Recto
+                </button>
+                <button class="btn btn-primary" onclick="printCardPart('verso')" style="flex: 1; min-width: 160px; padding: 14px 20px; border-radius: 14px; font-weight: 600; background: #10b981; color: white; border: none; box-shadow: 0 4px 12px rgba(16,185,129,0.25); font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#059669'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#10b981'; this.style.transform='none'">
+                    <i class="fas fa-print" style="margin-right: 8px;"></i> Imprimer Verso
+                </button>
+                <button class="btn btn-secondary" onclick="closeRfidModal()" style="flex: 1; min-width: 160px; padding: 14px 20px; border-radius: 14px; font-weight: 600; color: #64748b; background: white; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.color='#334155'" onmouseout="this.style.background='white'; this.style.color='#64748b'">
+                    <i class="fas fa-times" style="margin-right: 8px;"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Edit Modal (Plus de détails) -->
+    <!-- Detailed Edit Modal is now handled by reader_profile.html -->
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('active'); });
+
+        let allReaders = [];
+        let currentOffset = 0;
+        let totalReaders = 0;
+        const PAGE_SIZE = 20;
+        const avatarColors = ['#2e7d32', '#1565c0', '#ef6c00', '#c62828', '#6a1b9a', '#00838f', '#ad1457', '#4527a0'];
+
+        const categoryMap = { 1: 'Étudiant', 2: 'Enseignant', 3: 'Employé', 9: 'Responsable PEB', 10: 'Chercheur', 11: 'Autres' };
+
+        function getPeriod() { return document.getElementById('filterPeriod').value; }
+
+        function resetAndLoad() { currentOffset = 0; allReaders = []; document.getElementById('loadMoreBtn').disabled = false; loadReaders(); }
+
+        async function loadReaders(append = false) {
+            const tbody = document.getElementById('readers-table');
+            if (!append) { currentOffset = 0; allReaders = []; tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>'; }
+            try {
+                const period = getPeriod();
+                const url = `/api/admin/lecteurs?limit=${PAGE_SIZE}&offset=${currentOffset}&period=${period}`;
+                const [res, statsRes] = await Promise.all([fetch(url), fetch('/api/admin/lecteurs/stats')]);
+                const data = await res.json();
+                const rows = data.rows || [];
+                totalReaders = data.total || 0;
+                allReaders = append ? allReaders.concat(rows) : rows;
+                filterReaders();
+                try {
+                    const stats = await statsRes.json();
+                    document.getElementById('stat-total').textContent = Number(stats.total).toLocaleString();
+                    document.getElementById('badge-lecteurs').textContent = Number(stats.total).toLocaleString();
+                } catch (e) {
+                    document.getElementById('stat-total').textContent = totalReaders.toLocaleString();
+                    document.getElementById('badge-lecteurs').textContent = totalReaders;
+                }
+                document.getElementById('stat-email').textContent = allReaders.filter(r => r.LEC_EMAIL).length;
+                document.getElementById('stat-tel').textContent = allReaders.filter(r => r.LEC_TEL).length;
+                document.getElementById('stat-expired').textContent = allReaders.filter(r => r.LEC_DATE_EXPIRATION && new Date(r.LEC_DATE_EXPIRATION) < new Date()).length;
+                updateLoadMore();
+            } catch (e) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--secondary-color)">Erreur</td></tr>'; }
+        }
+
+        async function loadMore() { currentOffset += PAGE_SIZE; await loadReaders(true); }
+
+        function updateLoadMore() {
+            const area = document.getElementById('loadMoreArea');
+            const info = document.getElementById('loadMoreInfo');
+            if (allReaders.length < totalReaders) {
+                area.style.display = 'block';
+                info.textContent = `${allReaders.length} / ${totalReaders} affichés`;
+            } else {
+                area.style.display = totalReaders > PAGE_SIZE ? 'block' : 'none';
+                info.textContent = `${totalReaders} / ${totalReaders} affichés`;
+                document.getElementById('loadMoreBtn').disabled = true;
+            }
+        }
+
+
+        function renderReaders(readers) {
+            const tbody = document.getElementById('readers-table');
+            if (!readers.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;opacity:0.5">Aucun lecteur trouvé</td></tr>'; return; }
+            tbody.innerHTML = readers.map((r, i) => {
+                const dateRaw = r.CREATE_DATE || r.LEC_DATE_ADHESION;
+                const formattedDate = dateRaw ? new Date(dateRaw).toLocaleDateString('fr-FR') : '-';
+                const statusNum = parseInt(r.LEC_STATUT);
+                const statusBadge = (statusNum === 1)
+                    ? '<span class="badge" style="background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9">Validé</span>'
+                    : '<span class="badge" style="background:#fff3e0; color:#ef6c00; border:1px solid #ffe0b2">En attente</span>';
+
+                // Determine inscription source from linked registration
+                const sourceBadge = r.inscription_source
+                    ? `<span class="badge source-badge-${r.inscription_source}" style="padding:2px 8px;font-size:0.75rem;border-radius:4px">${r.inscription_source === 'INTERNE' ? '<i class=\"fas fa-building\"></i> Interne' : '<i class=\"fas fa-globe\"></i> Externe'}</span>`
+                    : '<span class="badge" style="background:#f5f5f5;color:#757575;padding:2px 8px;font-size:0.75rem;border-radius:4px"><i class="fas fa-globe"></i> Externe</span>';
+
+                const isExpired = r.LEC_DATE_EXPIRATION && new Date(r.LEC_DATE_EXPIRATION) < new Date();
+                const expiryBadge = isExpired ? '<span class="badge" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; margin-right:5px">Expiré</span>' : '';
+
+                return `
+                <tr>
+                    <td><input type="checkbox" class="reader-checkbox" value="${r.LEC_ID}" onclick="updateSelection()"></td>
+                    <td>
+                        <div class="reader-info">
+                            <div class="reader-avatar" style="background:${r.LEC_PHOTO ? 'none' : avatarColors[i % avatarColors.length]}">
+                                ${r.LEC_PHOTO ? `<img src="${r.LEC_PHOTO}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : (r.LEC_PRENOM || '?')[0] + (r.LEC_NOM || '?')[0]}
+                            </div>
+                            <div class="reader-details">
+                                <h4 style="font-weight:600">${r.LEC_NOM || '?'} ${r.LEC_PRENOM || ''}</h4>
+                                <p style="font-size:0.8rem; opacity: 0.7">${r.LEC_EMAIL || '-'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:600; color:var(--primary-color)">${r.LEC_PROFESSION || categoryMap[r.CAT_ID] || 'Indéfini'}</td>
+                    <td>${formattedDate}</td>
+                    <td>${sourceBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${statusNum === 1 ? `<button class="action-btn" style="background:#1565c0;color:white" onclick='showRfidCard("${r.LEC_ID}")' title="Tirer carte RFID"><i class="fas fa-id-card"></i></button>` : ''}
+                            ${statusNum === 0 ? `<button class="action-btn" style="background:#2e7d32;color:white" onclick='validateReader("${r.LEC_ID}")' title="Valider"><i class="fas fa-check"></i></button>` : ''}
+                            <button class="action-btn edit" onclick='editReader(${JSON.stringify(r).replace(/'/g, "&apos;")})' title="Modifier rapide"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deleteReader('${r.LEC_ID}')" title="Supprimer"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function filterReaders() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            const category = document.getElementById('filterCategory').value;
+
+            let filtered = allReaders.filter(r => {
+                const matchesSearch = (r.LEC_NOM || '').toLowerCase().includes(q) ||
+                    (r.LEC_PRENOM || '').toLowerCase().includes(q) ||
+                    (r.LEC_EMAIL || '').toLowerCase().includes(q) ||
+                    (r.LEC_ID || '').includes(q);
+
+                const matchesStatus = status === ""
+                    ? true
+                    : status === "expired"
+                        ? (r.LEC_DATE_EXPIRATION && new Date(r.LEC_DATE_EXPIRATION) < new Date())
+                        : parseInt(r.LEC_STATUT) === parseInt(status);
+                const matchesCategory = category === "" || parseInt(r.CAT_ID) === parseInt(category);
+
+                return matchesSearch && matchesStatus && matchesCategory;
+            });
+
+            renderReaders(filtered);
+            updateSelection(); // Reset selection count on filter
+        }
+
+        function toggleSelectAll() {
+            const master = document.getElementById('selectAll');
+            selectAllFiltered(master.checked);
+        }
+
+        function selectAllFiltered(state) {
+            const checkboxes = document.querySelectorAll('.reader-checkbox');
+            checkboxes.forEach(cb => cb.checked = state);
+            document.getElementById('selectAll').checked = state;
+            updateSelection();
+        }
+
+        function updateSelection() {
+            const selected = document.querySelectorAll('.reader-checkbox:checked');
+            const btn = document.getElementById('bulkRenewBtn');
+            const countSpan = document.getElementById('selectedCount');
+
+            countSpan.textContent = selected.length;
+            if (selected.length > 0) {
+                btn.style.display = 'inline-flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        async function bulkRenew() {
+            const selected = Array.from(document.querySelectorAll('.reader-checkbox:checked')).map(cb => cb.value);
+            if (!selected.length) return;
+
+            if (!confirm(`Voulez-vous renouveler ${selected.length} lecteur(s) pour une année supplémentaire ?`)) return;
+
+            try {
+                const res = await fetch('/api/admin/lecteurs/bulk-renew', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: selected })
+                });
+
+                if (res.ok) {
+                    alert('Renouvellement effectué avec succès !');
+                    resetAndLoad();
+                } else {
+                    const err = await res.json();
+                    alert('Erreur: ' + (err.error || 'Échec du renouvellement'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Erreur réseau');
+            }
+        }
+
+
+        async function validateReader(id) {
+            if (!confirm('Voulez-vous valider ce lecteur ?')) return;
+            try {
+                const res = await fetch(`/api/admin/lecteurs/${id}/validate`, { method: 'PUT' });
+                if (res.ok) {
+                    allReaders = allReaders.map(r => r.LEC_ID === id ? { ...r, LEC_STATUT: 1 } : r);
+                    filterReaders();
+                } else {
+                    console.log('Erreur lors de la validation');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function updatePhotoPreview(val) {
+            const img = document.getElementById('previewPhoto');
+            const placeholder = document.getElementById('photoPlaceholder');
+            if (val) {
+                img.src = val;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Ajouter un nouveau lecteur';
+            document.getElementById('editId').value = '';
+            document.getElementById('lecId').value = '';
+            document.getElementById('lecId').disabled = false;
+            document.getElementById('lecNom').value = '';
+            document.getElementById('lecPrenom').value = '';
+            document.getElementById('lecEmail').value = '';
+            document.getElementById('lecTel').value = '';
+            document.getElementById('lecNin').value = '';
+            document.getElementById('lecCategory').value = '';
+            document.getElementById('lecBirthDate').value = '';
+            document.getElementById('lecAddress').value = '';
+            document.getElementById('lecProfession').value = '';
+            document.getElementById('lecExpiryDate').value = '';
+            document.getElementById('lecRfid').value = '';
+            document.getElementById('lecPhoto').value = '';
+            document.getElementById('lecDocEng').value = '';
+            document.getElementById('lecDocIns').value = '';
+            document.getElementById('lecDocIden').value = '';
+            updatePhotoPreview('');
+            resetDocPreviews();
+            document.getElementById('btnViewFullDetails').style.display = 'none';
+            document.getElementById('readerModal').classList.add('open');
+        }
+
+        function resetDocPreviews() {
+            ['Eng', 'Ins', 'Iden'].forEach(suffix => {
+                const img = document.getElementById('prev' + suffix);
+                const text = document.getElementById('text' + suffix);
+                img.style.display = 'none';
+                text.style.display = 'block';
+            });
+        }
+
+        function editReader(r) {
+            document.getElementById('modalTitle').textContent = 'Modifier le lecteur';
+            document.getElementById('editId').value = r.LEC_ID;
+            document.getElementById('lecId').value = r.LEC_ID;
+            document.getElementById('lecId').disabled = true;
+            document.getElementById('lecNom').value = r.LEC_NOM || '';
+            document.getElementById('lecPrenom').value = r.LEC_PRENOM || '';
+            document.getElementById('lecEmail').value = r.LEC_EMAIL || '';
+            document.getElementById('lecTel').value = r.LEC_TEL || '';
+            document.getElementById('lecNin').value = r.LEC_NIN || '';
+            document.getElementById('lecCategory').value = r.CAT_ID || '';
+            document.getElementById('lecBirthDate').value = r.LEC_DATE_NAISSANCE ? r.LEC_DATE_NAISSANCE.split('T')[0] : '';
+            document.getElementById('lecAddress').value = r.LEC_ADRESSE || '';
+            document.getElementById('lecProfession').value = r.LEC_PROFESSION || '';
+            document.getElementById('lecExpiryDate').value = r.LEC_DATE_EXPIRATION ? r.LEC_DATE_EXPIRATION.split('T')[0] : '';
+            document.getElementById('lecRfid').value = r.LEC_RFID || '';
+            document.getElementById('lecPhoto').value = r.LEC_PHOTO || '';
+
+            updatePhotoPreview(r.LEC_PHOTO);
+            resetDocPreviews();
+
+            // Fetch full details for docs previews
+            fetchDocsPreviews(r.LEC_ID);
+
+            document.getElementById('btnViewFullDetails').style.display = 'inline-flex';
+            document.getElementById('readerModal').classList.add('open');
+        }
+
+        async function fetchDocsPreviews(id) {
+            try {
+                const res = await fetch(`/api/admin/lecteurs/${id}`);
+                const r = await res.json();
+
+                if (r.LEC_DOC_ENGAGEMENT) setDocPreview('Eng', r.LEC_DOC_ENGAGEMENT, 'lecDocEng');
+                if (r.LEC_DOC_INSCRIPTION) setDocPreview('Ins', r.LEC_DOC_INSCRIPTION, 'lecDocIns');
+                if (r.LEC_DOC_IDENTITE) setDocPreview('Iden', r.LEC_DOC_IDENTITE, 'lecDocIden');
+            } catch (e) { console.error(e); }
+        }
+
+        function setDocPreview(suffix, path, hiddenId) {
+            const img = document.getElementById('prev' + suffix);
+            const text = document.getElementById('text' + suffix);
+            const hidden = document.getElementById(hiddenId);
+            img.src = path;
+            img.style.display = 'block';
+            text.style.display = 'none';
+            hidden.value = path;
+        }
+
+        function handleLocalPreview(input, imgId, placeholderId, hiddenId) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const val = e.target.result;
+                document.getElementById(imgId).src = val;
+                document.getElementById(imgId).style.display = 'block';
+                document.getElementById(placeholderId).style.display = 'none';
+                document.getElementById(hiddenId).value = val;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleLocalDocPreview(input, imgId, hiddenId) {
+            const file = input.files[0];
+            if (!file) return;
+            const suffix = imgId.replace('prev', '');
+            const reader = new FileReader();
+            reader.onload = e => {
+                const val = e.target.result;
+                setDocPreview(suffix, val, hiddenId);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function closeModal() { document.getElementById('readerModal').classList.remove('open'); }
+        function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
+
+        async function saveReader() {
+            const oldId = document.getElementById('editId').value;
+            const body = {
+                id: document.getElementById('lecId').value,
+                nom: document.getElementById('lecNom').value,
+                prenom: document.getElementById('lecPrenom').value,
+                email: document.getElementById('lecEmail').value,
+                tel: document.getElementById('lecTel').value,
+                nin: document.getElementById('lecNin').value,
+                cat_id: document.getElementById('lecCategory').value,
+                date_naiss: document.getElementById('lecBirthDate').value,
+                adresse: document.getElementById('lecAddress').value,
+                profession: document.getElementById('lecProfession').value,
+                date_expiration: document.getElementById('lecExpiryDate').value,
+                rfid: document.getElementById('lecRfid').value,
+                photo: document.getElementById('lecPhoto').value,
+                doc_engagement: document.getElementById('lecDocEng').value,
+                doc_inscription: document.getElementById('lecDocIns').value,
+                doc_identite: document.getElementById('lecDocIden').value
+            };
+            if (!body.nom || !body.prenom) { console.log('Nom et prénom sont obligatoires'); return; }
+            await fetch(oldId ? `/api/admin/lecteurs/${oldId}` : '/api/admin/lecteurs', { method: oldId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            closeModal(); resetAndLoad();
+        }
+
+        async function viewReader(id) {
+            const res = await fetch(`/api/admin/lecteurs/${id}`);
+            const r = await res.json();
+            document.getElementById('detailTitle').textContent = `${r.LEC_NOM || ''} ${r.LEC_PRENOM || ''}`;
+            const statusName = parseInt(r.LEC_STATUT) === 1 ? 'Validé' : 'En attente';
+            const statusColor = parseInt(r.LEC_STATUT) === 1 ? '#2e7d32' : '#ef6c00';
+            const sourceName = r.inscription_source === 'INTERNE' ? 'Interne (admin)' : 'Externe (site web)';
+            const sourceColor = r.inscription_source === 'INTERNE' ? '#7b1fa2' : '#1565c0';
+
+            document.getElementById('detailContent').innerHTML = `
+            <div style="margin-bottom:30px">
+                <div class="reader-info" style="margin-bottom:20px">
+                    <div class="reader-avatar" style="width:70px;height:70px;font-size:1.8rem;background:#f0f0f0">
+                        ${r.LEC_PHOTO ? `<img src="${r.LEC_PHOTO}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : (r.LEC_PRENOM || '?')[0] + (r.LEC_NOM || '?')[0]}
+                    </div>
+                    <div class="reader-details">
+                        <h4 style="font-size:1.4rem;margin-bottom:5px">${r.LEC_NOM || '?'} ${r.LEC_PRENOM || ''}</h4>
+                        <div style="display:flex; gap:10px; align-items:center">
+                            <span class="badge" style="background:${statusColor}15; color:${statusColor}; border:1px solid ${statusColor}30; padding:2px 10px; font-size:0.8rem">${statusName}</span>
+                            <span style="font-size:0.9rem; opacity:0.7"><i class="fas fa-id-card"></i> ${r.LEC_ID}</span>
+                            <span class="badge" style="background:${sourceColor}15; color:${sourceColor}; border:1px solid ${sourceColor}30; padding:2px 10px; font-size:0.8rem"><i class="fas ${r.inscription_source === 'INTERNE' ? 'fa-building' : 'fa-globe'}"></i> ${sourceName}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row" style="margin-bottom:20px">
+                <div class="form-group">
+                    <label class="form-label">Profession / Statut</label>
+                    <div class="form-control" style="background:#f0f7f0;font-weight:700;color:var(--primary-color)">${r.LEC_PROFESSION || categoryMap[r.CAT_ID] || 'Indéfini'}</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Catégorie (Interne)</label>
+                    <div class="form-control" style="background:#f8f9fa">${categoryMap[r.CAT_ID] || 'Indéfini'}</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="form-control" style="background:#f8f9fa">${r.LEC_EMAIL || '-'}</div>
+                </div>
+            </div>
+            <div class="form-row" style="margin-bottom:20px">
+                <div class="form-group">
+                    <label class="form-label">Téléphone</label>
+                    <div class="form-control" style="background:#f8f9fa">${r.LEC_TEL || '-'}</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">NIN (Numéro National)</label>
+                    <div class="form-control" style="background:#f8f9fa">${r.LEC_NIN || '-'}</div>
+                </div>
+            </div>
+            <div class="form-row" style="margin-bottom:20px">
+                <div class="form-group">
+                    <label class="form-label">Date de naissance</label>
+                    <div class="form-control" style="background:#f8f9fa">${r.LEC_DATE_NAISSANCE ? new Date(r.LEC_DATE_NAISSANCE).toLocaleDateString('fr-FR') : '-'}</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Adresse</label>
+                    <div class="form-control" style="background:#f8f9fa">${r.LEC_ADRESSE || '-'}</div>
+                </div>
+            </div>
+            <div class="form-row" style="margin-bottom:20px">
+                <div class="form-group">
+                    <label class="form-label">Date d'inscription</label>
+                    <div class="form-control" style="background:#f8f9fa">${r.CREATE_DATE ? new Date(r.CREATE_DATE).toLocaleString('fr-FR') : '-'}</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Source d'inscription</label>
+                    <div class="form-control" style="background:#f8f9fa;font-weight:600;color:${sourceColor}"><i class="fas ${r.inscription_source === 'INTERNE' ? 'fa-building' : 'fa-globe'}"></i> ${sourceName}</div>
+                </div>
+            </div>
+            ${parseInt(r.LEC_STATUT) === 0 ? `
+            <div style="margin-top:20px; padding:15px; background:#fff3e0; border-radius:8px; border:1px solid #ffe0b2; display:flex; justify-content:space-between; align-items:center">
+                <span style="color:#e65100; font-size:0.9rem"><i class="fas fa-exclamation-triangle"></i> Ce compte nécessite une validation.</span>
+                <button class="btn btn-primary" style="background:#2e7d32; border:none; padding:8px 15px; font-size:0.85rem" onclick="validateReader('${r.LEC_ID}'); closeDetailModal();"><i class="fas fa-check"></i> Valider maintenant</button>
+            </div>
+            ` : ''}
+            ${parseInt(r.LEC_STATUT) === 1 ? `
+            <div style="margin-top:15px; text-align:right">
+                <button class="btn btn-primary" style="background:#1565c0; border:none; padding:8px 15px; font-size:0.85rem" onclick="showRfidCard('${r.LEC_ID}'); closeDetailModal();"><i class="fas fa-id-card"></i> Tirer carte RFID</button>
+            </div>
+            ` : ''}
+        `;
+            document.getElementById('detailModal').classList.add('open');
+        }
+
+        async function showRfidCard(lecId) {
+            const res = await fetch(`/api/admin/lecteurs/${lecId}`);
+            const r = await res.json();
+            const rfidCode = r.LEC_RFID || `RFID-${String(r.LEC_ID).padStart(6, '0')}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.LEC_ID}`;
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            const regDate = r.CREATE_DATE || r.LEC_DATE_ADHESION || today;
+            const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            document.getElementById('rfidPrintArea').innerHTML = `
+                <div class="card-print-container">
+                    <!-- FRONT OF THE CARD (RECTO) -->
+                    <div class="rfid-card-new front">
+                        <img src="/public/images/rfid_bg.png" class="recto-bg-books" style="opacity: 0.15;">
+                        
+                        <div class="recto-header">
+                            <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
+                            <p>وزارة الثقافة والفنون</p>
+                            <p>المكتبة الرئيسية للمطالعة العامة لولاية بجاية</p>
+                            <p>الشهيد طاهر عميروشن</p>
+                        </div>
+
+                        <div class="recto-title-bar">
+                            <div class="title-green-box">
+                                <i class="fas fa-book-open" style="font-size: 14px; margin-left: 8px; opacity: 0.8;"></i>
+                                بطاقة القارئ
+                                <i class="fas fa-book-open" style="font-size: 14px; margin-right: 8px; opacity: 0.8;"></i>
+                            </div>
+                        </div>
+
+                        <div class="recto-photo-box">
+                            ${r.LEC_PHOTO ? `<img src="${r.LEC_PHOTO}">` : '<i class="fas fa-user" style="font-size:40px; color:#ccc; margin-top:30px;"></i>'}
+                        </div>
+
+                        <div class="recto-names-area">
+                            <div class="name-ar-big">${r.LEC_NOM_AR || r.LEC_NOM || ''} ${r.LEC_PRENOM_AR || r.LEC_PRENOM || ''}</div>
+                            <div class="name-la-big">${(r.LEC_NOM || '') + ' ' + (r.LEC_PRENOM || '')}</div>
+                        </div>
+
+                        <div class="recto-qr-box">
+                            <img src="${qrUrl}">
+                            <div class="recto-id-number">${r.LEC_RFID || r.LEC_ID}</div>
+                        </div>
+                        <div class="recto-date-footer">تاريخ التسجيل: ${regDateStr}</div>
+                    </div>
+
+                    <!-- PAGE BREAK SPACER FOR TOTAL PRINT -->
+                    <div style="page-break-after: always; height: 0; margin: 0; padding: 0; border: none; display: block;"></div>
+
+                    <!-- BACK OF THE CARD -->
+                    <div class="rfid-card-new back">
+                        <img src="/public/images/bplpb_logo.jpg" class="verso-logo-centered" onerror="this.src='/public/images/library_logo.png'">
+                        <div class="verso-ar-text">
+                            <p>هذه البطاقة شخصية</p>
+                            <p>هذه البطاقة صالحة لمدة سنة</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('rfidModal').classList.add('open');
+        }
+
+        function closeRfidModal() { document.getElementById('rfidModal').classList.remove('open'); }
+
+        function printCardPart(part) {
+            const container = document.getElementById('rfidPrintArea');
+            const recto = container.querySelector('.rfid-card-new.front');
+            const verso = container.querySelector('.rfid-card-new.back');
+            const spacer = container.querySelector('div[style*="page-break-after"]');
+
+            if (part === 'recto') {
+                recto.style.display = 'block';
+                verso.style.display = 'none';
+                if (spacer) spacer.style.display = 'none';
+            } else if (part === 'verso') {
+                recto.style.display = 'none';
+                verso.style.display = 'block';
+                if (spacer) spacer.style.display = 'none';
+            } else {
+                recto.style.display = 'block';
+                verso.style.display = 'block';
+                if (spacer) spacer.style.display = 'block';
+            }
+            window.print();
+
+            // Reset for modal view
+            recto.style.display = 'block';
+            verso.style.display = 'block';
+            if (spacer) spacer.style.display = 'block';
+        }
+
+        async function deleteReader(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce lecteur ?')) return;
+            await fetch(`/api/admin/lecteurs/${id}`, { method: 'DELETE' });
+            resetAndLoad();
+        }
+
+        function exportData() {
+            const headers = ['ID', 'Nom', 'Prénom', 'Email', 'Téléphone', 'NIN', 'Catégorie', 'Date Naissance', 'Adresse', 'Date Inscription', 'Statut', 'Source'];
+            const rows = allReaders.map(r => [
+                r.LEC_ID,
+                r.LEC_NOM,
+                r.LEC_PRENOM,
+                r.LEC_EMAIL,
+                r.LEC_TEL,
+                r.LEC_NIN,
+                categoryMap[r.CAT_ID] || '',
+                r.LEC_DATE_NAISSANCE ? r.LEC_DATE_NAISSANCE.split('T')[0] : '',
+                r.LEC_ADRESSE,
+                r.CREATE_DATE ? r.CREATE_DATE.split('T')[0] : '',
+                parseInt(r.LEC_STATUT) === 1 ? 'Validé' : 'En attente',
+                r.inscription_source || 'EXTERNE'
+            ]);
+            const csv = [headers, ...rows]
+                .map(row => row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const anchor = document.createElement('a');
+            anchor.href = URL.createObjectURL(blob);
+            anchor.download = `lecteurs_${new Date().toISOString().split('T')[0]}.csv`;
+            anchor.click();
+        }
+
+        // ===================== DETAILED EDIT FUNCTIONS =====================
+        async function openDetailEditModal(lecId) {
+            // Opens the full profile page in a new tab
+            window.open('reader_profile.html?id=' + lecId, '_blank');
+        }
+
+        function renewSubscription() {
+            const currentExpiryStr = document.getElementById('detailExpiryDate').value;
+            let startDate = new Date();
+
+            if (currentExpiryStr) {
+                const currentExpiry = new Date(currentExpiryStr);
+                // Si la carte n'est pas encore expirée, on commence à partir de la date d'expiration
+                if (currentExpiry > startDate) {
+                    startDate = currentExpiry;
+                }
+            }
+
+            const newExpiry = new Date(startDate);
+            newExpiry.setFullYear(newExpiry.getFullYear() + 1);
+            document.getElementById('detailExpiryDate').value = newExpiry.toISOString().split('T')[0];
+
+            // Notification visuelle
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Renouvelé !';
+            btn.style.background = '#2e7d32';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '#1565c0';
+            }, 2000);
+        }
+
+        function closeDetailEditModal() {
+            document.getElementById('detailEditModal').classList.remove('open');
+            currentDetailReader = null;
+        }
+
+        async function saveDetailReader() {
+            if (!currentDetailReader) return;
+
+            const lecId = document.getElementById('detailEditId').value;
+
+            const body = {
+                nom: document.getElementById('detailNom').value,
+                prenom: document.getElementById('detailPrenom').value,
+                email: document.getElementById('detailEmail').value,
+                tel: document.getElementById('detailTel').value,
+                nin: document.getElementById('detailNin').value,
+                cat_id: document.getElementById('detailCategory').value,
+                date_naiss: document.getElementById('detailBirthDate').value,
+                adresse: document.getElementById('detailAddress').value,
+                rfid: document.getElementById('detailRfid').value,
+                date_expiration: document.getElementById('detailExpiryDate').value
+            };
+
+            // Add password if provided
+            const password = document.getElementById('detailPassword').value;
+            if (password) {
+                body.password = password;
+            }
+
+            try {
+                const res = await fetch(`/api/admin/lecteurs/${lecId}/full-update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Update failed');
+                }
+
+                closeDetailEditModal();
+                resetAndLoad();
+            } catch (e) {
+                console.error('Error saving reader details:', e);
+                alert('Erreur lors de la sauvegarde: ' + e.message);
+            }
+        }
+
+        // Close modals by clicking outside
+        window.addEventListener('click', e => {
+            if (e.target === document.getElementById('readerModal')) closeModal();
+            if (e.target === document.getElementById('detailModal')) closeDetailModal();
+            if (e.target === document.getElementById('rfidModal')) closeRfidModal();
+            if (e.target === document.getElementById('detailEditModal')) closeDetailEditModal();
+        });
+
+        resetAndLoad();
+    </script>
+</body>
+
+</html>

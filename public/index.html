@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Bibliothèque de Béjaïa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/admin.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-book-reader"></i> Bibliothèque</h2>
+            <p>Administration</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="/" class="nav-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="/lecteurs.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span class="nav-text">Lecteurs</span>
+                <span class="badge" id="badge-lecteurs">...</span>
+            </a>
+            <a href="/books.html" class="nav-item">
+                <i class="fas fa-book"></i>
+                <span class="nav-text">Livres</span>
+                <span class="badge" id="badge-books">...</span>
+            </a>
+            <a href="/orders.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span class="nav-text">Commandes</span>
+                <span class="badge" id="badge-orders">...</span>
+            </a>
+            <a href="/returns.html" class="nav-item">
+                <i class="fas fa-undo-alt"></i>
+                <span class="nav-text">Retours</span>
+            </a>
+            <a href="/stats.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">Stats</span>
+            </a>
+            <a href="/registrations.html" class="nav-item">
+                <i class="fas fa-user-check"></i>
+                <span class="nav-text">Inscriptions</span>
+            </a>
+            <a href="/access_control.html" class="nav-item">
+                <i class="fas fa-door-open"></i>
+                <span class="nav-text">Contrôle d'accès</span>
+            </a>
+            <a href="/utilisateurs.html" class="nav-item">
+                <i class="fas fa-user-shield"></i>
+                <span class="nav-text">Utilisateurs</span>
+            </a>
+        </div>
+
+        <div class="admin-info">
+            <div class="admin-profile">
+                <div class="admin-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="admin-details">
+                    <h4>Admin Bibliothèque</h4>
+                    <p>administrateur@bibliotheque.dz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Tableau de bord</h1>
+                <p>Vue d'ensemble de la bibliothèque</p>
+            </div>
+            <div class="top-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher..." id="searchInput">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Total Livres</h3>
+                        <div class="stat-number" id="stat-books">...</div>
+                    </div>
+                    <div class="stat-icon total">
+                        <i class="fas fa-book"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Catalogue complet</span>
+                </div>
+            </div>
+
+            <div class="stat-card active">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Total Lecteurs</h3>
+                        <div class="stat-number" id="stat-lecteurs">...</div>
+                    </div>
+                    <div class="stat-icon active">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Inscrits</span>
+                </div>
+            </div>
+
+            <div class="stat-card pending">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Commandes en attente</h3>
+                        <div class="stat-number" id="stat-pending">...</div>
+                    </div>
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>À traiter</span>
+                </div>
+            </div>
+
+            <div class="stat-card expired">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Prêts actifs</h3>
+                        <div class="stat-number" id="stat-loans">...</div>
+                    </div>
+                    <div class="stat-icon expired">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>En cours</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Commandes récentes</h2>
+                <div class="table-actions">
+                    <a href="/orders.html" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> Voir tout
+                    </a>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Lecteur</th>
+                        <th>Livre demandé</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-orders"></tbody>
+            </table>
+        </div>
+
+        <!-- Recent Readers Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Derniers lecteurs inscrits</h2>
+                <div class="table-actions">
+                    <a href="/lecteurs.html" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> Voir tout
+                    </a>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Lecteur</th>
+                        <th>N° Carte</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-readers"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        const avatarColors = ['#2e7d32', '#1565c0', '#ef6c00', '#c62828', '#6a1b9a', '#00838f'];
+
+        async function load() {
+            try {
+                const [books, lecteurs, orders, bookStats, lecteurStats] = await Promise.all([
+                    fetch('/api/admin/books').then(r => r.json()),
+                    fetch('/api/admin/lecteurs').then(r => r.json()),
+                    fetch('/api/admin/orders').then(r => r.json()),
+                    fetch('/api/admin/books/stats').then(r => r.json()).catch(() => ({ total: books.length })),
+                    fetch('/api/admin/lecteurs/stats').then(r => r.json()).catch(() => ({ total: lecteurs.length }))
+                ]);
+
+                document.getElementById('stat-books').textContent = Number(bookStats.total).toLocaleString();
+                document.getElementById('stat-lecteurs').textContent = Number(lecteurStats.total).toLocaleString();
+                document.getElementById('stat-pending').textContent = orders.filter(o => o.status === 'PENDING').length;
+                document.getElementById('stat-loans').textContent = orders.filter(o => o.status === 'APPROVED').length;
+
+                // Sidebar badges
+                document.getElementById('badge-lecteurs').textContent = Number(lecteurStats.total).toLocaleString();
+                document.getElementById('badge-books').textContent = Number(bookStats.total).toLocaleString();
+                document.getElementById('badge-orders').textContent = orders.filter(o => o.status === 'PENDING').length;
+
+                // Recent Orders
+                const recentOrders = orders.slice(0, 5);
+                document.getElementById('recent-orders').innerHTML = recentOrders.length ? recentOrders.map((o, i) => `
+                <tr>
+                    <td><strong>${o.id}</strong></td>
+                    <td>
+                        <div class="reader-info">
+                            <div class="reader-avatar" style="background:${o.LEC_PHOTO ? 'none' : avatarColors[i % avatarColors.length]}">
+                                ${o.LEC_PHOTO ? `<img src="${o.LEC_PHOTO}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : (o.LEC_NOM || '?')[0] + (o.LEC_PRENOM || '')[0]}
+                            </div>
+                            <div class="reader-details">
+                                <h4>${o.LEC_NOM || '?'} ${o.LEC_PRENOM || ''}</h4>
+                                <p>ID: ${o.LEC_ID}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${o.DOC_TITRE_PROPRE || 'N/A'}</td>
+                    <td>${new Date(o.order_date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td><span class="status-badge status-${o.status}">${o.status === 'PENDING' ? 'EN ATTENTE' : o.status === 'APPROVED' ? 'APPROUVÉ' : o.status === 'RETURNED' ? 'RETOURNÉ' : 'REJETÉ'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="/orders.html" class="action-btn view" title="Voir"><i class="fas fa-eye"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="6" style="text-align:center;padding:40px;opacity:0.5">Aucune commande pour le moment</td></tr>';
+
+                // Recent Readers
+                const recentReaders = lecteurs.slice(0, 6);
+                document.getElementById('recent-readers').innerHTML = recentReaders.length ? recentReaders.map((r, i) => `
+                <tr>
+                    <td>
+                        <div class="reader-info">
+                            <div class="reader-avatar" style="background:${r.LEC_PHOTO ? 'none' : avatarColors[i % avatarColors.length]}">
+                                ${r.LEC_PHOTO ? `<img src="${r.LEC_PHOTO}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : (r.LEC_PRENOM || '?')[0] + (r.LEC_NOM || '?')[0]}
+                            </div>
+                            <div class="reader-details">
+                                <h4>${r.LEC_NOM || '?'} ${r.LEC_PRENOM || ''}</h4>
+                                <p>${r.LEC_EMAIL || '-'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${r.LEC_ID}</td>
+                    <td>${r.LEC_EMAIL || '-'}</td>
+                    <td>${r.LEC_TEL || '-'}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="4" style="text-align:center;padding:40px;opacity:0.5">Aucun lecteur</td></tr>';
+
+            } catch (e) { console.error(e); }
+        }
+        load();
+    </script>
+</body>
+
+</html>

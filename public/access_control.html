@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CENTRE DE CONTRÔLE - ACCÈS BIBLIOTHÈQUE</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4ADE80",
+                        "secondary": "#22D3EE",
+                        "danger": "#F87171",
+                        "dark-bg": "#000000",
+                        "card-bg": "#0A0A0A"
+                    },
+                    fontFamily: {
+                        "display": ["Orbitron", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'JetBrains Mono', monospace; background-color: #000000; color: #E2E8F0; }
+        .log-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s ease-out;
+            background: linear-gradient(145deg, #0A0A0A 0%, #111111 100%);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-badge {
+            padding: 2px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+        }
+        .status-in { background: rgba(74, 222, 128, 0.1); color: #4ADE80; border: 1px solid rgba(74, 222, 128, 0.2); }
+        .status-out { background: rgba(251, 191, 36, 0.1); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.2); }
+        .status-declined { background: rgba(248, 113, 113, 0.1); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.2); }
+        
+        .pulse-active {
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(74, 222, 128, 0.1); }
+            to { box-shadow: 0 0 15px rgba(74, 222, 128, 0.3); }
+        }
+        
+        .scan-glow {
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #111; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #222; }
+
+        .big-scan-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 1000;
+            display: none;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 5rem;
+            backdrop-filter: blur(40px);
+            padding: 4rem;
+        }
+
+        .big-scan-image {
+            width: 650px;
+            height: 650px;
+            border-radius: 40px;
+            object-fit: cover;
+            border: 12px solid;
+            box-shadow: 0 0 120px rgba(74, 222, 128, 0.4);
+            margin-bottom: 2rem;
+            animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .denied-icon {
+            position: absolute;
+            font-size: 350px;
+            color: #F87171;
+            font-weight: 900;
+            top: 20%;
+            right: 5%;
+            transform: rotate(15deg);
+            z-index: 50;
+            display: none;
+            animation: blink 0.5s infinite;
+            text-shadow: 0 0 100px rgba(248, 113, 113, 0.4);
+            pointer-events: none;
+            opacity: 0.3;
+        }
+ 
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.3); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .stat-card {
+            background: #050505;
+            border: 2px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: #080808;
+        }
+        
+        .glitch-text {
+            text-shadow: 2px 0 #ff00c1, -2px 0 #00fff9;
+        }
+
+        .audio-unlock {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .log-card-in { background: rgba(74, 222, 128, 0.15) !important; border-color: rgba(74, 222, 128, 0.4) !important; }
+        .log-card-out { background: rgba(74, 222, 128, 0.1) !important; border-color: rgba(74, 222, 128, 0.3) !important; }
+        .log-card-denied { background: rgba(248, 113, 113, 0.2) !important; border-color: rgba(248, 113, 113, 0.5) !important; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden select-none">
+
+    <!-- Big Scan Alert Overlay -->
+    <div id="bigScanOverlay" class="big-scan-overlay" onclick="unlockAudio()">
+        <div id="deniedExclamation" class="denied-icon font-display">!</div>
+        
+        <!-- Left: Photo Section -->
+        <div class="relative flex-shrink-0">
+            <img id="overlayPhoto" src="" class="big-scan-image" alt="User Face">
+            <div class="absolute -inset-4 border border-white/10 rounded-[50px] animate-pulse"></div>
+            
+            <div class="mt-8 flex flex-col items-center">
+                <span class="text-[10px] font-black text-white/20 uppercase tracking-[1em]">Capture de Sécurité</span>
+                <span id="overlayTime" class="text-2xl font-mono text-primary mt-2">00:00:00</span>
+            </div>
+        </div>
+
+        <!-- Right: Info Section -->
+        <div class="flex flex-col items-start max-w-2xl">
+            <div id="overlayAction" class="px-12 py-4 rounded-2xl font-black text-4xl uppercase tracking-[0.4em] shadow-2xl mb-12">ENTRY</div>
+            
+            <div class="space-y-2 mb-12">
+                <h2 id="overlayName" class="text-8xl font-black text-white uppercase tracking-tighter font-display glitch-text leading-none">NOM PRENOM</h2>
+                <div class="flex items-center gap-4">
+                    <p id="overlayRfid" class="text-2xl font-mono text-white/30 tracking-[0.6em]">0000000000</p>
+                    <span class="h-px w-24 bg-white/10"></span>
+                </div>
+            </div>
+            
+            <div id="overlayStatus" class="text-primary font-black text-4xl tracking-[0.3em] uppercase">AUTHENTIFICATION RÉUSSIE</div>
+            
+            <div class="mt-24 grid grid-cols-2 gap-12 opacity-30">
+                <div class="text-[11px] font-mono text-white leading-relaxed border-l border-white/20 pl-4">
+                    PAQUET_DONNÉES_REÇU: OK<br>
+                    COUCHE_CHIFFREMENT: AES-256<br>
+                    MATCH_BIOMÉTRIQUE: 99.8%
+                </div>
+                <div class="text-[11px] font-mono text-white leading-relaxed border-l border-white/20 pl-4">
+                    CANAL_SÉCURISÉ_ACTIF<br>
+                    TERMINAL_ID: #0087-A<br>
+                    PROTOCOLE: ULTRA-DARK-V5
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cyber Header -->
+    <nav class="bg-black border-b border-white/5 px-8 py-4 flex justify-between items-center z-50">
+        <div class="flex items-center gap-6">
+            <button onclick="window.location.href='/index.html'" class="group flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-all text-xs font-bold uppercase tracking-tighter">
+                <span class="material-symbols-outlined text-[18px]">terminal</span>
+                QUITTER
+            </button>
+            <div class="h-6 w-px bg-white/10"></div>
+            <div class="flex flex-col">
+                <h1 class="text-sm font-black text-white tracking-[0.2em] uppercase font-display">Système de <span class="text-primary">Contrôle d'Accès</span></h1>
+                <p class="text-[9px] text-white/20 uppercase tracking-widest">v5.0.0 // Ultra Dark Protocol</p>
+            </div>
+        </div>
+
+        <!-- Header Manual Search -->
+        <div class="flex-1 max-w-lg mx-12 relative group">
+            <div class="search-neon flex items-center gap-4 bg-primary/[0.03] px-6 py-2 rounded-t-xl group/input">
+                <span class="material-symbols-outlined text-primary/40 group-focus-within/input:text-primary group-focus-within/input:animate-pulse transition-colors text-xl">search</span>
+                <input type="text" id="manualRfid" placeholder="RECHERCHE LECTEUR" 
+                       autocomplete="off"
+                       class="w-full bg-transparent border-none p-0 text-[11px] font-black text-primary focus:ring-0 uppercase tracking-[0.2em]"
+                       oninput="handleSearchInput(this.value)"
+                       onkeypress="if(event.key === 'Enter') simulateScan(this.value)"
+                       onfocus="if(this.value.length >= 2) showSuggestions()"
+                       onblur="setTimeout(() => hideSuggestions(), 250)">
+            </div>
+            <!-- Suggestions Dropdown -->
+            <div id="searchSuggestions" class="absolute top-full left-0 right-0 bg-[#080808] border-x-2 border-b-2 border-primary/20 rounded-b-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-[100] hidden">
+                <!-- Suggestion items -->
+            </div>
+        </div>
+
+        <div class="flex items-center gap-8">
+            <div id="connectionStatus" class="flex items-center gap-3 px-4 py-2 bg-primary/5 text-primary rounded-full border border-primary/10">
+                <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em]">Lien en Ligne</span>
+            </div>
+            
+            <!-- Audio Settings Dropdown Container -->
+            <div class="relative">
+                <button onclick="toggleAudioSettings()" id="audioSettingsBtn" class="flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/10 text-white/80 rounded-lg border border-white/5 transition-all shadow-[0_0_15px_rgba(255,255,255,0.02)]">
+                    <span class="material-symbols-outlined text-[20px] text-primary" id="audioIcon">volume_up</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.15em] font-display">Audio</span>
+                </button>
+                <div id="audioSettingsDropdown" class="absolute right-0 mt-2 w-72 bg-[#0A0A0A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.9)] p-4 z-[200] hidden">
+                    <h3 class="text-[10px] font-black text-white uppercase tracking-widest mb-4 flex items-center gap-2 pb-2 border-b border-white/5">
+                        <span class="material-symbols-outlined text-sm text-primary">settings_voice</span>
+                        Contrôle Audio
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Access Authorized Sound Toggle -->
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-white/60">Son Autorisé</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="authSoundToggle" class="sr-only peer" checked onchange="saveAudioSettings()">
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <!-- Accept Intro Toggle -->
+                            <div class="flex items-center justify-between pl-3 border-l border-white/10">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-white/40">Introduction (accept.mp3)</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="authPlayAcceptToggle" class="sr-only peer" checked onchange="saveAudioSettings()">
+                                    <div class="w-7 h-4 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <!-- Vocal Entry Only Toggle -->
+                            <div class="flex items-center justify-between pl-3 border-l border-white/10">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-white/40">Vocaux en Entrée seule (Bip en Sortie)</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="authVocalOnlyOnEntryToggle" class="sr-only peer" checked onchange="saveAudioSettings()">
+                                    <div class="w-7 h-4 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Access Authorized Sound Selector -->
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-bold uppercase tracking-widest text-white/40">Type de son</label>
+                            <select id="authSoundSelect" onchange="saveAudioSettings()" class="w-full bg-black border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-primary focus:ring-0">
+                                <option value="synth">Bip Synthétiseur (Défaut)</option>
+                                <option value="fr">Vocal Français ("Accès autorisé")</option>
+                                <option value="ar">Vocal Arabe ("مسموح بالدخول")</option>
+                                <option value="tam">Vocal Tamazight ("Ansuf")</option>
+                                <option value="en">Vocal Anglais ("Access authorized")</option>
+                                <option value="sequence">Séquence de Vocaux</option>
+                            </select>
+                        </div>
+
+                        <!-- Configuration de la Séquence Vocale -->
+                        <div id="vocalSequenceConfig" class="space-y-2 border border-white/5 bg-black/40 p-2.5 rounded-lg hidden">
+                            <label class="text-[9px] font-bold uppercase tracking-widest text-white/40 block mb-1">Ordre de la Séquence</label>
+                            <div id="vocalSequenceList" class="space-y-1.5">
+                                <!-- Les éléments de la séquence seront insérés ici dynamiquement -->
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-white/5 my-2"></div>
+
+                        <!-- Access Declined Sound Toggle -->
+                        <div class="flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-white/60">Son Refusé</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="declinedSoundToggle" class="sr-only peer" checked onchange="saveAudioSettings()">
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-danger"></div>
+                                </label>
+                            </div>
+                            
+                            <!-- Configuration de la Séquence de Rejet -->
+                            <div id="declineSequenceConfig" class="space-y-2 border border-white/5 bg-black/40 p-2.5 rounded-lg pl-3 border-l border-white/10 hidden">
+                                <label class="text-[9px] font-bold uppercase tracking-widest text-white/40 block mb-1">Configuration Rejet</label>
+                                <div id="declineSequenceList" class="space-y-1.5">
+                                    <!-- Les éléments de rejet seront insérés ici dynamiquement -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sound Test Button -->
+                        <button onclick="testSelectedSound()" class="w-full mt-2 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-white transition-all">
+                            Tester le son sélectionné
+                        </button>
+
+                        <!-- Raccourci Clavier -->
+                        <div class="text-[9px] font-bold text-center text-white/30 mt-2 border-t border-white/5 pt-2 uppercase tracking-wider">
+                            Raccourci clavier : Touche <span class="text-primary">[M]</span> pour couper/activer le son
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="window.location.href='/access_history.html'" class="flex items-center gap-2 px-5 py-2.5 bg-primary text-black rounded-lg hover:brightness-110 transition-all font-black text-xs uppercase tracking-tighter shadow-[0_0_30px_rgba(74,222,128,0.15)] font-display">
+                <span class="material-symbols-outlined text-[18px]">history</span>
+                Historique d'Accès
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex overflow-hidden relative bg-black">
+        
+        <!-- Main: Dashboard Grid -->
+        <div class="flex-1 flex flex-col relative">
+            <!-- Terminal Stats Header -->
+            <div class="px-8 py-6 bg-black border-b border-white/5">
+                <div class="grid grid-cols-6 gap-4 max-w-[1600px] mx-auto">
+                    <!-- Total Today -->
+                    <div class="stat-card p-6 rounded-2xl border-white/20">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-black text-white uppercase tracking-widest">Trafic Total</span>
+                            <span class="material-symbols-outlined text-white/40">analytics</span>
+                        </div>
+                        <h3 id="statTotalScans" class="text-6xl font-black text-white font-display">0</h3>
+                        <p class="text-xs text-white/40 mt-3 uppercase font-bold">Activité Journalière</p>
+                    </div>
+                    
+                    <!-- Currently IN -->
+                    <div class="stat-card p-6 rounded-2xl border-primary/40 bg-primary/[0.05]">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-black text-primary uppercase tracking-widest">Présence Live</span>
+                            <span class="material-symbols-outlined text-primary/60">group</span>
+                        </div>
+                        <h3 id="statPresent" class="text-7xl font-black text-primary font-display shadow-primary">0</h3>
+                        <p class="text-xs text-primary/60 mt-3 uppercase font-bold">Dans la Bibliothèque</p>
+                    </div>
+
+                    <!-- Entries (IN Today) -->
+                    <div class="stat-card p-6 rounded-2xl border-blue-500/40 bg-blue-500/[0.05]">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-black text-blue-400 uppercase tracking-widest">Entrées</span>
+                            <span class="material-symbols-outlined text-blue-400/60">login</span>
+                        </div>
+                        <h3 id="statTotalIn" class="text-6xl font-black text-blue-400 font-display">0</h3>
+                        <p class="text-xs text-blue-400/60 mt-3 uppercase font-bold">Succès (IN)</p>
+                    </div>
+
+                    <!-- Exits (OUT Today) -->
+                    <div class="stat-card p-6 rounded-2xl border-amber-500/40 bg-amber-500/[0.05]">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-black text-amber-400 uppercase tracking-widest">Sorties</span>
+                            <span class="material-symbols-outlined text-amber-400/60">logout</span>
+                        </div>
+                        <h3 id="statTotalOut" class="text-6xl font-black text-amber-400 font-display">0</h3>
+                        <p class="text-xs text-amber-400/60 mt-3 uppercase font-bold">Succès (OUT)</p>
+                    </div>
+
+                    <!-- Declined -->
+                    <div class="stat-card p-6 rounded-2xl border-danger/50 bg-danger/[0.05]">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-black text-danger uppercase tracking-widest">Alertes</span>
+                            <span class="material-symbols-outlined text-danger/60">emergency</span>
+                        </div>
+                        <h3 id="statDeclined" class="text-6xl font-black text-danger font-display">0</h3>
+                        <p class="text-xs text-danger/60 mt-3 uppercase font-bold">Accès Refusés</p>
+                    </div>
+
+                    <!-- Presence by Gender -->
+                    <div class="stat-card p-5 rounded-2xl border-white/5">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[8px] font-black text-white/30 uppercase tracking-widest">Répartition Genres</span>
+                            <span class="material-symbols-outlined text-white/10 text-xs">wc</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 h-full pt-1">
+                            <div class="flex flex-col items-center flex-1 border-r border-white/5">
+                                <span class="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">Gars</span>
+                                <h3 id="statMale" class="text-3xl font-black text-secondary font-display">0</h3>
+                            </div>
+                            <div class="flex flex-col items-center flex-1">
+                                <span class="text-[10px] font-black text-pink-400 uppercase tracking-widest mb-1">Filles</span>
+                                <h3 id="statFemale" class="text-3xl font-black text-pink-400 font-display">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Stream Container -->
+            <div id="logsContainer" class="flex-1 overflow-y-auto p-12 space-y-4 max-w-[1200px] mx-auto w-full">
+                <!-- Log cards appear here -->
+                <div id="noLogsPlaceholder" class="h-full flex flex-col items-center justify-center text-white/5 gap-6">
+                    <span class="material-symbols-outlined text-[160px] font-light animate-pulse">radar</span>
+                    <div class="text-center">
+                        <p class="text-xl font-black uppercase tracking-[0.4em] text-white/5">Scan Actif</p>
+                        <p class="text-[10px] uppercase tracking-widest text-white/5 mt-2">En attente du prochain scan...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </main>
+
+    <script>
+        const logsContainer = document.getElementById('logsContainer');
+        const bigScanOverlay = document.getElementById('bigScanOverlay');
+
+        // Initialize
+        async function init() {
+            loadAudioSettings();
+            await loadLogs();
+            await updateStats();
+            setupSSE();
+            
+            // Clock
+            setInterval(() => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('fr-FR', { hour12: false });
+                const overlayTime = document.getElementById('overlayTime');
+                if (overlayTime) overlayTime.textContent = timeStr;
+            }, 1000);
+        }
+
+        async function loadLogs() {
+            try {
+                const res = await fetch('/api/admin/access/logs');
+                const logs = await res.json();
+                if (logs.length > 0) {
+                    document.getElementById('noLogsPlaceholder').style.display = 'none';
+                    logs.forEach(log => addLogCard(log, false));
+                }
+            } catch (e) {
+                console.error("Failed to load logs:", e);
+            }
+        }
+
+        function setupSSE() {
+            const evtSource = new EventSource("/api/admin/orders/events");
+            
+            evtSource.addEventListener("access_change", (event) => {
+                const data = JSON.parse(event.data);
+                
+                const logData = {
+                    SCAN_DATE: new Date(),
+                    ACTION: data.type,
+                    REASON: data.data.reason || null,
+                    LEC_NOM: data.data.reader ? data.data.reader.LEC_NOM : '?',
+                    LEC_PRENOM: data.data.reader ? data.data.reader.LEC_PRENOM : 'INCONNU',
+                    LEC_PHOTO: data.data.reader ? data.data.reader.LEC_PHOTO : null,
+                    RFID_CODE: data.data.rfid || data.data.reader?.LEC_RFID
+                };
+                
+                showBigScan(logData);
+                addLogCard(logData, true);
+                updateStats();
+            });
+            
+            evtSource.onerror = (err) => {
+                console.error("SSE failed:", err);
+                const status = document.getElementById('connectionStatus');
+                status.className = 'flex items-center gap-3 px-4 py-2 bg-danger/5 text-danger rounded-full border border-danger/20';
+                status.querySelector('span').textContent = 'Lien Déconnecté';
+            };
+        }
+
+        let currentOverlayTimeout = null;
+
+        function showBigScan(log) {
+            const overlay = document.getElementById('bigScanOverlay');
+            const photo = document.getElementById('overlayPhoto');
+            const name = document.getElementById('overlayName');
+            const rfid = document.getElementById('overlayRfid');
+            const action = document.getElementById('overlayAction');
+            const status = document.getElementById('overlayStatus');
+            const deniedIcon = document.getElementById('deniedExclamation');
+
+            if (currentOverlayTimeout) clearTimeout(currentOverlayTimeout);
+            overlay.style.transition = 'none';
+            overlay.style.opacity = '1';
+            overlay.style.display = 'flex';
+
+            photo.src = log.LEC_PHOTO || '/public/images/default_avatar.png';
+            name.textContent = `${log.LEC_NOM} ${log.LEC_PRENOM}`;
+            rfid.textContent = log.RFID_CODE || 'ANONYMOUS';
+            
+            deniedIcon.style.display = 'none';
+
+            let duration = 10000;
+            let soundType = 'success';
+
+            if (log.ACTION === 'IN') {
+                overlay.style.background = 'rgba(0, 20, 0, 0.98)';
+                action.textContent = 'ENTRÉE_VALIDÉE';
+                action.className = 'px-12 py-5 rounded-2xl font-black text-4xl uppercase tracking-[0.5em] bg-primary text-black shadow-[0_0_60px_#4ADE80] mb-12';
+                photo.style.borderColor = '#4ADE80';
+                status.textContent = 'AUTHENTIFICATION RÉUSSIE';
+                status.className = 'text-primary font-black text-4xl tracking-[0.3em] uppercase animate-pulse';
+                soundType = 'success';
+            } else if (log.ACTION === 'OUT') {
+                overlay.style.background = 'rgba(0, 10, 30, 0.98)';
+                action.textContent = 'SORTIE_VALIDÉE';
+                action.className = 'px-12 py-5 rounded-2xl font-black text-4xl uppercase tracking-[0.5em] bg-blue-500 text-white shadow-[0_0_60px_#3B82F6] mb-12';
+                photo.style.borderColor = '#3B82F6';
+                status.textContent = 'SESSION TERMINÉE';
+                status.className = 'text-blue-400 font-black text-4xl tracking-[0.3em] uppercase animate-pulse';
+                soundType = 'success';
+            } else {
+                overlay.style.background = 'rgba(40, 0, 0, 0.98)';
+                deniedIcon.style.display = 'block';
+                action.textContent = 'ACCÈS_REFUSÉ';
+                action.className = 'px-12 py-5 rounded-2xl font-black text-4xl uppercase tracking-[0.5em] bg-danger text-white shadow-[0_0_60px_#F87171] mb-12';
+                photo.style.borderColor = '#F87171';
+                status.textContent = log.REASON || 'CARTE_INCONNUE';
+                status.className = 'text-danger font-black text-5xl tracking-[0.2em] uppercase animate-pulse';
+                
+                if (log.REASON?.includes('inconnue')) soundType = 'alarm_unknown';
+                else if (log.REASON?.includes('expirée')) soundType = 'alarm_expired';
+                else soundType = 'alarm_penalty';
+            }
+
+            playSound(soundType, log.ACTION);
+
+            currentOverlayTimeout = setTimeout(() => {
+                overlay.style.transition = 'opacity 0.6s ease-out';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    if (overlay.style.opacity === '0') {
+                        overlay.style.display = 'none';
+                        deniedIcon.style.display = 'none';
+                    }
+                }, 600);
+            }, duration);
+        }
+
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/admin/access/stats');
+                const stats = await res.json();
+                
+                document.getElementById('statTotalScans').textContent = stats.total || 0;
+                document.getElementById('statPresent').textContent = stats.in_count || 0;
+                document.getElementById('statDeclined').textContent = stats.declined_count || 0;
+                
+                // Gender stats
+                document.getElementById('statMale').textContent = stats.male_in || 0;
+                document.getElementById('statFemale').textContent = stats.female_in || 0;
+                
+                if (stats.total_in !== undefined) document.getElementById('statTotalIn').textContent = stats.total_in;
+                if (stats.total_out !== undefined) document.getElementById('statTotalOut').textContent = stats.total_out;
+            } catch (e) {}
+        }
+
+        let audioCtx = null;
+        function unlockAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            console.log("Audio Context Activated");
+        }
+        
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('keydown', unlockAudio, { once: true });
+
+        function addLogCard(log, isNew = true) {
+            document.getElementById('noLogsPlaceholder').style.display = 'none';
+
+            const card = document.createElement('div');
+            let typeClass = '';
+            if (log.ACTION === 'IN') typeClass = 'log-card-in';
+            else if (log.ACTION === 'OUT') typeClass = 'log-card-out';
+            else typeClass = 'log-card-denied';
+
+            card.className = `log-card p-6 rounded-2xl border flex items-center gap-6 hover:border-white/10 transition-all ${typeClass}`;
+            const time = new Date(log.SCAN_DATE).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            let statusClass = 'status-declined';
+            let icon = 'lock';
+            let iconColor = 'text-danger';
+            let actionText = 'Refusé';
+            if (log.ACTION === 'IN') { statusClass = 'status-in'; icon = 'shield_person'; iconColor = 'text-primary'; actionText = 'Entrée'; }
+            if (log.ACTION === 'OUT') { statusClass = 'status-out'; icon = 'move_item'; iconColor = 'text-amber-400'; actionText = 'Sortie'; }
+
+            card.innerHTML = `
+                <div class="text-[11px] font-black text-white/30 w-24 font-mono">${time}</div>
+                <div class="w-16 h-16 rounded-xl bg-black overflow-hidden flex-shrink-0 border border-white/10 flex items-center justify-center group-hover:border-white/20 transition-all">
+                    ${log.LEC_PHOTO ? `<img src="${log.LEC_PHOTO}" class="w-full h-full object-cover">` : `<span class="material-symbols-outlined text-white/5 text-3xl">person</span>`}
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-1">
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">${log.LEC_NOM} ${log.LEC_PRENOM}</h3>
+                        <span class="text-[10px] font-black text-white/20 bg-white/5 px-2 py-0.5 rounded uppercase tracking-[0.2em] font-mono">${log.RFID_CODE || 'ANONYME'}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                         ${log.REASON ? `<span class="text-[10px] font-black text-danger bg-danger/10 px-2 py-1 rounded border border-danger/20 uppercase tracking-tighter">ERREUR: ${log.REASON}</span>` : `<span class="text-[10px] font-black text-primary/60 uppercase tracking-widest">ACCÈS AUTORISÉ</span>`}
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-2 pr-2">
+                    <span class="status-badge ${statusClass}">${actionText}</span>
+                </div>
+                <div class="w-14 h-14 rounded-xl flex items-center justify-center bg-black border border-white/10 shadow-inner">
+                    <span class="material-symbols-outlined text-3xl ${iconColor}">${icon}</span>
+                </div>
+            `;
+
+            if (isNew) {
+                logsContainer.prepend(card);
+                card.classList.add('scan-glow');
+                setTimeout(() => { card.classList.remove('scan-glow'); }, 3000);
+            } else {
+                logsContainer.appendChild(card);
+            }
+        }
+
+        let rfidBuffer = '';
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'Enter') {
+                if (rfidBuffer.length > 3) simulateScan(rfidBuffer);
+                rfidBuffer = '';
+            } else if (e.key.toLowerCase() === 'm') {
+                toggleGlobalMute();
+            } else if (e.key.length === 1) {
+                rfidBuffer += e.key;
+            }
+        });
+
+        async function simulateScan(rfid) {
+            if (!rfid) return;
+            try {
+                await fetch('/api/admin/access/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rfid })
+                });
+                document.getElementById('manualRfid').value = '';
+                hideSuggestions();
+            } catch (e) {}
+        }
+
+        let searchTimeout = null;
+        async function handleSearchInput(val) {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            if (val.length < 2) {
+                hideSuggestions();
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/admin/access/search-readers?query=${encodeURIComponent(val)}`);
+                    const readers = await res.json();
+                    renderSuggestions(readers);
+                } catch (e) {}
+            }, 300);
+        }
+
+        function renderSuggestions(readers) {
+            const box = document.getElementById('searchSuggestions');
+            if (readers.length === 0) {
+                box.innerHTML = '<div class="p-6 text-[10px] font-black text-white/10 uppercase text-center tracking-widest italic">Aucun lecteur trouvé</div>';
+            } else {
+                box.innerHTML = readers.map(r => `
+                    <div onclick="selectReader('${r.LEC_RFID || r.LEC_ID}')" class="flex items-center gap-5 p-4 hover:bg-primary/[0.05] cursor-pointer transition-all border-b border-white/[0.02] last:border-0 group/item">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-black border border-white/10 group-hover/item:border-primary/40 transition-colors">
+                            ${r.LEC_PHOTO ? `<img src="${r.LEC_PHOTO}" class="w-full h-full object-cover">` : `<span class="material-symbols-outlined text-white/5 text-2xl flex items-center justify-center h-full">person</span>`}
+                        </div>
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-xs font-black text-white uppercase tracking-tight group-hover/item:text-primary transition-colors">${r.LEC_NOM} ${r.LEC_PRENOM}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[9px] font-mono text-white/20 uppercase">${r.LEC_RFID ? 'RFID: ' + r.LEC_RFID : 'ID: ' + r.LEC_ID}</span>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/5 group-hover/item:text-primary transition-all group-hover/item:translate-x-1">arrow_forward_ios</span>
+                    </div>
+                `).join('');
+            }
+            showSuggestions();
+        }
+
+        function showSuggestions() {
+            document.getElementById('searchSuggestions').classList.remove('hidden');
+        }
+
+        function hideSuggestions() {
+            document.getElementById('searchSuggestions').classList.add('hidden');
+        }
+
+        function selectReader(rfid) {
+            simulateScan(rfid);
+            document.getElementById('manualRfid').value = '';
+            hideSuggestions();
+        }
+
+        // Global variables for audio settings
+        let audioSettings = {
+            authEnabled: true,
+            authSound: 'synth', // 'synth', 'fr', 'ar', 'tam', 'en', 'sequence'
+            playAccept: true,
+            vocalOnlyOnEntry: true,
+            declinedEnabled: true,
+            muted: false,
+            vocalSequence: [
+                { id: 'ar', name: 'Arabe', enabled: true },
+                { id: 'tam', name: 'Tamazight', enabled: true },
+                { id: 'fr', name: 'Français', enabled: true },
+                { id: 'en', name: 'Anglais', enabled: true }
+            ],
+            declineSequence: [
+                { id: 'reject', name: 'Vocal Rejet', enabled: true },
+                { id: 'reject_ar', name: 'Vocal Rejet Arabe', enabled: true },
+                { id: 'siren', name: 'Sirène d\'alerte', enabled: false }
+            ]
+        };
+
+        // Load settings from localStorage
+        function loadAudioSettings() {
+            const saved = localStorage.getItem('library_audio_settings');
+            if (saved) {
+                try {
+                    audioSettings = JSON.parse(saved);
+                } catch(e) {}
+            }
+            
+            // Ensure default values are populated
+            if (!audioSettings.vocalSequence) {
+                audioSettings.vocalSequence = [
+                    { id: 'ar', name: 'Arabe', enabled: true },
+                    { id: 'tam', name: 'Tamazight', enabled: true },
+                    { id: 'fr', name: 'Français', enabled: true },
+                    { id: 'en', name: 'Anglais', enabled: true }
+                ];
+            }
+            if (!audioSettings.declineSequence) {
+                audioSettings.declineSequence = [
+                    { id: 'reject', name: 'Vocal Rejet', enabled: true },
+                    { id: 'reject_ar', name: 'Vocal Rejet Arabe', enabled: true },
+                    { id: 'siren', name: 'Sirène d\'alerte', enabled: false }
+                ];
+            }
+            if (audioSettings.playAccept === undefined) {
+                audioSettings.playAccept = true;
+            }
+            if (audioSettings.vocalOnlyOnEntry === undefined) {
+                audioSettings.vocalOnlyOnEntry = true;
+            }
+            if (audioSettings.muted === undefined) {
+                audioSettings.muted = false;
+            }
+            
+            // Sync with UI elements
+            const authSoundSelect = document.getElementById('authSoundSelect');
+            const authSoundToggle = document.getElementById('authSoundToggle');
+            const authPlayAcceptToggle = document.getElementById('authPlayAcceptToggle');
+            const authVocalOnlyOnEntryToggle = document.getElementById('authVocalOnlyOnEntryToggle');
+            const declinedSoundToggle = document.getElementById('declinedSoundToggle');
+            
+            if (authSoundSelect) authSoundSelect.value = audioSettings.authSound;
+            if (authSoundToggle) authSoundToggle.checked = audioSettings.authEnabled;
+            if (authPlayAcceptToggle) authPlayAcceptToggle.checked = audioSettings.playAccept;
+            if (authVocalOnlyOnEntryToggle) authVocalOnlyOnEntryToggle.checked = audioSettings.vocalOnlyOnEntry;
+            if (declinedSoundToggle) declinedSoundToggle.checked = audioSettings.declinedEnabled;
+            
+            updateAudioIcon();
+            toggleVocalConfigUI();
+            toggleDeclineConfigUI();
+            renderVocalSequence();
+            renderDeclineSequence();
+        }
+
+        function saveAudioSettings() {
+            const authSoundSelect = document.getElementById('authSoundSelect');
+            const authSoundToggle = document.getElementById('authSoundToggle');
+            const authPlayAcceptToggle = document.getElementById('authPlayAcceptToggle');
+            const authVocalOnlyOnEntryToggle = document.getElementById('authVocalOnlyOnEntryToggle');
+            const declinedSoundToggle = document.getElementById('declinedSoundToggle');
+            
+            if (authSoundSelect) audioSettings.authSound = authSoundSelect.value;
+            if (authSoundToggle) audioSettings.authEnabled = authSoundToggle.checked;
+            if (authPlayAcceptToggle) audioSettings.playAccept = authPlayAcceptToggle.checked;
+            if (authVocalOnlyOnEntryToggle) audioSettings.vocalOnlyOnEntry = authVocalOnlyOnEntryToggle.checked;
+            if (declinedSoundToggle) audioSettings.declinedEnabled = declinedSoundToggle.checked;
+            
+            localStorage.setItem('library_audio_settings', JSON.stringify(audioSettings));
+            updateAudioIcon();
+            toggleVocalConfigUI();
+            toggleDeclineConfigUI();
+        }
+
+        function toggleDeclineConfigUI() {
+            const configDiv = document.getElementById('declineSequenceConfig');
+            if (!configDiv) return;
+            if (audioSettings.declinedEnabled) {
+                configDiv.classList.remove('hidden');
+            } else {
+                configDiv.classList.add('hidden');
+            }
+        }
+
+        function toggleVocalConfigUI() {
+            const configDiv = document.getElementById('vocalSequenceConfig');
+            if (!configDiv) return;
+            if (audioSettings.authSound === 'sequence') {
+                configDiv.classList.remove('hidden');
+            } else {
+                configDiv.classList.add('hidden');
+            }
+        }
+
+        function renderVocalSequence() {
+            const listContainer = document.getElementById('vocalSequenceList');
+            if (!listContainer) return;
+            
+            listContainer.innerHTML = audioSettings.vocalSequence.map((item, index) => {
+                return `
+                    <div class="flex items-center justify-between bg-black/60 px-2 py-1.5 rounded border border-white/5 text-[10px]">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="seq_check_${item.id}" ${item.enabled ? 'checked' : ''} 
+                                   onchange="toggleSeqItem('${item.id}')"
+                                   class="rounded bg-black border-white/20 text-primary focus:ring-0 focus:ring-offset-0 w-3.5 h-3.5">
+                            <span class="font-black text-white/80 uppercase tracking-wider">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="moveSeqItem(${index}, -1); event.stopPropagation();" ${index === 0 ? 'disabled' : ''} class="w-5 h-5 flex items-center justify-center bg-white/5 hover:bg-white/10 disabled:opacity-20 text-white/60 rounded">
+                                <span class="material-symbols-outlined text-xs">arrow_upward</span>
+                            </button>
+                            <button onclick="moveSeqItem(${index}, 1); event.stopPropagation();" ${index === audioSettings.vocalSequence.length - 1 ? 'disabled' : ''} class="w-5 h-5 flex items-center justify-center bg-white/5 hover:bg-white/10 disabled:opacity-20 text-white/60 rounded">
+                                <span class="material-symbols-outlined text-xs">arrow_downward</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleSeqItem(id) {
+            const item = audioSettings.vocalSequence.find(x => x.id === id);
+            if (item) {
+                item.enabled = !item.enabled;
+                saveAudioSettings();
+            }
+        }
+
+        function moveSeqItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= audioSettings.vocalSequence.length) return;
+            
+            const temp = audioSettings.vocalSequence[index];
+            audioSettings.vocalSequence[index] = audioSettings.vocalSequence[newIndex];
+            audioSettings.vocalSequence[newIndex] = temp;
+            
+            renderVocalSequence();
+            saveAudioSettings();
+        }
+
+        function renderDeclineSequence() {
+            const listContainer = document.getElementById('declineSequenceList');
+            if (!listContainer) return;
+            
+            listContainer.innerHTML = audioSettings.declineSequence.map((item, index) => {
+                return `
+                    <div class="flex items-center justify-between bg-black/60 px-2 py-1 rounded border border-white/5 text-[9px]">
+                        <div class="flex items-center gap-1.5">
+                            <input type="checkbox" id="decline_seq_check_${item.id}" ${item.enabled ? 'checked' : ''} 
+                                   onchange="toggleDeclineSeqItem('${item.id}')"
+                                   class="rounded bg-black border-white/20 text-danger focus:ring-0 focus:ring-offset-0 w-3 h-3">
+                            <span class="font-black text-white/70 uppercase tracking-wide">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="moveDeclineSeqItem(${index}, -1); event.stopPropagation();" ${index === 0 ? 'disabled' : ''} class="w-4 h-4 flex items-center justify-center bg-white/5 hover:bg-white/10 disabled:opacity-20 text-white/60 rounded">
+                                <span class="material-symbols-outlined text-[10px]">arrow_upward</span>
+                            </button>
+                            <button onclick="moveDeclineSeqItem(${index}, 1); event.stopPropagation();" ${index === audioSettings.declineSequence.length - 1 ? 'disabled' : ''} class="w-4 h-4 flex items-center justify-center bg-white/5 hover:bg-white/10 disabled:opacity-20 text-white/60 rounded">
+                                <span class="material-symbols-outlined text-[10px]">arrow_downward</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleDeclineSeqItem(id) {
+            const item = audioSettings.declineSequence.find(x => x.id === id);
+            if (item) {
+                item.enabled = !item.enabled;
+                saveAudioSettings();
+            }
+        }
+
+        function moveDeclineSeqItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= audioSettings.declineSequence.length) return;
+            
+            const temp = audioSettings.declineSequence[index];
+            audioSettings.declineSequence[index] = audioSettings.declineSequence[newIndex];
+            audioSettings.declineSequence[newIndex] = temp;
+            
+            renderDeclineSequence();
+            saveAudioSettings();
+        }
+
+        function toggleGlobalMute() {
+            audioSettings.muted = !audioSettings.muted;
+            localStorage.setItem('library_audio_settings', JSON.stringify(audioSettings));
+            updateAudioIcon();
+        }
+
+        function updateAudioIcon() {
+            const icon = document.getElementById('audioIcon');
+            if (!icon) return;
+            if (audioSettings.muted) {
+                icon.textContent = 'volume_off';
+                icon.className = 'material-symbols-outlined text-[20px] text-danger animate-pulse';
+            } else if (!audioSettings.authEnabled && !audioSettings.declinedEnabled) {
+                icon.textContent = 'volume_off';
+                icon.className = 'material-symbols-outlined text-[20px] text-white/30';
+            } else if (!audioSettings.authEnabled || !audioSettings.declinedEnabled) {
+                icon.textContent = 'volume_down';
+                icon.className = 'material-symbols-outlined text-[20px] text-amber-500';
+            } else {
+                icon.textContent = 'volume_up';
+                icon.className = 'material-symbols-outlined text-[20px] text-primary';
+            }
+        }
+
+        function toggleAudioSettings() {
+            const dropdown = document.getElementById('audioSettingsDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('audioSettingsDropdown');
+            const btn = document.getElementById('audioSettingsBtn');
+            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Initialize Audio objects
+        const refusalAudio = new Audio('/public/accés_refus.mp3');
+        const authAudioFr = new Audio('/public/audio/fr.mp3');
+        const authAudioAr = new Audio('/public/audio/ar.mp3');
+        const authAudioTam = new Audio('/public/audio/tam.mp3');
+        const authAudioEn = new Audio('/public/audio/en.mp3');
+        const authAudioAccept = new Audio('/public/audio/accept.mp3');
+        const declineAudioReject = new Audio('/public/audio/rejectt.mp3');
+        const declineAudioRejectAr = new Audio('/public/audio/reject%20ar.mp3');
+
+        // Helper to stop all audios
+        function stopAllAudios() {
+            [
+                refusalAudio, authAudioFr, authAudioAr, authAudioTam, authAudioEn, 
+                authAudioAccept, declineAudioReject, declineAudioRejectAr
+            ].forEach(a => {
+                a.pause();
+                a.currentTime = 0;
+                a.onended = null;
+            });
+        }
+
+        function testSelectedSound() {
+            unlockAudio();
+            stopAllAudios();
+            
+            const selectedSound = document.getElementById('authSoundSelect').value;
+            if (audioSettings.playAccept) {
+                authAudioAccept.onended = () => {
+                    playSpecificAuthSound(selectedSound);
+                };
+                authAudioAccept.play().catch(e => {
+                    console.error("Error playing test accept:", e);
+                    playSpecificAuthSound(selectedSound);
+                });
+            } else {
+                playSpecificAuthSound(selectedSound);
+            }
+        }
+
+        function playSpecificAuthSound(soundType) {
+            if (soundType === 'synth') {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 0.1);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
+            } else if (soundType === 'fr') {
+                authAudioFr.play().catch(e => console.error("Error playing audio FR:", e));
+            } else if (soundType === 'ar') {
+                authAudioAr.play().catch(e => console.error("Error playing audio AR:", e));
+            } else if (soundType === 'tam') {
+                authAudioTam.play().catch(e => console.error("Error playing audio TAM:", e));
+            } else if (soundType === 'en') {
+                authAudioEn.play().catch(e => console.error("Error playing audio EN:", e));
+            } else if (soundType === 'sequence' || soundType === 'all') {
+                const activeSeq = audioSettings.vocalSequence.filter(item => item.enabled);
+                playSequence(activeSeq);
+            }
+        }
+
+        function playSequence(sequenceArray) {
+            if (sequenceArray.length === 0) return;
+            
+            const audioMap = {
+                'ar': authAudioAr,
+                'tam': authAudioTam,
+                'fr': authAudioFr,
+                'en': authAudioEn
+            };
+            
+            let index = 0;
+            
+            function playNext() {
+                if (index >= sequenceArray.length) return;
+                const langId = sequenceArray[index].id;
+                const audio = audioMap[langId];
+                if (audio) {
+                    audio.onended = () => {
+                        index++;
+                        playNext();
+                    };
+                    audio.play().catch(e => {
+                        console.error(`Error playing ${langId}:`, e);
+                        index++;
+                        playNext();
+                    });
+                } else {
+                    index++;
+                    playNext();
+                }
+            }
+            
+            playNext();
+        }
+
+        function playDeclineSequence(sequenceArray) {
+            if (sequenceArray.length === 0) return;
+            
+            const audioMap = {
+                'reject': declineAudioReject,
+                'reject_ar': declineAudioRejectAr,
+                'siren': refusalAudio
+            };
+            
+            let index = 0;
+            
+            function playNext() {
+                if (index >= sequenceArray.length) return;
+                const declineId = sequenceArray[index].id;
+                const audio = audioMap[declineId];
+                if (audio) {
+                    audio.onended = () => {
+                        index++;
+                        playNext();
+                    };
+                    audio.play().catch(e => {
+                        console.error(`Error playing decline sound ${declineId}:`, e);
+                        index++;
+                        playNext();
+                    });
+                } else {
+                    index++;
+                    playNext();
+                }
+            }
+            
+            playNext();
+        }
+
+        function playSound(type, action = 'IN') {
+            try {
+                stopAllAudios();
+
+                if (audioSettings.muted) return;
+
+                if (type === 'success') {
+                    if (!audioSettings.authEnabled) return;
+                    
+                    let finalSound = audioSettings.authSound;
+                    let finalPlayAccept = audioSettings.playAccept;
+                    
+                    if (audioSettings.vocalOnlyOnEntry && action === 'OUT') {
+                        finalSound = 'synth';
+                        finalPlayAccept = false;
+                    }
+                    
+                    if (finalPlayAccept) {
+                        authAudioAccept.onended = () => {
+                            playSpecificAuthSound(finalSound);
+                        };
+                        authAudioAccept.play().catch(e => {
+                            console.error("Error playing accept audio:", e);
+                            playSpecificAuthSound(finalSound);
+                        });
+                    } else {
+                        playSpecificAuthSound(finalSound);
+                    }
+                } else {
+                    if (!audioSettings.declinedEnabled) return;
+                    const activeSeq = audioSettings.declineSequence.filter(item => item.enabled);
+                    playDeclineSequence(activeSeq);
+                }
+            } catch (e) {
+                console.error("Audio error:", e);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

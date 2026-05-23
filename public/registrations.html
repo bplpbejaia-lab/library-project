@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Gestion des Inscriptions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/admin.css">
+    <style>
+        /* RFID Card Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #rfidPrintArea,
+            #rfidPrintArea * {
+                visibility: visible;
+            }
+
+            #rfidPrintArea {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .rfid-card {
+                page-break-inside: avoid;
+                margin: 0 auto;
+            }
+        }
+
+        .rfid-card {
+            width: 340px;
+            height: 214px;
+            /* ID card ratio 85.6mm x 53.98mm scaled */
+            border: 2px solid #1a237e;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #3949ab 100%);
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            position: relative;
+            overflow: hidden;
+            margin: 20px auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .rfid-card-header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .rfid-card-header h4 {
+            margin: 0;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .rfid-card-body {
+            display: flex;
+            padding: 12px 15px;
+            gap: 12px;
+        }
+
+        .rfid-card-photo {
+            width: 65px;
+            height: 80px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .rfid-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rfid-card-info {
+            flex: 1;
+        }
+
+        .rfid-card-info .name {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .rfid-card-info .detail {
+            font-size: 10px;
+            opacity: 0.85;
+            margin-bottom: 2px;
+        }
+
+        .rfid-card-info .detail span {
+            font-weight: 600;
+        }
+
+        .rfid-card-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .rfid-card-footer .rfid-code {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .rfid-card-footer .card-id {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        .rfid-card-chip {
+            position: absolute;
+            top: 40px;
+            right: 15px;
+            width: 30px;
+            height: 22px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #c9a84c, #f0d27c, #c9a84c);
+            border: 1px solid #a08030;
+        }
+
+        .rfid-card-chip::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+
+        .source-badge-EXTERNE {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+
+        .source-badge-INTERNE {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border: 1px solid #ce93d8;
+        }
+
+        /* ID Card Upload Styles */
+        .id-card-upload {
+            border: 2px dashed var(--border-color, #ddd);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: rgba(0, 0, 0, 0.02);
+            position: relative;
+        }
+
+        .id-card-upload:hover {
+            border-color: var(--primary-color, #1a237e);
+            background: rgba(26, 35, 126, 0.05);
+        }
+
+        .id-card-upload.has-file {
+            border-color: #4caf50;
+            border-style: solid;
+        }
+
+        .id-card-upload input[type=file] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .id-card-upload .upload-icon {
+            font-size: 24px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .id-card-upload .upload-text {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .id-card-upload .file-name {
+            font-size: 0.8rem;
+            color: #4caf50;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .id-card-thumbs {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .id-card-thumb {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .id-card-thumb-label {
+            font-size: 0.6rem;
+            color: #888;
+            text-align: center;
+            display: block;
+        }
+
+        .id-card-preview-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            cursor: pointer;
+            padding: 20px;
+        }
+
+        .id-card-preview-modal .preview-side {
+            text-align: center;
+        }
+
+        .id-card-preview-modal .preview-side img {
+            max-width: 42vw;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .id-card-preview-modal .preview-label {
+            color: white;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+
+        .upload-id-card-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .upload-id-card-btn:hover {
+            background: #f57c00;
+        }
+
+        .id-card-upload-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .id-card-upload-row .id-card-upload {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-book-reader"></i> Bibliothèque</h2>
+            <p>Administration</p>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
+                    class="nav-text">Dashboard</span></a>
+            <a href="/lecteurs.html" class="nav-item"><i class="fas fa-users"></i><span
+                    class="nav-text">Lecteurs</span></a>
+            <a href="/books.html" class="nav-item"><i class="fas fa-book"></i><span class="nav-text">Livres</span></a>
+            <a href="/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
+                    class="nav-text">Commandes</span></a>
+            <a href="/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
+                    class="nav-text">Retours</span></a>
+            <a href="/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
+                    class="nav-text">Stats</span></a>
+            <a href="/registrations.html" class="nav-item active"><i class="fas fa-user-check"></i><span
+                    class="nav-text">Inscriptions</span>
+                <span class="badge" id="badge-pending">...</span>
+            </a>
+            <a href="/utilisateurs.html" class="nav-item"><i class="fas fa-user-shield"></i><span
+                    class="nav-text">Utilisateurs</span></a>
+        </div>
+        <div class="admin-info">
+            <div class="admin-profile">
+                <div class="admin-avatar"><i class="fas fa-user-tie"></i></div>
+                <div class="admin-details">
+                    <h4>Admin Bibliothèque</h4>
+                    <p>administrateur@bibliotheque.dz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Demandes d'inscription</h1>
+                <p>Validation des nouvelles demandes de carte de lecteur</p>
+            </div>
+            <div class="top-actions">
+                <select class="filter-dropdown" id="statusFilter" onchange="filterRegistrations()">
+                    <option value="PENDING" selected>En attente</option>
+                    <option value="all">Tous les statuts</option>
+                    <option value="APPROVED">Approuvées</option>
+                    <option value="REJECTED">Rejetées</option>
+                </select>
+                <select class="filter-dropdown" id="sourceFilter" onchange="filterRegistrations()">
+                    <option value="all">Toutes les sources</option>
+                    <option value="EXTERNE">Site externe</option>
+                    <option value="INTERNE">Interne</option>
+                </select>
+                <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-user-plus"></i> Inscription
+                    interne</button>
+                <button class="btn btn-outline" onclick="loadRegistrations()"><i class="fas fa-sync-alt"></i>
+                    Rafraîchir</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>En attente</h3>
+                        <div class="stat-number" id="stat-pending">...</div>
+                    </div>
+                    <div class="stat-icon pending"><i class="fas fa-hourglass-half"></i></div>
+                </div>
+                <div class="stat-change negative"><i class="fas fa-arrow-down"></i><span>À traiter</span></div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Approuvées</h3>
+                        <div class="stat-number" id="stat-approved">...</div>
+                    </div>
+                    <div class="stat-icon active"><i class="fas fa-user-check"></i></div>
+                </div>
+                <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Cartes créées</span></div>
+            </div>
+            <div class="stat-card expired">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Rejetées</h3>
+                        <div class="stat-number" id="stat-rejected">...</div>
+                    </div>
+                    <div class="stat-icon expired"><i class="fas fa-times-circle"></i></div>
+                </div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Site externe</h3>
+                        <div class="stat-number" id="stat-externe">...</div>
+                    </div>
+                    <div class="stat-icon total"><i class="fas fa-globe"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Liste des demandes</h2>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom complet</th>
+                        <th>NIN</th>
+                        <th>Catégorie</th>
+                        <th>Contact</th>
+                        <th>Carte ID</th>
+                        <th>Date demande</th>
+                        <th>Source</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="registrations-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Internal Registration Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nouvelle inscription interne</h3>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nom *</label>
+                            <input type="text" class="form-control" id="addNom" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prénom *</label>
+                            <input type="text" class="form-control" id="addPrenom" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">NIN</label>
+                            <input type="text" class="form-control" id="addNin"
+                                placeholder="Numéro d'identité nationale">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Catégorie</label>
+                            <select class="form-control" id="addCategory">
+                                <option value="">-</option>
+                                <option value="1">Étudiant</option>
+                                <option value="2">Enseignant</option>
+                                <option value="3">Employé</option>
+                                <option value="10">Chercheur</option>
+                                <option value="11">Autres</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="addEmail">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" id="addTel">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date de naissance</label>
+                            <input type="date" class="form-control" id="addBirthDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" class="form-control" id="addAddress">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Carte d'identité (Recto + Verso) *</label>
+                        <div class="id-card-upload-row">
+                            <div class="id-card-upload" id="addRectoUpload">
+                                <input type="file" id="addRecto" accept="image/*,.pdf"
+                                    onchange="onIdCardSelected(this, 'addRectoName', 'addRectoUpload')">
+                                <div class="upload-icon"><i class="fas fa-id-card"></i></div>
+                                <div class="upload-text">Recto</div>
+                                <div class="file-name" id="addRectoName"></div>
+                            </div>
+                            <div class="id-card-upload" id="addVersoUpload">
+                                <input type="file" id="addVerso" accept="image/*,.pdf"
+                                    onchange="onIdCardSelected(this, 'addVersoName', 'addVersoUpload')">
+                                <div class="upload-icon"><i class="fas fa-id-card"></i></div>
+                                <div class="upload-text">Verso</div>
+                                <div class="file-name" id="addVersoName"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveInternalRegistration()"><i class="fas fa-save"></i>
+                    Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RFID Approval Modal - Saisie manuelle du numéro RFID -->
+    <div class="modal" id="rfidApprovalModal">
+        <div class="modal-content" style="max-width:400px">
+            <div class="modal-header">
+                <h3>Attribuer une carte RFID</h3>
+                <button class="modal-close" onclick="closeRfidApprovalModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:15px;color:#666;font-size:0.9rem;">Vérifiez les informations et attribuez un
+                    numéro de carte RFID.</p>
+                <div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-bottom:20px;">
+                    <div style="font-weight:700;margin-bottom:5px;" id="rfidApprovalName">-</div>
+                    <div style="font-size:0.85rem;color:#666;" id="rfidApprovalCategory">-</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Numéro de carte RFID <span
+                            style="color:#999;font-size:0.8rem;">(proposition: <span
+                                id="nextRfidSuggestion">-</span>)</span></label>
+                    <input type="text" class="form-control" id="rfidInput"
+                        placeholder="Scannez ou saisissez le numéro RFID..."
+                        style="font-family:monospace;font-size:1.1rem;text-align:center;letter-spacing:1px;">
+                    <small style="color:#999;font-size:0.75rem;display:block;margin-top:5px;">Laissez vide pour générer
+                        automatique, ou scannez/saisissez un numéro</small>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:15px;">
+                    <button class="btn btn-outline" onclick="generateNextRfid()" style="flex:1;font-size:0.85rem;"><i
+                            class="fas fa-magic"></i> Prochain numéro</button>
+                    <button class="btn btn-outline" onclick="checkRfidExists()" style="flex:1;font-size:0.85rem;"><i
+                            class="fas fa-search"></i> Vérifier</button>
+                </div>
+                <div id="rfidCheckResult" style="margin-top:10px;font-size:0.85rem;text-align:center;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeRfidApprovalModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmApproveWithRfid()"><i class="fas fa-check"></i>
+                    Confirmer & Approuver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RFID Card Print Modal -->
+    <div class="modal" id="rfidModal">
+        <div class="modal-content" style="max-width:550px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1e293b, #0f172a) !important; color: white !important; padding: 24px 32px; border-bottom: none;">
+                <h3 style="margin:0; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 1.5rem; display: flex; align-items: center; gap: 12px; color: white !important;">
+                    <i class="fas fa-id-card-clip" style="color: #10b981;"></i> Tirage de carte RFID
+                </h3>
+                <button class="modal-close" onclick="closeRfidModal()" style="color: white !important; opacity: 0.8; font-size: 1.75rem; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">&times;</button>
+            </div>
+            <div class="modal-body" id="rfidPrintArea" style="padding: 36px 32px; background: #f8fafc; display: flex; justify-content: center; align-items: center;"></div>
+            <div class="modal-footer no-print" style="background: #f1f5f9; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 16px;">
+                <button class="btn btn-secondary" onclick="closeRfidModal()" style="flex: 1; min-width: 160px; padding: 14px 24px; border-radius: 14px; font-weight: 600; color: #64748b; background: white; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#f8fafc'; this.style.color='#334155'" onmouseout="this.style.background='white'; this.style.color='#64748b'">
+                    <i class="fas fa-times mr-2" style="margin-right: 8px;"></i> Fermer
+                </button>
+                <button class="btn btn-primary" onclick="printRfidCard()" style="flex: 1; min-width: 160px; padding: 14px 24px; border-radius: 14px; font-weight: 700; background: #2563eb; color: white; border: none; box-shadow: 0 4px 14px rgba(37,99,235,0.35); font-size: 1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#1d4ed8'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#2563eb'; this.style.transform='none'">
+                    <i class="fas fa-print" style="margin-right: 8px;"></i> Imprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('active'); });
+
+        const categoryMap = {
+            1: 'Étudiant', 2: 'Enseignant', 3: 'Employé',
+            9: 'Responsable PEB', 10: 'Chercheur', 11: 'Autres'
+        };
+
+        let allRegistrations = [];
+
+        async function loadRegistrations() {
+            const tbody = document.getElementById('registrations-table');
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            try {
+                const res = await fetch('/api/admin/registrations');
+                allRegistrations = await res.json();
+                filterRegistrations();
+
+                const pending = allRegistrations.filter(r => r.status === 'PENDING').length;
+                document.getElementById('stat-pending').textContent = pending;
+                document.getElementById('stat-approved').textContent = allRegistrations.filter(r => r.status === 'APPROVED').length;
+                document.getElementById('stat-rejected').textContent = allRegistrations.filter(r => r.status === 'REJECTED').length;
+                document.getElementById('stat-externe').textContent = allRegistrations.filter(r => r.inscription_source === 'EXTERNE').length;
+                document.getElementById('badge-pending').textContent = pending;
+            } catch (e) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--secondary-color)">Erreur de chargement</td></tr>'; }
+        }
+
+        function filterRegistrations() {
+            const status = document.getElementById('statusFilter').value;
+            const source = document.getElementById('sourceFilter').value;
+            let filtered = allRegistrations;
+            if (status !== 'all') filtered = filtered.filter(r => r.status === status);
+            if (source !== 'all') filtered = filtered.filter(r => r.inscription_source === source);
+            renderRegistrations(filtered);
+        }
+
+        function renderRegistrations(regs) {
+            const tbody = document.getElementById('registrations-table');
+            if (!regs.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;opacity:0.5">Aucune demande</td></tr>'; return; }
+
+            tbody.innerHTML = regs.map(r => {
+                const regId = String(r.id).replace(/'/g, "\\'");
+                const date = new Date(r.registration_date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                let statusHtml;
+                if (r.status === 'PENDING') statusHtml = '<span class="status-badge status-PENDING">EN ATTENTE</span>';
+                else if (r.status === 'APPROVED') statusHtml = '<span class="status-badge status-APPROVED">APPROUVÉE</span>';
+                else statusHtml = '<span class="status-badge status-REJECTED">REJETÉE</span>';
+
+                const sourceBadge = `<span class="badge source-badge-${r.inscription_source || 'EXTERNE'}" style="padding:2px 8px;font-size:0.75rem;border-radius:4px">${r.inscription_source === 'INTERNE' ? '<i class="fas fa-building"></i> Interne' : '<i class="fas fa-globe"></i> Externe'}</span>`;
+
+                // ID card column - show recto+verso
+                let idCardHtml;
+                if (r.id_card_recto_path || r.id_card_verso_path) {
+                    const thumbs = [];
+                    if (r.id_card_recto_path) {
+                        const isPdf = r.id_card_recto_path.toLowerCase().endsWith('.pdf');
+                        if (isPdf) {
+                            thumbs.push(`<a href="${r.id_card_recto_path}" target="_blank" title="Recto (PDF)"><i class="fas fa-file-pdf" style="font-size:18px;color:#e53935"></i></a>`);
+                        } else {
+                            thumbs.push(`<img src="${r.id_card_recto_path}" class="id-card-thumb" onclick="previewIdCard('${r.id_card_recto_path}', '${r.id_card_verso_path || ''}')" title="Voir carte d'identité">`);
+                        }
+                    }
+                    if (r.id_card_verso_path) {
+                        const isPdf = r.id_card_verso_path.toLowerCase().endsWith('.pdf');
+                        if (isPdf) {
+                            thumbs.push(`<a href="${r.id_card_verso_path}" target="_blank" title="Verso (PDF)"><i class="fas fa-file-pdf" style="font-size:18px;color:#e53935"></i></a>`);
+                        } else {
+                            thumbs.push(`<img src="${r.id_card_verso_path}" class="id-card-thumb" onclick="previewIdCard('${r.id_card_recto_path || ''}', '${r.id_card_verso_path}')" title="Voir carte d'identité">`);
+                        }
+                    }
+                    idCardHtml = `<div class="id-card-thumbs">${thumbs.join('')}</div>`;
+                } else if (r.status === 'PENDING') {
+                    idCardHtml = `<button class="upload-id-card-btn" onclick="uploadIdCardFor('${regId}')"><i class="fas fa-upload"></i> Ajouter</button>`;
+                } else {
+                    idCardHtml = '<span style="opacity:0.4">-</span>';
+                }
+
+                return `
+                <tr style="${r.status !== 'PENDING' ? 'opacity:0.6' : ''}">
+                    <td><strong>${r.id}</strong></td>
+                    <td style="font-weight:600">${r.nom || ''} ${r.prenom || ''}</td>
+                    <td style="font-size:0.85rem">${r.nin || '-'}</td>
+                    <td>${categoryMap[r.cat_id] || '-'}</td>
+                    <td style="font-size:0.85rem">${r.email || '-'}<br>${r.telephone || '-'}</td>
+                    <td style="text-align:center">${idCardHtml}</td>
+                    <td style="font-size:0.85rem">${date}</td>
+                    <td>${sourceBadge}</td>
+                    <td>${statusHtml}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${r.status === 'PENDING' ? `
+                                <button class="action-btn approve" title="Approuver (vérifier + créer carte lecteur + RFID)" onclick="approveRegistration('${regId}')"><i class="fas fa-check"></i></button>
+                                <button class="action-btn delete" title="Rejeter" onclick="rejectRegistration('${regId}')"><i class="fas fa-ban"></i></button>
+                            ` : ''}
+                            ${r.status === 'APPROVED' ? `
+                                <button class="action-btn view" title="Tirer carte RFID" onclick="showRfidCard('${regId}')"><i class="fas fa-id-card"></i></button>
+                                <button class="action-btn delete" title="Supprimer" onclick="deleteRegistration('${regId}')"><i class="fas fa-trash"></i></button>
+                            ` : ''}
+                            ${r.status === 'REJECTED' ? `
+                                <button class="action-btn delete" title="Supprimer" onclick="deleteRegistration('${regId}')"><i class="fas fa-trash"></i></button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        // ID Card preview - show both recto and verso
+        function previewIdCard(rectoSrc, versoSrc) {
+            const modal = document.createElement('div');
+            modal.className = 'id-card-preview-modal';
+            modal.onclick = () => modal.remove();
+
+            let html = '';
+            if (rectoSrc && !rectoSrc.toLowerCase().endsWith('.pdf')) {
+                html += `<div class="preview-side">
+                    <img src="${rectoSrc}" alt="Recto">
+                    <div class="preview-label">Recto</div>
+                </div>`;
+            }
+            if (versoSrc && !versoSrc.toLowerCase().endsWith('.pdf')) {
+                html += `<div class="preview-side">
+                    <img src="${versoSrc}" alt="Verso">
+                    <div class="preview-label">Verso</div>
+                </div>`;
+            }
+
+            modal.innerHTML = html;
+            document.body.appendChild(modal);
+        }
+
+        // Upload ID card (recto/verso) for existing PENDING registration
+        function uploadIdCardFor(regId) {
+            const rectoInput = document.createElement('input');
+            rectoInput.type = 'file';
+            rectoInput.accept = 'image/*,.pdf';
+            rectoInput.onchange = async () => {
+                const file = rectoInput.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('id_card_recto', file);
+
+                // Ask if user wants to add verso too
+                if (confirm('Recto ajouté. Voulez-vous aussi ajouter le verso ?')) {
+                    const versoInput = document.createElement('input');
+                    versoInput.type = 'file';
+                    versoInput.accept = 'image/*,.pdf';
+                    versoInput.onchange = async () => {
+                        const versoFile = versoInput.files[0];
+                        if (versoFile) formData.append('id_card_verso', versoFile);
+                        await uploadFiles(regId, formData);
+                    };
+                    versoInput.click();
+                } else {
+                    await uploadFiles(regId, formData);
+                }
+            };
+            rectoInput.click();
+        }
+
+        async function uploadFiles(regId, formData) {
+            try {
+                const res = await fetch(`/api/admin/registrations/${regId}/id-card`, {
+                    method: 'POST', body: formData
+                });
+                const data = await res.json();
+                if (data.error) { alert('Erreur: ' + data.error); return; }
+                loadRegistrations();
+            } catch (e) { alert('Erreur réseau'); }
+        }
+
+        let currentApproveId = null;
+
+        // Ouvrir le modal d'approbation avec saisie RFID
+        async function approveRegistration(id) {
+            const reg = allRegistrations.find(r => String(r.id) === String(id));
+            if (!reg) {
+                console.error('Registration not found for ID:', id);
+                alert('Erreur: Inscription non trouvée');
+                return;
+            }
+
+            currentApproveId = id;
+            document.getElementById('rfidApprovalName').textContent = `${reg.nom || ''} ${reg.prenom || ''}`;
+            document.getElementById('rfidApprovalCategory').textContent = `${categoryMap[reg.cat_id] || 'Catégorie non définie'} | NIN: ${reg.nin || '-'}`;
+            document.getElementById('rfidCheckResult').innerHTML = '';
+
+            // Récupérer le prochain numéro RFID suggéré
+            await fetchNextRfidSuggestion();
+
+            document.getElementById('rfidApprovalModal').classList.add('open');
+        }
+
+        // Fermer le modal d'approbation RFID
+        function closeRfidApprovalModal() {
+            document.getElementById('rfidApprovalModal').classList.remove('open');
+            currentApproveId = null;
+        }
+
+        // Récupérer le prochain numéro RFID suggéré depuis le serveur
+        async function fetchNextRfidSuggestion() {
+            try {
+                const res = await fetch('/api/admin/rfid/next-available');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('nextRfidSuggestion').textContent = data.suggestedRfid;
+                    // Champ laissé vide pour permettre le scan
+                    document.getElementById('rfidInput').value = '';
+                } else {
+                    // Fallback: générer localement
+                    const fallbackRfid = `RFID-${String(Date.now()).slice(-6)}`;
+                    document.getElementById('nextRfidSuggestion').textContent = fallbackRfid;
+                    document.getElementById('rfidInput').value = '';
+                }
+            } catch (e) {
+                const fallbackRfid = `RFID-${String(Date.now()).slice(-6)}`;
+                document.getElementById('nextRfidSuggestion').textContent = fallbackRfid;
+                document.getElementById('rfidInput').value = '';
+            }
+        }
+
+        // Générer le prochain numéro RFID dans le champ
+        async function generateNextRfid() {
+            try {
+                const res = await fetch('/api/admin/rfid/next-available');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('nextRfidSuggestion').textContent = data.suggestedRfid;
+                    document.getElementById('rfidInput').value = data.suggestedRfid;
+                }
+            } catch (e) {
+                const fallbackRfid = `RFID-${String(Date.now()).slice(-6)}`;
+                document.getElementById('rfidInput').value = fallbackRfid;
+            }
+        }
+
+        // Vérifier si un RFID existe déjà
+        async function checkRfidExists() {
+            const rfid = document.getElementById('rfidInput').value.trim();
+            if (!rfid) {
+                document.getElementById('rfidCheckResult').innerHTML = '<span style="color:#f44336;">Veuillez entrer un numéro RFID</span>';
+                return;
+            }
+
+            document.getElementById('rfidCheckResult').innerHTML = '<span style="color:#999;"><i class="fas fa-spinner fa-spin"></i> Vérification...</span>';
+
+            try {
+                const res = await fetch(`/api/admin/rfid/check?rfid=${encodeURIComponent(rfid)}`);
+                const data = await res.json();
+
+                if (data.exists) {
+                    document.getElementById('rfidCheckResult').innerHTML = `<span style="color:#f44336;"><i class="fas fa-times-circle"></i> Ce numéro est déjà utilisé par ${data.user || 'un autre lecteur'}</span>`;
+                } else {
+                    document.getElementById('rfidCheckResult').innerHTML = '<span style="color:#4caf50;"><i class="fas fa-check-circle"></i> Ce numéro est disponible</span>';
+                }
+            } catch (e) {
+                document.getElementById('rfidCheckResult').innerHTML = '<span style="color:#ff9800;">Impossible de vérifier</span>';
+            }
+        }
+
+        // Confirmer l'approbation avec le RFID saisi (ou auto-généré si vide)
+        async function confirmApproveWithRfid() {
+            if (!currentApproveId) return;
+
+            const rfid = document.getElementById('rfidInput').value.trim();
+            // Si vide, le serveur génère automatiquement
+
+            try {
+                const body = rfid ? { rfid_code: rfid } : {};
+                const res = await fetch(`/api/admin/registrations/${currentApproveId}/approve`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    alert('Erreur: ' + (data.error || 'Approbation échouée'));
+                    return;
+                }
+                closeRfidApprovalModal();
+                await loadRegistrations();
+                // Auto-show RFID card for printing
+                showRfidCard(currentApproveId);
+            } catch (e) {
+                console.error('Approve error:', e);
+                alert('Erreur réseau lors de l\'approbation');
+            }
+        }
+
+        async function rejectRegistration(id) {
+            if (!confirm('Rejeter cette demande d\'inscription ?')) return;
+            try {
+                const res = await fetch(`/api/admin/registrations/${id}/reject`, { method: 'PUT' });
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert('Erreur: ' + (data.error || 'Rejet échoué'));
+                    return;
+                }
+                loadRegistrations();
+            } catch (e) {
+                console.error('Reject error:', e);
+                alert('Erreur réseau lors du rejet');
+            }
+        }
+
+        async function deleteRegistration(id) {
+            if (!confirm('Supprimer cette entrée ?')) return;
+            try {
+                const res = await fetch(`/api/admin/registrations/${id}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert('Erreur: ' + (data.error || 'Suppression échouée'));
+                    return;
+                }
+                loadRegistrations();
+            } catch (e) {
+                console.error('Delete error:', e);
+                alert('Erreur réseau lors de la suppression');
+            }
+        }
+
+        // ID card upload helper for add modal (recto/verso)
+        function onIdCardSelected(input, nameId, uploadId) {
+            const uploadDiv = document.getElementById(uploadId);
+            const nameDiv = document.getElementById(nameId);
+            if (input.files && input.files[0]) {
+                nameDiv.textContent = input.files[0].name;
+                uploadDiv.classList.add('has-file');
+            } else {
+                nameDiv.textContent = '';
+                uploadDiv.classList.remove('has-file');
+            }
+        }
+
+        // Internal registration
+        function openAddModal() {
+            document.getElementById('addNom').value = '';
+            document.getElementById('addPrenom').value = '';
+            document.getElementById('addNin').value = '';
+            document.getElementById('addCategory').value = '';
+            document.getElementById('addEmail').value = '';
+            document.getElementById('addTel').value = '';
+            document.getElementById('addBirthDate').value = '';
+            document.getElementById('addAddress').value = '';
+            document.getElementById('addRecto').value = '';
+            document.getElementById('addVerso').value = '';
+            document.getElementById('addRectoName').textContent = '';
+            document.getElementById('addVersoName').textContent = '';
+            document.getElementById('addRectoUpload').classList.remove('has-file');
+            document.getElementById('addVersoUpload').classList.remove('has-file');
+            document.getElementById('addModal').classList.add('open');
+        }
+        function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+        async function saveInternalRegistration() {
+            const nom = document.getElementById('addNom').value;
+            const prenom = document.getElementById('addPrenom').value;
+            if (!nom || !prenom) { alert('Nom et prénom sont obligatoires'); return; }
+
+            const formData = new FormData();
+            formData.append('nom', nom);
+            formData.append('prenom', prenom);
+            formData.append('nin', document.getElementById('addNin').value);
+            formData.append('cat_id', document.getElementById('addCategory').value || '');
+            formData.append('email', document.getElementById('addEmail').value);
+            formData.append('telephone', document.getElementById('addTel').value);
+            formData.append('date_naiss', document.getElementById('addBirthDate').value || '');
+            formData.append('adresse', document.getElementById('addAddress').value);
+
+            const rectoFile = document.getElementById('addRecto').files[0];
+            const versoFile = document.getElementById('addVerso').files[0];
+            if (rectoFile) formData.append('id_card_recto', rectoFile);
+            if (versoFile) formData.append('id_card_verso', versoFile);
+
+            if (!rectoFile && !versoFile) { alert('Veuillez ajouter au moins le recto de la carte d\'identité'); return; }
+
+            try {
+                const res = await fetch('/api/admin/registrations', {
+                    method: 'POST', body: formData
+                });
+                const data = await res.json();
+                if (data.error) { alert('Erreur: ' + data.error); return; }
+                closeAddModal();
+                loadRegistrations();
+            } catch (e) { alert('Erreur réseau'); }
+        }
+
+        // RFID Card
+        async function showRfidCard(regId) {
+            const reg = allRegistrations.find(r => String(r.id) === String(regId));
+            if (!reg) {
+                console.error('Registration not found for RFID card:', regId);
+                return;
+            }
+            const rfidCode = reg.rfid_code || `RFID-${String(regId).padStart(6, '0')}`;
+            const lecId = reg.lec_id || regId;
+
+            // Use ID card recto photo if available
+            const photoHtml = reg.id_card_recto_path && !reg.id_card_recto_path.toLowerCase().endsWith('.pdf')
+                ? `<img src="${reg.id_card_recto_path}" alt="photo">`
+                : `<i class="fas fa-user"></i>`;
+
+            document.getElementById('rfidPrintArea').innerHTML = `
+                <div class="rfid-card">
+                    <div class="rfid-card-header">
+                        <h4><i class="fas fa-book-reader"></i> Bibliothèque</h4>
+                        <span style="font-size:9px;opacity:0.7">CARTE DE LECTEUR</span>
+                    </div>
+                    <div class="rfid-card-chip"></div>
+                    <div class="rfid-card-body">
+                        <div class="rfid-card-photo">${photoHtml}</div>
+                        <div class="rfid-card-info">
+                            <div class="name">${reg.nom || '?'} ${reg.prenom || ''}</div>
+                            <div class="detail"><span>NIN:</span> ${reg.nin || '-'}</div>
+                            <div class="detail"><span>Catégorie:</span> ${categoryMap[reg.cat_id] || '-'}</div>
+                            <div class="detail"><span>Tél:</span> ${reg.telephone || '-'}</div>
+                        </div>
+                    </div>
+                    <div class="rfid-card-footer">
+                        <div class="rfid-code"><i class="fas fa-wifi"></i> ${rfidCode}</div>
+                        <div class="card-id">N° ${lecId}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('rfidModal').classList.add('open');
+        }
+
+        function closeRfidModal() { document.getElementById('rfidModal').classList.remove('open'); }
+
+        function printRfidCard() {
+            window.print();
+        }
+
+        // Close modals by clicking outside
+        window.addEventListener('click', e => {
+            if (e.target === document.getElementById('addModal')) closeAddModal();
+            if (e.target === document.getElementById('rfidModal')) closeRfidModal();
+            if (e.target === document.getElementById('rfidApprovalModal')) closeRfidApprovalModal();
+        });
+
+        loadRegistrations();
+    </script>
+</body>
+
+</html>

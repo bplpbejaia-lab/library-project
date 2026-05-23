@@ -1,0 +1,8 @@
+node_modules/
+*.log
+uploads/
+.env
+*.pdf
+*.mp3
+*~
+.DS_Store

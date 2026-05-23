@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Gestion des Livres</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/admin.css">
+</head>
+
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-book-reader"></i> Bibliotheque</h2>
+            <p>Administration</p>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i><span
+                    class="nav-text">Dashboard</span></a>
+            <a href="/lecteurs.html" class="nav-item"><i class="fas fa-users"></i><span
+                    class="nav-text">Lecteurs</span></a>
+            <a href="/books.html" class="nav-item active"><i class="fas fa-book"></i><span
+                    class="nav-text">Livres</span></a>
+            <a href="/orders.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span
+                    class="nav-text">Commandes</span></a>
+            <a href="/returns.html" class="nav-item"><i class="fas fa-undo-alt"></i><span
+                    class="nav-text">Retours</span></a>
+            <a href="/stats.html" class="nav-item"><i class="fas fa-chart-line"></i><span
+                    class="nav-text">Stats</span></a>
+            <a href="/registrations.html" class="nav-item"><i class="fas fa-user-check"></i><span
+                    class="nav-text">Inscriptions</span></a>
+            <a href="/utilisateurs.html" class="nav-item"><i class="fas fa-user-shield"></i><span
+                    class="nav-text">Utilisateurs</span></a>
+        </div>
+        <div class="admin-info">
+            <div class="admin-profile">
+                <div class="admin-avatar"><i class="fas fa-user-tie"></i></div>
+                <div class="admin-details">
+                    <h4>Admin Bibliotheque</h4>
+                    <p>administrateur@bibliotheque.dz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Gestion des Livres</h1>
+                <p>Catalogue et inspection des domaines de classification</p>
+            </div>
+            <div class="top-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un livre..." id="searchInput" oninput="filterBooks()">
+                </div>
+                <button class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Ajouter un
+                    livre</button>
+                <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-download"></i>
+                    CSV</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Total Livres</h3>
+                        <div class="stat-number" id="stat-total">...</div>
+                    </div>
+                    <div class="stat-icon total"><i class="fas fa-book"></i></div>
+                </div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Avec ISBN</h3>
+                        <div class="stat-number" id="stat-isbn">...</div>
+                    </div>
+                    <div class="stat-icon active"><i class="fas fa-barcode"></i></div>
+                </div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Annee >= 2020</h3>
+                        <div class="stat-number" id="stat-recent">...</div>
+                    </div>
+                    <div class="stat-icon pending"><i class="fas fa-calendar-check"></i></div>
+                </div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-header">
+                    <div class="stat-info">
+                        <h3>Total exemplaires</h3>
+                        <div class="stat-number" id="stat-copies">...</div>
+                    </div>
+                    <div class="stat-icon info"><i class="fas fa-copy"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container" style="margin-bottom:24px">
+            <div class="table-header">
+                <h2>Domaines et sous-domaines</h2>
+                <div class="table-actions">
+                    <button class="btn btn-outline" onclick="loadClassificationSummary()"><i class="fas fa-sitemap"></i>
+                        Rafraichir</button>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Domaine</th>
+                        <th>Libelle</th>
+                        <th>Sous-domaines</th>
+                        <th>Livres lies</th>
+                    </tr>
+                </thead>
+                <tbody id="classification-summary">
+                    <tr><td colspan="4" style="text-align:center;padding:30px;opacity:0.5">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Catalogue des Livres</h2>
+                <div class="table-actions">
+                    <select class="filter-dropdown" id="langFilter" onchange="filterBooks()">
+                        <option value="">Toutes les langues</option>
+                        <option value="fre">Francais</option>
+                        <option value="ara">Arabe</option>
+                        <option value="eng">Anglais</option>
+                    </select>
+                    <button class="btn btn-outline" onclick="loadBooks()"><i class="fas fa-sync-alt"></i>
+                        Rafraichir</button>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Auteur</th>
+                        <th>ISBN</th>
+                        <th>Annee</th>
+                        <th>Cote</th>
+                        <th>Ex.</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="books-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="bookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Ajouter un livre</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label class="form-label">Titre *</label>
+                    <input type="text" class="form-control" id="bookTitle" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Auteur</label>
+                        <input type="text" class="form-control" id="bookAuthor">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Editeur</label>
+                        <input type="text" class="form-control" id="bookEditor">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">ISBN</label>
+                        <input type="text" class="form-control" id="bookISBN">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Annee</label>
+                        <input type="text" class="form-control" id="bookYear">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Langue</label>
+                        <select class="form-control" id="bookLang">
+                            <option value="">-</option>
+                            <option value="fre">Francais</option>
+                            <option value="ara">Arabe</option>
+                            <option value="eng">Anglais</option>
+                            <option value="ger">Allemand</option>
+                            <option value="spa">Espagnol</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cote</label>
+                        <input type="text" class="form-control" id="bookCote" placeholder="Ex: 621.3 HAD">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nombre d'exemplaires</label>
+                        <input type="number" class="form-control" id="bookCopies" min="0" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-control" id="bookNotes" rows="2" style="resize:vertical"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="saveBook()"><i class="fas fa-save"></i> Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailTitle">Details du livre</h3>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        let allBooks = [];
+        let classificationSummary = [];
+        const langMap = { fre: 'Francais', ara: 'Arabe', eng: 'Anglais', ger: 'Allemand', spa: 'Espagnol' };
+
+        async function loadBooks() {
+            const tbody = document.getElementById('books-table');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            try {
+                const [res, statsRes, summaryRes] = await Promise.all([
+                    fetch('/api/admin/books'),
+                    fetch('/api/admin/books/stats'),
+                    fetch('/api/admin/books/classifications/summary')
+                ]);
+
+                allBooks = await res.json();
+                classificationSummary = await summaryRes.json();
+                filterBooks();
+                renderClassificationSummary();
+
+                try {
+                    const stats = await statsRes.json();
+                    document.getElementById('stat-total').textContent = Number(stats.total).toLocaleString();
+                    document.getElementById('stat-isbn').textContent = Number(stats.isbn).toLocaleString();
+                    document.getElementById('stat-recent').textContent = Number(stats.recent).toLocaleString();
+                    document.getElementById('stat-copies').textContent = Number(stats.copies || 0).toLocaleString();
+                } catch (e) {
+                    document.getElementById('stat-total').textContent = allBooks.length.toLocaleString();
+                    document.getElementById('stat-isbn').textContent = allBooks.filter(book => book.DOC_ISBN).length;
+                    document.getElementById('stat-recent').textContent = allBooks.filter(book => parseInt(book.DOC_ANNEE) >= 2020).length;
+                    document.getElementById('stat-copies').textContent = allBooks.reduce((sum, book) => sum + (parseInt(book.DOC_NBR_EXEMPLAIRE) || 0), 0);
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--secondary-color)">Erreur de chargement</td></tr>';
+            }
+        }
+
+        async function loadClassificationSummary() {
+            const tbody = document.getElementById('classification-summary');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>';
+            try {
+                const res = await fetch('/api/admin/books/classifications/summary');
+                classificationSummary = await res.json();
+                renderClassificationSummary();
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--secondary-color)">Erreur de chargement</td></tr>';
+            }
+        }
+
+        function renderClassificationSummary() {
+            const tbody = document.getElementById('classification-summary');
+            if (!classificationSummary.length) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;opacity:0.5">Aucun domaine trouve</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = classificationSummary.map(item => `
+                <tr>
+                    <td><strong>${item.domain_id}</strong></td>
+                    <td>${item.domain_label || '-'}</td>
+                    <td>${item.subdomain_count}</td>
+                    <td>${item.books_count}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterBooks() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const lang = document.getElementById('langFilter').value;
+            let filtered = allBooks;
+
+            if (q) {
+                filtered = filtered.filter(book =>
+                    (book.DOC_TITRE_PROPRE || '').toLowerCase().includes(q) ||
+                    (book.DOC_ISBN || '').includes(q) ||
+                    (book.DOC_AUTEUR || '').toLowerCase().includes(q) ||
+                    (book.DOC_COTE || '').toLowerCase().includes(q)
+                );
+            }
+            if (lang) filtered = filtered.filter(book => (book.DOC_LANGUE || '').toLowerCase() === lang);
+
+            renderBooks(filtered);
+        }
+
+        function renderBooks(books) {
+            const tbody = document.getElementById('books-table');
+            if (!books.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;opacity:0.5">Aucun livre trouve</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = books.map(book => `
+                <tr>
+                    <td><strong>${book.DOC_ID}</strong></td>
+                    <td style="font-weight:500;max-width:280px">${book.DOC_TITRE_PROPRE || '-'}</td>
+                    <td style="max-width:180px;font-size:0.88rem">${book.DOC_AUTEUR || '-'}</td>
+                    <td style="font-family:monospace;font-size:0.85rem">${book.DOC_ISBN || '-'}</td>
+                    <td>${book.DOC_ANNEE || '-'}</td>
+                    <td style="font-size:0.85rem">${book.DOC_COTE || '-'}</td>
+                    <td><span style="font-weight:600;color:var(--primary-color)">${book.DOC_NBR_EXEMPLAIRE ?? '-'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" title="Details" onclick="viewBook(${book.DOC_ID})"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn edit" title="Modifier" onclick='openEditModal(${JSON.stringify(book)})'><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" title="Supprimer" onclick="deleteBook(${book.DOC_ID})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Ajouter un livre';
+            document.getElementById('editId').value = '';
+            ['bookTitle', 'bookAuthor', 'bookEditor', 'bookISBN', 'bookYear', 'bookCote', 'bookNotes'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('bookLang').value = '';
+            document.getElementById('bookCopies').value = '1';
+            document.getElementById('bookModal').classList.add('open');
+        }
+
+        function openEditModal(book) {
+            document.getElementById('modalTitle').textContent = 'Modifier le livre';
+            document.getElementById('editId').value = book.DOC_ID;
+            document.getElementById('bookTitle').value = book.DOC_TITRE_PROPRE || '';
+            document.getElementById('bookAuthor').value = book.DOC_AUTEUR || '';
+            document.getElementById('bookEditor').value = book.DOC_EDITEUR || '';
+            document.getElementById('bookISBN').value = book.DOC_ISBN || '';
+            document.getElementById('bookYear').value = book.DOC_ANNEE || '';
+            document.getElementById('bookLang').value = book.DOC_LANGUE || '';
+            document.getElementById('bookCote').value = book.DOC_COTE || '';
+            document.getElementById('bookCopies').value = book.DOC_NBR_EXEMPLAIRE || 0;
+            document.getElementById('bookNotes').value = book.DOC_NOTES || '';
+            document.getElementById('bookModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('bookModal').classList.remove('open');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('open');
+        }
+
+        async function saveBook() {
+            const id = document.getElementById('editId').value;
+            const body = {
+                title: document.getElementById('bookTitle').value,
+                author: document.getElementById('bookAuthor').value,
+                editor: document.getElementById('bookEditor').value,
+                isbn: document.getElementById('bookISBN').value,
+                year: document.getElementById('bookYear').value,
+                language: document.getElementById('bookLang').value,
+                cote: document.getElementById('bookCote').value,
+                copies: parseInt(document.getElementById('bookCopies').value) || 0,
+                notes: document.getElementById('bookNotes').value
+            };
+
+            if (!body.title) {
+                console.log('Le titre est obligatoire');
+                return;
+            }
+
+            const url = id ? `/api/admin/books/${id}` : '/api/admin/books';
+            await fetch(url, {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            closeModal();
+            loadBooks();
+        }
+
+        async function viewBook(docId) {
+            try {
+                const [bookRes, expRes, classificationRes] = await Promise.all([
+                    fetch(`/api/admin/books/${docId}`).then(res => res.json()),
+                    fetch(`/api/admin/books/${docId}/exemplars`).then(res => res.json()).catch(() => []),
+                    fetch(`/api/admin/books/${docId}/classifications`).then(res => res.json()).catch(() => [])
+                ]);
+
+                const book = bookRes;
+                const classifications = classificationRes;
+
+                document.getElementById('detailTitle').textContent = book.DOC_TITRE_PROPRE || 'Details du livre';
+                document.getElementById('detailContent').innerHTML = `
+                    <div style="margin-bottom:15px">
+                        <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px">
+                            <div style="width:60px;height:60px;background:var(--primary-color);color:white;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem"><i class="fas fa-book"></i></div>
+                            <div>
+                                <h4 style="font-size:1.2rem;margin-bottom:3px">${book.DOC_TITRE_PROPRE || '-'}</h4>
+                                <span style="opacity:0.6;font-size:0.9rem">ID: ${book.DOC_ID}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:15px">
+                        <div class="form-group">
+                            <label class="form-label">Auteur</label>
+                            <div class="form-control" style="background:#f8f9fa">${book.DOC_AUTEUR || '-'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Editeur</label>
+                            <div class="form-control" style="background:#f8f9fa">${book.DOC_EDITEUR || '-'}</div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:15px">
+                        <div class="form-group">
+                            <label class="form-label">ISBN</label>
+                            <div class="form-control" style="background:#f8f9fa;font-family:monospace">${book.DOC_ISBN || '-'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Annee</label>
+                            <div class="form-control" style="background:#f8f9fa">${book.DOC_ANNEE || '-'}</div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:15px">
+                        <div class="form-group">
+                            <label class="form-label">Langue</label>
+                            <div class="form-control" style="background:#f8f9fa">${langMap[(book.DOC_LANGUE || '').toLowerCase()] || book.DOC_LANGUE || '-'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cote</label>
+                            <div class="form-control" style="background:#f8f9fa">${book.DOC_COTE || '-'}</div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom:15px">
+                        <div class="form-group">
+                            <label class="form-label">Nombre d'exemplaires</label>
+                            <div class="form-control" style="background:#f8f9fa;font-weight:600;color:var(--primary-color)">${book.DOC_NBR_EXEMPLAIRE ?? '-'}</div>
+                        </div>
+                    </div>
+                    ${classifications.length ? `
+                        <div class="form-group" style="margin-bottom:15px">
+                            <label class="form-label">Classification</label>
+                            <div class="form-control" style="background:#f8f9fa">
+                                ${classifications.map(item => `
+                                    <div style="padding:6px 0;border-bottom:1px solid #eee">
+                                        <strong>${item.classification_id}</strong> - ${item.classification_label || '-'}
+                                        <div style="font-size:0.85rem;opacity:0.7">Domaine ${item.domain_id || '-'} - ${item.domain_label || '-'}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${book.DOC_NOTES ? `<div class="form-group" style="margin-bottom:15px"><label class="form-label">Notes</label><div class="form-control" style="background:#f8f9fa">${book.DOC_NOTES}</div></div>` : ''}
+                    ${expRes.length ? `
+                        <div style="margin-top:20px">
+                            <h4 style="margin-bottom:10px"><i class="fas fa-list-ul"></i> Exemplaires (${expRes.length})</h4>
+                            <table class="table" style="font-size:0.85rem">
+                                <thead><tr><th>Exemplaire</th><th>Statut</th><th>Lecteur</th><th>Date pret</th></tr></thead>
+                                <tbody>${expRes.map(ex => `
+                                    <tr>
+                                        <td><strong>${ex.EXP_ID}</strong></td>
+                                        <td>${ex.LEC_ID ? '<span style="color:var(--secondary-color)">Emprunte</span>' : '<span style="color:var(--primary-color)">Disponible</span>'}</td>
+                                        <td>${ex.LEC_ID || '-'}</td>
+                                        <td>${ex.EXP_DATE_PRET ? new Date(ex.EXP_DATE_PRET).toLocaleDateString('fr-FR') : '-'}</td>
+                                    </tr>
+                                `).join('')}</tbody>
+                            </table>
+                        </div>
+                    ` : ''}
+                `;
+
+                document.getElementById('detailModal').classList.add('open');
+            } catch (e) {
+                console.log('Erreur de chargement');
+            }
+        }
+
+        async function deleteBook(id) {
+            if (!confirm('Supprimer ce livre ?')) return;
+            await fetch(`/api/admin/books/${id}`, { method: 'DELETE' });
+            loadBooks();
+        }
+
+        function exportCSV() {
+            const headers = ['ID', 'Titre', 'Auteur', 'ISBN', 'Annee', 'Langue', 'Cote', 'Exemplaires'];
+            const rows = allBooks.map(book => [
+                book.DOC_ID,
+                book.DOC_TITRE_PROPRE,
+                book.DOC_AUTEUR,
+                book.DOC_ISBN,
+                book.DOC_ANNEE,
+                book.DOC_LANGUE,
+                book.DOC_COTE,
+                book.DOC_NBR_EXEMPLAIRE
+            ]);
+            const csv = [headers, ...rows]
+                .map(row => row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const anchor = document.createElement('a');
+            anchor.href = URL.createObjectURL(blob);
+            anchor.download = `livres_${new Date().toISOString().split('T')[0]}.csv`;
+            anchor.click();
+        }
+
+        window.addEventListener('click', event => {
+            if (event.target === document.getElementById('bookModal')) closeModal();
+            if (event.target === document.getElementById('detailModal')) closeDetailModal();
+        });
+
+        loadBooks();
+    </script>
+</body>
+
+</html>

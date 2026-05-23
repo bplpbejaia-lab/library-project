@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .app-shell {
+            background: #fafafa;
+            border-radius: 28px;
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            min-height: calc(100vh - 40px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            border-right: 1px solid #f0f0f0;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+
+        .sidebar-brand .icon {
+            width: 36px;
+            height: 36px;
+            background: #2e7d32;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+
+        .nav-section-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #aaa;
+            margin-bottom: 14px;
+            margin-top: 24px;
+        }
+
+        .nav-section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+        .sidebar-nav a:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .sidebar-nav a.active {
+            color: #2e7d32;
+            font-weight: 700;
+            background: rgba(46, 125, 50, 0.06);
+        }
+
+        .sidebar-nav a.active::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 8px;
+            bottom: 8px;
+            width: 4px;
+            background: #2e7d32;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .sidebar-nav .badge {
+            margin-left: auto;
+            background: #2e7d32;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        /* App Download Card */
+        .app-card {
+            margin-top: auto;
+            background: #1a1a1a;
+            border-radius: 18px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .app-card .phone-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .app-card h4 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .app-card p {
+            font-size: 0.72rem;
+            opacity: 0.6;
+            margin-bottom: 14px;
+        }
+
+        .app-card .dl-btn {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 9px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* ========== MAIN ========== */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            padding: 20px 28px;
+            gap: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 380px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f5f5f5;
+            padding: 10px 16px;
+            border-radius: 12px;
+        }
+
+        .search-bar i {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .search-bar input {
+            border: none;
+            background: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: #333;
+            width: 100%;
+        }
+
+        .search-bar .shortcut {
+            background: #e8e8e8;
+            color: #888;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: auto;
+        }
+
+        .topbar-right .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #555;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .topbar-right .icon-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-profile .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .user-profile .user-info h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .user-profile .user-info p {
+            font-size: 0.72rem;
+            color: #aaa;
+        }
+
+        /* Content */
+        .content {
+            padding: 28px;
+            flex: 1;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .content-header h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .content-header p {
+            font-size: 0.88rem;
+            color: #999;
+        }
+
+        .content-header .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-green {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-green:hover {
+            background: #256b29;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-dark {
+            background: white;
+            color: #333;
+            border: 1.5px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-outline-dark:hover {
+            border-color: #2e7d32;
+            color: #2e7d32;
+        }
+
+        /* ========== STAT CARDS ========== */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #2e7d32, #388e3c);
+            color: white;
+        }
+
+        .stat-card.white {
+            background: white;
+            border: 1px solid #eee;
+            color: #1a1a1a;
+        }
+
+        .stat-card .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .card-top .label {
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .stat-card.green .card-top .label {
+            opacity: 0.85;
+        }
+
+        .stat-card .card-top .arrow {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .stat-card.green .card-top .arrow {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .stat-card.white .card-top .arrow {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .stat-card .number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .stat-card .sub {
+            font-size: 0.72rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-card.green .sub {
+            opacity: 0.7;
+        }
+
+        .stat-card.white .sub {
+            color: #2e7d32;
+        }
+
+        .stat-card.white .sub i {
+            font-size: 0.65rem;
+        }
+
+        /* ========== GRID SECTIONS ========== */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .grid-2-1 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #eee;
+            padding: 22px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title .btn-sm {
+            background: white;
+            border: 1.5px solid #ddd;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ========== ANALYTICS CHART ========== */
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 140px;
+            margin-top: 10px;
+        }
+
+        .chart-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-bar-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+            flex: 1;
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar {
+            width: 18px;
+            border-radius: 6px;
+            background: #2e7d32;
+            min-height: 8px;
+            transition: all 0.5s;
+        }
+
+        .chart-bar.light {
+            background: #c8e6c9;
+        }
+
+        .chart-label {
+            font-size: 0.72rem;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        /* ========== REMINDERS ========== */
+        .reminder-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .reminder-icon {
+            font-size: 2.5rem;
+            margin-bottom: 14px;
+        }
+
+        .reminder-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .reminder-card .time {
+            font-size: 0.82rem;
+            color: #999;
+            margin-bottom: 18px;
+        }
+
+        .reminder-card .meet-btn {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+        }
+
+        /* ========== PROJECT/TASK LIST ========== */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item .task-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .task-item .task-info {
+            flex: 1;
+        }
+
+        .task-item .task-info h5 {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .task-item .task-info p {
+            font-size: 0.68rem;
+            color: #aaa;
+        }
+
+        /* ========== TEAM / COLLAB ========== */
+        .team-list {
+            list-style: none;
+        }
+
+        .team-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .team-item:last-child {
+            border-bottom: none;
+        }
+
+        .team-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .team-item .team-info {
+            flex: 1;
+        }
+
+        .team-item .team-info h5 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .team-item .team-info p {
+            font-size: 0.72rem;
+            color: #aaa;
+        }
+
+        .team-item .team-info strong {
+            color: #1a1a1a;
+        }
+
+        .team-status {
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .team-status.completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .team-status.progress {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .team-status.pending {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        /* ========== PROGRESS DONUT ========== */
+        .progress-section {
+            text-align: center;
+        }
+
+        .donut-wrap {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 18px;
+        }
+
+        .donut-wrap svg {
+            width: 150px;
+            height: 150px;
+            transform: rotate(-90deg);
+        }
+
+        .donut-wrap .donut-bg {
+            fill: none;
+            stroke: #f0f0f0;
+            stroke-width: 14;
+        }
+
+        .donut-wrap .donut-fill {
+            fill: none;
+            stroke: #2e7d32;
+            stroke-width: 14;
+            stroke-linecap: round;
+            stroke-dasharray: 408;
+            stroke-dashoffset: 408;
+            transition: stroke-dashoffset 1.2s ease;
+        }
+
+        .donut-wrap .donut-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-wrap .donut-label .pct {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+
+        .donut-wrap .donut-label .pct-sub {
+            font-size: 0.72rem;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            color: #777;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.green {
+            background: #2e7d32;
+        }
+
+        .legend-dot.orange {
+            background: #ef6c00;
+        }
+
+        .legend-dot.red {
+            background: #c62828;
+        }
+
+        /* ========== TIME TRACKER ========== */
+        .tracker-card {
+            background: linear-gradient(135deg, #1a3a1a, #2e5a2e);
+            border-radius: 18px;
+            padding: 22px;
+            color: white;
+            text-align: center;
+            border: none;
+        }
+
+        .tracker-card h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .tracker-time {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tracker-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tracker-btns button {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tracker-btns .btn-pause {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .tracker-btns .btn-stop {
+            background: #c62828;
+            color: white;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1100px) {
+            .stat-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2-1 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .stat-cards {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .app-shell {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-shell">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="icon"><i class="fas fa-book-reader"></i></div>
+                <h1>Biblio</h1>
+            </div>
+
+            <div class="nav-section-title">Menu</div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard2.html" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="/lecteurs.html"><i class="fas fa-users"></i> Lecteurs <span class="badge"
+                        id="nav-badge-lec">...</span></a>
+                <a href="/books.html"><i class="fas fa-book"></i> Livres</a>
+                <a href="/orders.html"><i class="fas fa-chart-line"></i> Commandes</a>
+                <a href="/"><i class="fas fa-user-friends"></i> Dashboard V1</a>
+            </nav>
+
+            <div class="nav-section-title">Général</div>
+            <nav class="sidebar-nav">
+                <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+                <a href="#"><i class="fas fa-question-circle"></i> Aide</a>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+
+            <div class="app-card">
+                <div class="phone-icon">📱</div>
+                <h4>Application Mobile</h4>
+                <p>Accédez facilement en mobilité.</p>
+                <button class="dl-btn">Télécharger</button>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-area">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher...">
+                    <span class="shortcut">⌘ F</span>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="icon-btn"><i class="far fa-envelope"></i></button>
+                    <button class="icon-btn"><i class="far fa-bell"></i></button>
+                    <div class="user-profile">
+                        <div class="avatar">AD</div>
+                        <div class="user-info">
+                            <h4>Admin Biblio</h4>
+                            <p>admin@biblio.dz</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Header -->
+                <div class="content-header">
+                    <div>
+                        <h2>Dashboard</h2>
+                        <p>Planifier, suivre et gérer votre bibliothèque facilement.</p>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-green"><i class="fas fa-plus"></i> Nouvelle Commande</button>
+                        <button class="btn-outline-dark">Importer</button>
+                    </div>
+                </div>
+
+                <!-- Stat Cards -->
+                <div class="stat-cards">
+                    <div class="stat-card green">
+                        <div class="card-top">
+                            <span class="label">Total Livres</span>
+                            <span class="arrow"><i class="fas fa-arrow-up-right-from-square"></i></span>
+                        </div>
+                        <div class="number" id="s-books">...</div>
+                        <div class="sub"><i class="fas fa-arrow-up"></i> Catalogue complet</div>
+                    </div>
+                    <div class="stat-card white">
+                        <div class="card-top">
+                            <span class="label">Prêts Terminés</span>
+                            <span class="arrow"><i class="fas fa-arrow-up-right-from-square"></i></span>
+                        </div>
+                        <div class="number" id="s-done">...</div>
+                        <div class="sub"><i class="fas fa-arrow-up"></i> Retournés</div>
+                    </div>
+                    <div class="stat-card white">
+                        <div class="card-top">
+                            <span class="label">Prêts en cours</span>
+                            <span class="arrow"><i class="fas fa-arrow-up-right-from-square"></i></span>
+                        </div>
+                        <div class="number" id="s-active">...</div>
+                        <div class="sub"><i class="fas fa-arrow-up"></i> En cours</div>
+                    </div>
+                    <div class="stat-card white">
+                        <div class="card-top">
+                            <span class="label">En attente</span>
+                            <span class="arrow"><i class="fas fa-arrow-up-right-from-square"></i></span>
+                        </div>
+                        <div class="number" id="s-pending">...</div>
+                        <div class="sub" style="color:#999">À traiter</div>
+                    </div>
+                </div>
+
+                <!-- Row: Analytics + Reminders + Tasks -->
+                <div class="grid-3">
+                    <!-- Analytics -->
+                    <div class="card">
+                        <div class="card-title">Statistiques Prêts</div>
+                        <div class="chart-bars" id="chartBars">
+                            <!-- JS filled -->
+                        </div>
+                    </div>
+
+                    <!-- Reminders -->
+                    <div class="card reminder-card">
+                        <div class="reminder-icon">📋</div>
+                        <h3>Réunion avec la Direction</h3>
+                        <div class="time">Heure : 14h00 - 16h00</div>
+                        <button class="meet-btn"><i class="fas fa-video"></i> Démarrer Réunion</button>
+                    </div>
+
+                    <!-- Tasks -->
+                    <div class="card">
+                        <div class="card-title">
+                            Tâches
+                            <button class="btn-sm"><i class="fas fa-plus"></i> Nouvelle</button>
+                        </div>
+                        <ul class="task-list" id="taskList">
+                            <!-- JS filled -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Row: Team Collab + Progress + Timer -->
+                <div class="grid-3">
+                    <!-- Team / Lecteurs -->
+                    <div class="card">
+                        <div class="card-title">
+                            Derniers Lecteurs
+                            <button class="btn-sm" onclick="window.location='/lecteurs.html'"><i
+                                    class="fas fa-plus"></i> Voir tout</button>
+                        </div>
+                        <ul class="team-list" id="teamList">
+                            <!-- JS filled -->
+                        </ul>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="card progress-section">
+                        <div class="card-title">Progression Commandes</div>
+                        <div class="donut-wrap">
+                            <svg viewBox="0 0 150 150">
+                                <circle class="donut-bg" cx="75" cy="75" r="65"></circle>
+                                <circle class="donut-fill" id="donutFill" cx="75" cy="75" r="65"></circle>
+                            </svg>
+                            <div class="donut-label">
+                                <div class="pct" id="donutPct">0%</div>
+                                <div class="pct-sub">Terminées</div>
+                            </div>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-dot green"></div> Approuvées
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot orange"></div> En cours
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot red"></div> En attente
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time Tracker -->
+                    <div class="tracker-card">
+                        <h4>Temps de Session</h4>
+                        <div class="tracker-time" id="timerDisplay">00:00:00</div>
+                        <div class="tracker-btns">
+                            <button class="btn-pause" id="timerPause"><i class="fas fa-pause"></i></button>
+                            <button class="btn-stop" id="timerStop"><i class="fas fa-stop"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const avatarColors = ['#2e7d32', '#1565c0', '#ef6c00', '#c62828', '#6a1b9a', '#00838f', '#ad1457'];
+        const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+        async function loadDashboard() {
+            try {
+                const [booksResp, lecteursResp, ordersResp] = await Promise.all([
+                    fetch('/api/admin/books').then(r => r.json()),
+                    fetch('/api/admin/lecteurs').then(r => r.json()),
+                    fetch('/api/admin/orders').then(r => r.json()),
+                ]);
+
+                const books = Array.isArray(booksResp) ? booksResp : booksResp.rows || [];
+                const lecteurs = Array.isArray(lecteursResp) ? lecteursResp : lecteursResp.rows || [];
+                const orders = Array.isArray(ordersResp) ? ordersResp : ordersResp.rows || [];
+
+                const pending = orders.filter(o => o.status === 'PENDING').length;
+                const approved = orders.filter(o => o.status === 'APPROVED').length;
+                const rejected = orders.filter(o => o.status === 'REJECTED').length;
+                const total = orders.length || 1;
+
+                document.getElementById('s-books').textContent = books.length;
+                document.getElementById('s-done').textContent = rejected;
+                document.getElementById('s-active').textContent = approved;
+                document.getElementById('s-pending').textContent = pending;
+                document.getElementById('nav-badge-lec').textContent = lecteurs.length;
+
+                // Chart bars
+                const barData = [45, 70, 95, 55, 80, 60, 40];
+                document.getElementById('chartBars').innerHTML = days.map((d, i) => `
+                <div class="chart-day">
+                    <div class="chart-bar-group">
+                        <div class="chart-bar" style="height:${barData[i]}%"></div>
+                        <div class="chart-bar light" style="height:${barData[i] * 0.5}%"></div>
+                    </div>
+                    <span class="chart-label">${d}</span>
+                </div>
+            `).join('');
+
+                // Tasks
+                const tasks = [
+                    { name: 'Cataloguer nouveaux livres', date: 'Échéance: ' + new Date().toLocaleDateString('fr-FR') },
+                    { name: 'Mise à jour inventaire', date: 'En cours' },
+                    { name: 'Validation inscriptions', date: 'Échéance: demain' },
+                    { name: 'Rapport mensuel', date: 'Échéance: Fin du mois' },
+                    { name: 'Vérification exemplaires', date: 'Planifié' },
+                ];
+                document.getElementById('taskList').innerHTML = tasks.map(t => `
+                <li class="task-item">
+                    <div class="task-icon"><i class="fas fa-check"></i></div>
+                    <div class="task-info"><h5>${t.name}</h5><p>${t.date}</p></div>
+                </li>
+            `).join('');
+
+                // Team = Lecteurs
+                const statuses = ['completed', 'progress', 'pending'];
+                const statusLabels = ['Actif', 'En cours', 'En attente'];
+                document.getElementById('teamList').innerHTML = lecteurs.slice(0, 4).map((r, i) => `
+                <li class="team-item">
+                    <div class="team-avatar" style="background:${avatarColors[i % avatarColors.length]}">${(r.LEC_PRENOM || '?')[0]}${(r.LEC_NOM || '?')[0]}</div>
+                    <div class="team-info">
+                        <h5>${r.LEC_NOM || '?'} ${r.LEC_PRENOM || ''}</h5>
+                        <p>ID: <strong>${r.LEC_ID}</strong></p>
+                    </div>
+                    <span class="team-status ${statuses[i % 3]}">${statusLabels[i % 3]}</span>
+                </li>
+            `).join('');
+
+                // Donut
+                const pct = total > 0 ? Math.round((approved / total) * 100) : 0;
+                const circumference = 2 * Math.PI * 65; // ~408
+                const offset = circumference - (pct / 100) * circumference;
+                document.getElementById('donutPct').textContent = pct + '%';
+                setTimeout(() => {
+                    document.getElementById('donutFill').style.strokeDashoffset = offset;
+                }, 300);
+
+            } catch (e) { console.error(e); }
+        }
+
+        // Timer
+        let seconds = 0;
+        let timerRunning = true;
+        let timerInterval = setInterval(() => {
+            if (!timerRunning) return;
+            seconds++;
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+        }, 1000);
+
+        document.getElementById('timerPause').onclick = () => { timerRunning = !timerRunning; };
+        document.getElementById('timerStop').onclick = () => { timerRunning = false; seconds = 0; document.getElementById('timerDisplay').textContent = '00:00:00'; };
+
+        loadDashboard();
+    </script>
+</body>
+
+</html>
