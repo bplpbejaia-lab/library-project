@@ -864,7 +864,7 @@ export async function exportEngagementPdf(fastify, opts) {
                 return reply.status(400).send({ error: 'Données utilisateur manquantes' });
             }
 
-            const inputPdf = path.join(projectRoot, '..', 'gg.pdf');
+            const inputPdf = path.join(projectRoot, 'gg.pdf');
             const tempDir = path.join(projectRoot, 'temp');
             if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
@@ -944,7 +944,7 @@ export async function exportEngagementPdfAr(fastify, opts) {
                 console.error('Failed to sync user data with DB during PDF generation:', dbErr);
             }
 
-            const inputPdf = path.join(projectRoot, '..', 'gg.pdf');
+            const inputPdf = path.join(projectRoot, 'gg.pdf');
             const tempDir = path.join(projectRoot, 'temp');
             if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
 
