@@ -902,12 +902,12 @@
                 </div>
                 <p class="font-bold text-slate-700 text-sm">Engagement (FR)</p>
             </div>
-            <div class="quick-action" onclick="showRfidCard()">
+            <div class="quick-action" onclick="openUploadEngagement()">
                 <div
-                    class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <span class="material-symbols-outlined">id_card</span>
+                    class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined">upload_file</span>
                 </div>
-                <p class="font-bold text-slate-700 text-sm">بطاقة القارئ (RFID)</p>
+                <p class="font-bold text-slate-700 text-sm">رفع التعهد الموقّع</p>
             </div>
             <div class="quick-action" onclick="openChangePassword()">
                 <div
@@ -929,6 +929,40 @@
                     <span class="material-symbols-outlined">logout</span>
                 </div>
                 <p class="font-bold text-slate-700 text-sm">خروج</p>
+            </div>
+        </div>
+
+        <!-- Upload Signed Engagement Modal -->
+        <div id="uploadEngagementModal" class="login-overlay" onclick="if(event.target===this)closeUploadEngagement()">
+            <div class="login-modal-popup" style="max-width:480px;width:100%;">
+                <h2 class="text-xl font-bold mb-2 text-center">رفع الفيشة الموقّعة</h2>
+                <p class="text-sm text-slate-500 text-center mb-6">قم برفع نسخة مسح ضوئي (PDF أو صورة) من فيشة التعهد بعد توقيعها</p>
+                <div id="engUploadDropzone" onclick="document.getElementById('engFileInput').click()" style="border:2px dashed #d1d5db;border-radius:16px;padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:#f8fafc;" onmouseover="this.style.borderColor='#2E7D32'" onmouseout="this.style.borderColor='#d1d5db'">
+                    <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">cloud_upload</span>
+                    <p class="font-bold text-slate-600">انقر لاختيار ملف</p>
+                    <p class="text-xs text-slate-400 mt-1">PDF، JPG، PNG — حجم أقصى 10MB</p>
+                    <input type="file" id="engFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleEngFileSelect(this)">
+                </div>
+                <div id="engFilePreview" style="display:none;margin-top:16px;padding:12px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-green-600">description</span>
+                        <div style="flex:1;">
+                            <p id="engFileName" class="font-bold text-sm text-slate-700"></p>
+                            <p id="engFileSize" class="text-xs text-slate-400"></p>
+                        </div>
+                        <button onclick="clearEngFile()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;">✕</button>
+                    </div>
+                </div>
+                <div id="engUploadProgress" style="display:none;margin-top:12px;">
+                    <div style="background:#e2e8f0;border-radius:999px;height:6px;overflow:hidden;">
+                        <div id="engProgressBar" style="background:#2E7D32;height:100%;width:0%;transition:width 0.3s;"></div>
+                    </div>
+                    <p class="text-xs text-center text-slate-500 mt-2">جاري الرفع...</p>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeUploadEngagement()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">إلغاء</button>
+                    <button id="engUploadBtn" onclick="submitEngagementUpload()" class="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-green-700 transition-colors">رفع الملف</button>
+                </div>
             </div>
         </div>
 
@@ -1032,7 +1066,7 @@
                     </div>
                 </div>
 
-                <!-- Permanent RFID Card Display -->
+                <!-- Permanent RFID Card Display - RECTO ONLY -->
                 <div
                     class="profile-card p-6 flex flex-col items-center bg-white border border-slate-100 shadow-xl overflow-hidden">
                     <div class="flex justify-between items-center w-full mb-6">
@@ -1046,28 +1080,12 @@
                     </div>
 
                     <div
-                        class="flex flex-col gap-12 w-full items-center bg-slate-50/50 p-6 rounded-2xl border border-dashed border-slate-200 min-h-[500px] justify-center">
-                        <!-- Front Side -->
-                        <div class="flex flex-col items-center gap-4 w-full">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">الوجه
-                                (Recto)</span>
-                            <div id="directRfidRecto" class="scale-[0.65] sm:scale-[0.8] origin-center"
-                                style="min-width: 85.6mm; min-height: 53.98mm; display: block !important;">
-                                <!-- Populated by JS -->
-                            </div>
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="w-full h-px bg-slate-200"></div>
-
-                        <!-- Back Side -->
-                        <div class="flex flex-col items-center gap-4 w-full">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">الظهر
-                                (Verso)</span>
-                            <div id="directRfidVerso" class="scale-[0.65] sm:scale-[0.8] origin-center"
-                                style="min-width: 85.6mm; min-height: 53.98mm; display: block !important;">
-                                <!-- Populated by JS -->
-                            </div>
+                        class="flex flex-col w-full items-center bg-slate-50/50 p-6 rounded-2xl border border-dashed border-slate-200 justify-center">
+                        <!-- Front Side (Recto) Only -->
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">الوجه (Recto)</span>
+                        <div id="directRfidRecto" class="scale-[0.65] sm:scale-[0.8] origin-center"
+                            style="min-width: 85.6mm; min-height: 53.98mm; display: block !important;">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
@@ -1550,6 +1568,7 @@
             if (user.cniFront) document.getElementById('viewCniFront').style.display = 'inline-block';
             if (user.cniBack) document.getElementById('viewCniBack').style.display = 'inline-block';
             if (user.photo) document.getElementById('viewUserPhoto').style.display = 'inline-block';
+            // NOTE: Verso card removed - profile shows recto only
         }
 
         function viewDocument(type) {
@@ -1624,6 +1643,82 @@
         }
 
         function handleLogout() { localStorage.removeItem('libraryUser'); window.location.href = '/'; }
+
+        // ── Upload Signed Engagement ──
+        let engSelectedFile = null;
+
+        function openUploadEngagement() {
+            engSelectedFile = null;
+            document.getElementById('engFileInput').value = '';
+            document.getElementById('engFilePreview').style.display = 'none';
+            document.getElementById('engUploadProgress').style.display = 'none';
+            document.getElementById('engProgressBar').style.width = '0%';
+            document.getElementById('uploadEngagementModal').classList.add('active');
+        }
+
+        function closeUploadEngagement() {
+            document.getElementById('uploadEngagementModal').classList.remove('active');
+        }
+
+        function handleEngFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { alert('حجم الملف يتجاوز 10MB'); return; }
+            engSelectedFile = file;
+            document.getElementById('engFileName').textContent = file.name;
+            document.getElementById('engFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+            document.getElementById('engFilePreview').style.display = 'block';
+        }
+
+        function clearEngFile() {
+            engSelectedFile = null;
+            document.getElementById('engFileInput').value = '';
+            document.getElementById('engFilePreview').style.display = 'none';
+        }
+
+        async function submitEngagementUpload() {
+            if (!engSelectedFile) { alert('الرجاء اختيار ملف أولاً'); return; }
+            const user = JSON.parse(localStorage.getItem('libraryUser'));
+            if (!user) return;
+
+            const btn = document.getElementById('engUploadBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الرفع...';
+            document.getElementById('engUploadProgress').style.display = 'block';
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        document.getElementById('engProgressBar').style.width = '50%';
+                        const res = await fetch('/api/auth/upload-signed-engagement', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                lecteurId: user.lecteurId || user.id,
+                                fileData: e.target.result,
+                                fileName: engSelectedFile.name
+                            })
+                        });
+                        document.getElementById('engProgressBar').style.width = '100%';
+                        if (res.ok) {
+                            const data = await res.json();
+                            user.docEngagement = data.path;
+                            localStorage.setItem('libraryUser', JSON.stringify(user));
+                            setTimeout(() => {
+                                closeUploadEngagement();
+                                alert('تم رفع الفيشة الموقّعة بنجاح!');
+                            }, 400);
+                        } else {
+                            const d = await res.json();
+                            alert('خطأ: ' + (d.error || 'فشل الرفع'));
+                        }
+                    } catch (err) { alert('خطأ في الاتصال بالخادم'); }
+                    finally { btn.disabled = false; btn.textContent = 'رفع الملف'; }
+                };
+                reader.readAsDataURL(engSelectedFile);
+            } catch (err) { alert('خطأ'); btn.disabled = false; btn.textContent = 'رفع الملف'; }
+        }
         function openChangePassword() { document.getElementById('changePassModal').classList.add('active'); }
         function closeChangePassword() { document.getElementById('changePassModal').classList.remove('active'); }
 

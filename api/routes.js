@@ -978,7 +978,13 @@ export async function exportEngagementPdfAr(fastify, opts) {
                         const photoRelPath = userData.photo.replace(/^\//, '');
                         let photoAbsPath = path.join(projectRoot, photoRelPath);
                         if (!fs.existsSync(photoAbsPath)) {
-                            // Fallback to parent directory (e.g., D:\library\images\...)
+                            // Sibling library-admin (VPS) or Library_admin (dev)
+                            photoAbsPath = path.join(projectRoot, '..', 'library-admin', photoRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
+                            photoAbsPath = path.join(projectRoot, '..', 'Library_admin', photoRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
                             photoAbsPath = path.join(projectRoot, '..', photoRelPath);
                         }
                         if (!fs.existsSync(photoAbsPath)) {
@@ -1133,7 +1139,13 @@ export async function exportEngagementPdfFr(fastify, opts) {
                         const photoRelPath = userData.photo.replace(/^\//, '');
                         let photoAbsPath = path.join(projectRoot, photoRelPath);
                         if (!fs.existsSync(photoAbsPath)) {
-                            // Fallback to parent directory (e.g., D:\library\images\...)
+                            // Sibling library-admin (VPS) or Library_admin (dev)
+                            photoAbsPath = path.join(projectRoot, '..', 'library-admin', photoRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
+                            photoAbsPath = path.join(projectRoot, '..', 'Library_admin', photoRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
                             photoAbsPath = path.join(projectRoot, '..', photoRelPath);
                         }
                         if (!fs.existsSync(photoAbsPath)) {
@@ -1764,6 +1776,52 @@ export async function getDomainFilters(fastify, opts) {
     });
 }
 
+export async function uploadSignedEngagement(fastify, opts) {
+    fastify.post('/api/auth/upload-signed-engagement', async (request, reply) => {
+        try {
+            const { lecteurId, fileData, fileName } = request.body;
+            if (!lecteurId || !fileData) {
+                return reply.status(400).send({ error: 'Données manquantes' });
+            }
+
+            const uploadDir = path.join(projectRoot, 'uploads', 'engagements');
+            if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+            const ext = (fileName || 'engagement.pdf').split('.').pop().replace(/[^a-zA-Z0-9]/g, '') || 'pdf';
+            const safeId = String(lecteurId).replace(/[^a-zA-Z0-9_\-]/g, '_');
+            const filename = `engagement_signe_${safeId}_${Date.now()}.${ext}`;
+            const fullPath = path.join(uploadDir, filename);
+
+            const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
+            fs.writeFileSync(fullPath, Buffer.from(base64Data, 'base64'));
+
+            const relPath = `/uploads/engagements/${filename}`;
+            await pool.query('UPDATE "LECTEUR" SET "LEC_DOC_ENGAGEMENT" = $1 WHERE "LEC_ID" = $2', [relPath, lecteurId]);
+
+            console.log(`Signed engagement saved for ${lecteurId}: ${relPath}`);
+            return reply.send({ success: true, path: relPath });
+        } catch (error) {
+            fastify.log.error(error);
+            reply.status(500).send({ error: error.message });
+        }
+    });
+
+    // Serve signed engagement files
+    fastify.get('/uploads/engagements/:filename', async (request, reply) => {
+        try {
+            const { filename } = request.params;
+            const safeFilename = filename.replace(/[^a-zA-Z0-9_\-.]/g, '');
+            const filePath = path.join(projectRoot, 'uploads', 'engagements', safeFilename);
+            if (!fs.existsSync(filePath)) return reply.status(404).send({ error: 'Fichier non trouvé' });
+            const buf = fs.readFileSync(filePath);
+            reply.type('application/pdf');
+            return reply.send(buf);
+        } catch (error) {
+            reply.status(500).send({ error: error.message });
+        }
+    });
+}
+
 // Export all routes
 export default async function routes(fastify) {
     await login(fastify);
@@ -1788,4 +1846,5 @@ export default async function routes(fastify) {
     await changePassword(fastify);
     await changeEmail(fastify);
     await createAcquisitionRequest(fastify);
+    await uploadSignedEngagement(fastify);
 }
