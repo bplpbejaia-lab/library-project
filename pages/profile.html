@@ -286,10 +286,10 @@
         .recto-bg-books {
             position: absolute;
             top: 65%;
-            left: 50%;
+            left: 43%;
             transform: translate(-50%, -50%);
-            width: 140px;
-            opacity: 0.35;
+            width: 240px;
+            opacity: 0.15;
             z-index: 1;
             pointer-events: none;
         }
@@ -308,26 +308,30 @@
             font-size: 6pt;
             font-weight: 700;
             color: #333;
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Noto Kufi Arabic', sans-serif;
             text-align: center;
         }
 
         .recto-header p:first-child {
-            font-size: 9.5pt;
-            font-weight: 900;
+            font-size: 9.2pt;
+            font-weight: 700;
+            color: #000;
             margin-bottom: 2px;
+            font-family: 'Noto Kufi Arabic', sans-serif;
         }
 
         .recto-header p:not(:first-child) {
             font-size: 8.2pt;
-            font-weight: 400;
+            font-weight: 700;
+            color: #444;
             margin-bottom: 1px;
+            font-family: 'Noto Kufi Arabic', sans-serif;
         }
 
         .recto-photo-box {
             position: absolute;
-            top: 55px;
-            right: 12px;
+            top: 52px;
+            right: 15px;
             width: 65px;
             height: 75px;
             border: 1px solid #999;
@@ -344,8 +348,9 @@
 
         .recto-qr-box {
             position: absolute;
-            bottom: 5px;
-            right: 12px;
+            bottom: 4px;
+            /* Tout en bas */
+            right: 15px;
             width: 65px;
             text-align: center;
             display: flex;
@@ -355,8 +360,8 @@
         }
 
         .recto-qr-box img {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border: 1px solid #ddd;
             padding: 1px;
             background: white;
@@ -374,7 +379,7 @@
             position: absolute;
             top: 85px;
             left: 0;
-            right: 0;
+            right: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -413,7 +418,7 @@
             position: absolute;
             top: 132px;
             left: 0;
-            right: 0;
+            right: 35px;
             text-align: center;
             z-index: 5;
             font-family: 'Noto Kufi Arabic', sans-serif;
@@ -431,6 +436,20 @@
             font-weight: 800;
             color: #333;
             text-transform: uppercase;
+        }
+
+        .recto-date-footer {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            right: 35px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 400;
+            color: #666;
+            direction: rtl;
+            z-index: 5;
+            font-family: 'Noto Kufi Arabic', sans-serif;
         }
 
         /* ── VERSO ── */
@@ -1601,13 +1620,19 @@
                     LEC_PRENOM_AR: user.prenom || '',
                     LEC_PHOTO: user.photo,
                     LEC_ID: user.lecteurId || user.libraryNumber || 'BJA-READER',
-                    LEC_RFID: user.rfid || user.LEC_RFID
+                    LEC_RFID: user.rfid || user.LEC_RFID,
+                    LEC_STATUT: user.statut !== undefined ? user.statut : (user.LEC_STATUT !== undefined ? user.LEC_STATUT : 0)
                 };
+                const status = parseInt(r.LEC_STATUT || 0);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.LEC_ID}`;
                 const target = document.getElementById(targetId);
                 if (!target) return;
 
                 const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : `https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff`;
+                const displayId = (status === 1) ? (r.LEC_RFID || r.LEC_ID) : r.LEC_ID;
+
+                const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
+                const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
                 target.innerHTML = `
                     <div class="rfid-card-new front" style="display:block !important;">
@@ -1621,7 +1646,11 @@
                         </div>
 
                         <div class="recto-title-bar">
-                            <div class="title-green-box">بطاقة القارئ</div>
+                            <div class="title-green-box">
+                                <i class="fas fa-book-open" style="font-size: 14px; margin-left: 8px; opacity: 0.8;"></i>
+                                بطاقة القارئ
+                                <i class="fas fa-book-open" style="font-size: 14px; margin-right: 8px; opacity: 0.8;"></i>
+                            </div>
                         </div>
 
                         <div class="recto-photo-box">
@@ -1635,8 +1664,9 @@
 
                         <div class="recto-qr-box">
                             <img src="${qrUrl}">
-                            <div class="recto-id-number">${r.LEC_RFID || r.LEC_ID}</div>
+                            <div class="recto-id-number">${displayId}</div>
                         </div>
+                        <div class="recto-date-footer">تاريخ التسجيل: ${regDateStr}</div>
                     </div>
                 `;
             } catch (err) { console.error("Render Error:", err); }

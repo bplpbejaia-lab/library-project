@@ -69,7 +69,7 @@ const i18n = {
             "hero-btn-catalog": "تصفح فهرس المكتبة",
 
             // Stats
-            "stat-titles": "عدد العناوين",
+            "stat-titles": "عدد الكتب",
             "stat-copies": "عدد النسخ",
             "stat-readers": "عدد القراء",
 
@@ -1816,8 +1816,7 @@ const i18n = {
             "main section button[onclick*='pages/g.html']": "hero-btn-card",
             "main section button[onclick*='books-catalog.html']": "hero-btn-catalog",
             "main h2": "events-section-title",
-            "main p.text-slate-600, main p.text-slate-500": "events-section-subtitle",
-            ".animate-count[data-target]:nth-of-type(1)": "stat-titles",
+            ".events-carousel-section p": "events-section-subtitle",
 
             // Auth modal
             ".login-modal h2": "login-title",
