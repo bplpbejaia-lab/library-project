@@ -956,10 +956,12 @@ export async function exportEngagementPdfAr(fastify, opts) {
 
             const scriptPath = path.join(projectRoot, 'modify_pdf_ar.py');
 
-            // Fallback to gorgeous initials avatar if no photo is present in DB or payload
+            // If photo is a default avatar or empty, leave it empty so the PDF space remains blank
+            if (userData.photo && userData.photo.includes('ui-avatars.com')) {
+                userData.photo = '';
+            }
             if (!userData.photo || userData.photo.trim() === '') {
-                const nameParam = `${userData.prenomLatin || ''} ${userData.nomLatin || ''}`.trim() || 'Reader';
-                userData.photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameParam)}&background=2E7D32&color=fff&size=150`;
+                userData.photo = '';
             }
 
             // Resolve photo path to base64 so Python script can insert the real reader photo
@@ -1117,10 +1119,12 @@ export async function exportEngagementPdfFr(fastify, opts) {
 
             const scriptPath = path.join(projectRoot, 'modify_pdf_fr.py');
 
-            // Fallback to gorgeous initials avatar if no photo is present in DB or payload
+            // If photo is a default avatar or empty, leave it empty so the PDF space remains blank
+            if (userData.photo && userData.photo.includes('ui-avatars.com')) {
+                userData.photo = '';
+            }
             if (!userData.photo || userData.photo.trim() === '') {
-                const nameParam = `${userData.prenomLatin || ''} ${userData.nomLatin || ''}`.trim() || 'Reader';
-                userData.photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameParam)}&background=2E7D32&color=fff&size=150`;
+                userData.photo = '';
             }
 
             // Resolve photo path to base64 so Python script can insert the real reader photo

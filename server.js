@@ -497,7 +497,7 @@ body { font-family: 'Lexend', 'Noto Sans Arabic', sans-serif; overflow-x: hidden
 </div>
 <div>
   <p class="text-slate-500 dark:text-slate-400 font-medium mb-1" data-i18n="stat-titles">عدد الكتب</p>
-  <h3 class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><span class="animate-count" data-target="\${total_titles}">0</span></h3>
+  <h3 class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><span class="animate-count" data-target="${total_titles}">0</span></h3>
 <p class="text-xs text-primary mt-2 font-bold">+5% نمو سنوي</p>
 </div>
 </div>
@@ -507,7 +507,7 @@ body { font-family: 'Lexend', 'Noto Sans Arabic', sans-serif; overflow-x: hidden
 </div>
 <div>
   <p class="text-slate-500 dark:text-slate-400 font-medium mb-1" data-i18n="stat-copies">عدد النسخ</p>
-  <h3 class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><span class="animate-count" data-target="\${total_copies}">0</span></h3>
+  <h3 class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><span class="animate-count" data-target="${total_copies}">0</span></h3>
 <p class="text-xs text-primary mt-2 font-bold">+2% مخزون جديد</p>
 </div>
 </div>
@@ -517,7 +517,7 @@ body { font-family: 'Lexend', 'Noto Sans Arabic', sans-serif; overflow-x: hidden
 </div>
 <div>
   <p class="text-slate-500 dark:text-slate-400 font-medium mb-1" data-i18n="stat-readers">عدد القراء</p>
-  <h3 class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><span class="animate-count" data-target="\${total_elements}">0</span></h3>
+  <h3 class="text-3xl font-bold text-slate-900 dark:text-white leading-none"><span class="animate-count" data-target="${total_elements}">0</span></h3>
 <p class="text-xs text-primary mt-2 font-bold">+12% إضافات جديدة</p>
 </div>
 </div>

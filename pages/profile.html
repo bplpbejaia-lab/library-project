@@ -926,7 +926,7 @@
                     class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3">
                     <span class="material-symbols-outlined">upload_file</span>
                 </div>
-                <p class="font-bold text-slate-700 text-sm">رفع التعهد الموقّع</p>
+                <p class="font-bold text-slate-700 text-sm" data-i18n="profile-action-upload-eng">رفع التعهد الموقّع</p>
             </div>
             <div class="quick-action" onclick="openChangePassword()">
                 <div
@@ -954,12 +954,12 @@
         <!-- Upload Signed Engagement Modal -->
         <div id="uploadEngagementModal" class="login-overlay" onclick="if(event.target===this)closeUploadEngagement()">
             <div class="login-modal-popup" style="max-width:480px;width:100%;">
-                <h2 class="text-xl font-bold mb-2 text-center">رفع الفيشة الموقّعة</h2>
-                <p class="text-sm text-slate-500 text-center mb-6">قم برفع نسخة مسح ضوئي (PDF أو صورة) من فيشة التعهد بعد توقيعها</p>
+                <h2 class="text-xl font-bold mb-2 text-center" data-i18n="profile-upload-title">رفع الفيشة الموقّعة</h2>
+                <p class="text-sm text-slate-500 text-center mb-6" data-i18n="profile-upload-desc">قم برفع نسخة مسح ضوئي (PDF أو صورة) من فيشة التعهد بعد توقيعها</p>
                 <div id="engUploadDropzone" onclick="document.getElementById('engFileInput').click()" style="border:2px dashed #d1d5db;border-radius:16px;padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:#f8fafc;" onmouseover="this.style.borderColor='#2E7D32'" onmouseout="this.style.borderColor='#d1d5db'">
                     <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">cloud_upload</span>
-                    <p class="font-bold text-slate-600">انقر لاختيار ملف</p>
-                    <p class="text-xs text-slate-400 mt-1">PDF، JPG، PNG — حجم أقصى 10MB</p>
+                    <p class="font-bold text-slate-600" data-i18n="profile-upload-dropzone">انقر لاختيار ملف</p>
+                    <p class="text-xs text-slate-400 mt-1" data-i18n="profile-upload-formats">PDF، JPG، PNG — حجم أقصى 10MB</p>
                     <input type="file" id="engFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleEngFileSelect(this)">
                 </div>
                 <div id="engFilePreview" style="display:none;margin-top:16px;padding:12px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
@@ -979,8 +979,8 @@
                     <p class="text-xs text-center text-slate-500 mt-2">جاري الرفع...</p>
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="closeUploadEngagement()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">إلغاء</button>
-                    <button id="engUploadBtn" onclick="submitEngagementUpload()" class="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-green-700 transition-colors">رفع الملف</button>
+                    <button onclick="closeUploadEngagement()" class="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors" data-i18n="profile-upload-cancel">إلغاء</button>
+                    <button id="engUploadBtn" onclick="submitEngagementUpload()" class="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-green-700 transition-colors" data-i18n="profile-upload-submit">رفع الملف</button>
                 </div>
             </div>
         </div>
