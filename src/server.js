@@ -99,56 +99,115 @@ fastify.register(require('./routes/access'), { prefix: '/api/admin/access' });
 // Page routes - serve HTML files
 const publicDir = path.join(__dirname, '../public');
 
+function serveAdminPage(filePath, reply) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    
+    // Inject the authentication check at the very top of <head>
+    const authScript = `
+    <script>
+        (function() {
+            const adminUser = localStorage.getItem('adminUser');
+            if (!adminUser) {
+                window.location.replace('/');
+                return;
+            }
+            // Inject admin details after DOM is loaded
+            document.addEventListener('DOMContentLoaded', () => {
+                const admin = JSON.parse(adminUser || '{}');
+                const nameEl = document.querySelector('.admin-details h4') || document.getElementById('adminName');
+                const emailEl = document.querySelector('.admin-details p') || document.getElementById('adminEmail');
+                if (nameEl && (admin.nom || admin.prenom)) {
+                    nameEl.textContent = (admin.prenom + ' ' + admin.nom).trim();
+                }
+                if (emailEl && admin.email) {
+                    emailEl.textContent = admin.email;
+                }
+                
+                // Add Déconnexion link to sidebar
+                const navLinks = document.querySelector('.nav-links');
+                if (navLinks) {
+                    // Check if it already has a logout button to avoid duplicates
+                    if (!document.getElementById('adminLogoutBtn')) {
+                        const logoutBtn = document.createElement('a');
+                        logoutBtn.href = '#';
+                        logoutBtn.id = 'adminLogoutBtn';
+                        logoutBtn.className = 'nav-item';
+                        logoutBtn.style.color = '#ff8a80';
+                        logoutBtn.style.marginTop = '20px';
+                        logoutBtn.style.borderLeftColor = '#d32f2f';
+                        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt" style="color: #ff8a80;"></i><span class="nav-text">Déconnexion</span>';
+                        logoutBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            localStorage.removeItem('adminUser');
+                            window.location.href = '/';
+                        });
+                        navLinks.appendChild(logoutBtn);
+                    }
+                }
+            });
+        })();
+    </script>
+    `;
+    
+    if (content.includes('<head>')) {
+        content = content.replace('<head>', '<head>' + authScript);
+    } else {
+        content = authScript + content;
+    }
+    
+    reply.type('text/html').send(content);
+}
+
 fastify.get('/', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'index.html')));
+    serveAdminPage(path.join(publicDir, 'index.html'), reply);
 });
 
 fastify.get('/index.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'index.html')));
+    serveAdminPage(path.join(publicDir, 'index.html'), reply);
 });
 
 fastify.get('/books.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'books.html')));
+    serveAdminPage(path.join(publicDir, 'books.html'), reply);
 });
 
 fastify.get('/lecteurs.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'lecteurs.html')));
+    serveAdminPage(path.join(publicDir, 'lecteurs.html'), reply);
 });
 
 fastify.get('/orders.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'orders.html')));
+    serveAdminPage(path.join(publicDir, 'orders.html'), reply);
 });
 
 fastify.get('/returns.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'returns.html')));
+    serveAdminPage(path.join(publicDir, 'returns.html'), reply);
 });
 
 fastify.get('/registrations.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'registrations.html')));
+    serveAdminPage(path.join(publicDir, 'registrations.html'), reply);
 });
 
 fastify.get('/utilisateurs.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'utilisateurs.html')));
+    serveAdminPage(path.join(publicDir, 'utilisateurs.html'), reply);
 });
 
 fastify.get('/dashboard2.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'dashboard2.html')));
+    serveAdminPage(path.join(publicDir, 'dashboard2.html'), reply);
 });
 
 fastify.get('/stats.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'stats.html')));
+    serveAdminPage(path.join(publicDir, 'stats.html'), reply);
 });
 
 fastify.get('/reader_profile.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'reader_profile.html')));
+    serveAdminPage(path.join(publicDir, 'reader_profile.html'), reply);
 });
 
 fastify.get('/access_control.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'access_control.html')));
+    serveAdminPage(path.join(publicDir, 'access_control.html'), reply);
 });
 
 fastify.get('/access_history.html', async (request, reply) => {
-    return reply.type('text/html').send(fs.readFileSync(path.join(publicDir, 'access_history.html')));
+    serveAdminPage(path.join(publicDir, 'access_history.html'), reply);
 });
 
 // Midnight Reset Task
