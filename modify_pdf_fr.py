@@ -19,12 +19,27 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     font_path = os.path.join(script_dir, "fonts", "arial.ttf")
     if not os.path.exists(font_path):
-        font_path = "c:/Windows/Fonts/arial.ttf"
+        # Linux fallback
+        for p in ["/usr/share/fonts/truetype/msttcorefonts/Arial.ttf",
+                   "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                   "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                   "c:/Windows/Fonts/arial.ttf"]:
+            if os.path.exists(p):
+                font_path = p
+                break
     font_path = font_path.replace("\\", "/")
     
     font_bold_path = os.path.join(script_dir, "fonts", "arialbd.ttf")
     if not os.path.exists(font_bold_path):
-        font_bold_path = "c:/Windows/Fonts/arialbd.ttf"
+        # Fallback: use regular font as bold if bold not available
+        for p in ["/usr/share/fonts/truetype/msttcorefonts/Arial_Bold.ttf",
+                   "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+                   "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                   "c:/Windows/Fonts/arialbd.ttf",
+                   font_path]:  # ultimate fallback: use regular as bold
+            if os.path.exists(p):
+                font_bold_path = p
+                break
     font_bold_path = font_bold_path.replace("\\", "/")
     
     css = f"""

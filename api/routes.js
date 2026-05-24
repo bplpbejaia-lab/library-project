@@ -12,6 +12,7 @@ const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
+const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
 
 // Ensure image upload directories exist
 const uploadDirs = ['users', 'cni'];
@@ -879,7 +880,7 @@ export async function exportEngagementPdf(fastify, opts) {
             fs.writeFileSync(dataPath, userJson);
 
             // Call Python script
-            const command = `python "${scriptPath}" "${dataPath}" "${inputPdf}" "${outputPdf}"`;
+            const command = `${pythonCmd} "${scriptPath}" "${dataPath}" "${inputPdf}" "${outputPdf}"`;
 
             try {
                 const { stdout, stderr } = await execAsync(command);
@@ -1004,7 +1005,7 @@ export async function exportEngagementPdfAr(fastify, opts) {
             fs.writeFileSync(dataPath, JSON.stringify(userData));
 
             // Call Python script
-            const command = `python "${scriptPath}" "${dataPath}" "${inputPdf}" "${outputPdf}"`;
+            const command = `${pythonCmd} "${scriptPath}" "${dataPath}" "${inputPdf}" "${outputPdf}"`;
 
             try {
                 const { stdout, stderr } = await execAsync(command);
@@ -1159,7 +1160,7 @@ export async function exportEngagementPdfFr(fastify, opts) {
             fs.writeFileSync(dataPath, JSON.stringify(userData));
 
             // Call Python script
-            const command = `python "${scriptPath}" "${dataPath}" "${inputPdf}" "${outputPdf}"`;
+            const command = `${pythonCmd} "${scriptPath}" "${dataPath}" "${inputPdf}" "${outputPdf}"`;
 
             try {
                 const { stdout, stderr } = await execAsync(command);
