@@ -77,6 +77,20 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip()
         return cleaned
 
+    def format_phone(value):
+        raw = sanitize_value(str(value or ""))
+        if not raw:
+            return ""
+        digits = re.sub(r'\D', '', raw)
+        if not digits:
+            return raw
+        if digits.startswith("213") and len(digits) == 12:
+            local = digits[3:]
+            return "+213 " + " ".join([local[:3], local[3:5], local[5:7], local[7:9]])
+        if len(digits) == 9:
+            return " ".join([digits[:3], digits[3:5], digits[5:7], digits[7:9]])
+        return " ".join(digits[i:i+2] for i in range(0, len(digits), 2))
+
     # Robust name extraction: prioritize requested lang, fallback if empty
     def is_valid_text(s):
         if not s: return False
@@ -91,12 +105,12 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     if not is_valid_text(nom_ar): nom_ar = user_data.get("nom", "")
     if not is_valid_text(prenom_ar): prenom_ar = user_data.get("prenom", "")
     
-    lecteur_id = user_data.get("lecteurId", "")
+    lecteur_id = user_data.get("id") or user_data.get("ID") or user_data.get("LEC_ID") or user_data.get("lecteurId", "")
     nin = user_data.get("nin", "")
     profession = sanitize_value(user_data.get("profession", ""))
     email = user_data.get("email", "")
     adresse = sanitize_value(user_data.get("adresse", ""))
-    telephone = user_data.get("telephone", "")
+    telephone = format_phone(user_data.get("telephone", ""))
     nationalite = sanitize_value(user_data.get("nationalite", "Algérie"))
     wilaya = sanitize_value(user_data.get("wilaya", "Béjaïa"))
     raw_genre = sanitize_value(str(user_data.get("genre") or user_data.get("sexe") or "")).strip().lower()
@@ -141,7 +155,7 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         (fitz.Rect(174.24, 231.60, 309.60, 248.64), prenom_lat, False, "ltr"),
         
         # Date & lieu de naissance
-        (fitz.Rect(212.16, 256.20, 293.88, 273.24), dob_text, False, "ltr"),
+        (fitz.Rect(212.16, 256.20, 300.00, 273.24), dob_text, False, "ltr"),
         
         # Profession
         (fitz.Rect(360.84, 256.20, 565.92, 273.24), profession, False, "ltr"),
@@ -182,7 +196,7 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
-        style = "margin: 0; padding: 0; line-height: 1.2;"
+        style = "margin: 0; padding: 0; line-height: 1.2; font-weight: bold;"
         align_attr = 'align="left"'
         
         if align_class == "rtl":
@@ -200,6 +214,14 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         html = f'<p {align_attr} style="{style}">{value}</p>'
         page.insert_htmlbox(rect, html, css=css)
 
+    try:
+        label_rect = fitz.Rect(120.0, 256.20, 210.0, 273.24)
+        page.draw_rect(label_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
+        label_html = '<p align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-family: \'Arial\'; font-size: 7.4pt; font-weight: bold;">Date et lieu de naissance :</p>'
+        page.insert_htmlbox(label_rect, label_html, css=css)
+    except Exception as label_err:
+        print(f"Error replacing FR birth label: {label_err}")
+
     # Replace QR code with Ministry Logo (top right)
     try:
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -215,6 +237,8 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
 
     # Handle Photo (left side in ggfr.pdf)
     photo_data = user_data.get("photo")
+    photo_inserted = False
+    
     if photo_data:
         try:
             img_bytes = None
@@ -269,8 +293,24 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
                 # New photo rect, moved up slightly
                 photo_rect = fitz.Rect(34, 200, 112, 299)
                 page.insert_image(photo_rect, stream=img_bytes)
+                photo_inserted = True
+                print("Photo inserted successfully")
         except Exception as e:
             print(f"Error inserting photo: {e}")
+
+    if not photo_inserted:
+        print("No photo inserted, drawing empty placeholder frame (FR)")
+        try:
+            # Clear a tighter area to avoid overlapping titles
+            photo_clear_rect = fitz.Rect(30, 194, 115, 306)
+            page.draw_rect(photo_clear_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
+
+            # Draw a clean empty photo frame placeholder
+            photo_rect = fitz.Rect(34, 200, 112, 299)
+            page.draw_rect(photo_rect, color=(0,0,0), fill=(1,1,1), width=0.5, overlay=True)
+            print("Original photo cleared and empty placeholder border drawn (FR)")
+        except Exception as e:
+            print(f"Error drawing empty photo placeholder (FR): {e}")
 
     doc.save(output_pdf, deflate=True)
     doc.close()

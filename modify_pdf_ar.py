@@ -86,6 +86,20 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip()
         return cleaned
 
+    def format_phone(value):
+        raw = sanitize_value(str(value or ""))
+        if not raw:
+            return ""
+        digits = re.sub(r'\D', '', raw)
+        if not digits:
+            return raw
+        if digits.startswith("213") and len(digits) == 12:
+            local = digits[3:]
+            return "+213 " + " ".join([local[:3], local[3:5], local[5:7], local[7:9]])
+        if len(digits) == 9:
+            return " ".join([digits[:3], digits[3:5], digits[5:7], digits[7:9]])
+        return " ".join(digits[i:i+2] for i in range(0, len(digits), 2))
+
     nom_ar = user_data.get("nomAr", "")
     if not is_valid_arabic(nom_ar):
         nom_ar = user_data.get("nom", "")
@@ -99,12 +113,12 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         prenom_ar = user_data.get("prenomLatin", "")
     nom_lat = user_data.get("nomLatin", user_data.get("nom", ""))
     prenom_lat = user_data.get("prenomLatin", user_data.get("prenom", ""))
-    lecteur_id = user_data.get("lecteurId", "")
+    lecteur_id = user_data.get("id") or user_data.get("ID") or user_data.get("LEC_ID") or user_data.get("lecteurId", "")
     nin = user_data.get("nin", "")
     profession = sanitize_value(user_data.get("profession", ""))
     email = user_data.get("email", "")
     adresse = sanitize_value(user_data.get("adresse", ""))
-    telephone = user_data.get("telephone", "")
+    telephone = format_phone(user_data.get("telephone", ""))
     nationalite = sanitize_value(user_data.get("nationalite", "الجزائر"))
     wilaya = sanitize_value(user_data.get("wilaya", "بجاية"))
     raw_genre = sanitize_value(str(user_data.get("genre") or user_data.get("sexe") or "")).strip().lower()
@@ -128,6 +142,10 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     lieu_naissance = sanitize_value(user_data.get("lieuNaissance", ""))
     date_reg = format_date(user_data.get("date_adhesion", user_data.get("date_enregistrement", datetime.now().isoformat())))
 
+    dob_text = naissance
+    if lieu_naissance:
+        dob_text = naissance + " - " + lieu_naissance
+
     fields = [
         # Nom Arabe (اللقب)
         (fitz.Rect(270.36, 208.20, 420.24, 225.24), nom_ar, True, "rtl"),
@@ -144,8 +162,8 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         # Genre (الجنس)
         (fitz.Rect(443.40, 260.40, 487.32, 277.44), genre, True, "center"),
         
-        # Date de naissance (تاريخ الميلاد) - now occupying the full combined middle box
-        (fitz.Rect(162.84, 260.40, 364.32, 277.44), naissance, False, "center"),
+        # Date et lieu de naissance - occupying the full combined middle box
+        (fitz.Rect(162.84, 260.40, 364.32, 277.44), dob_text, False, "center"),
         
         # Profession (المهنة)
         (fitz.Rect(18.84, 260.40, 137.88, 277.44), profession, True, "center"),
@@ -186,7 +204,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
-        style = "margin: 0; padding: 0; line-height: 1.2; padding-top: 1px;"
+        style = "margin: 0; padding: 0; line-height: 1.2; padding-top: 1px; font-weight: bold;"
         align_attr = 'align="left"'
         
         if align_class == "rtl":
@@ -203,18 +221,6 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
                 
         html = f'<p {align_attr} style="{style}">{value}</p>'
         page.insert_htmlbox(rect, html, css=css)
-
-    # Clear the original background label "تاريخ و مكان الميلاد" and replace it with "تاريخ الميلاد"
-    try:
-        label_rect = fitz.Rect(365.0, 260.40, 442.0, 277.44)
-        # Clear the background label using a solid white rectangle
-        page.draw_rect(label_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
-        # Draw the new label "تاريخ الميلاد" (using regular weight, centered, size 8.5pt like the other labels)
-        label_html = '<p align="center" style="margin: 0; padding: 0; font-family: \'Arial\'; font-size: 8.5pt; font-weight: normal;">تاريخ الميلاد</p>'
-        page.insert_htmlbox(label_rect, label_html, css=css)
-        print("Arabic birth label updated to date only (removed place)")
-    except Exception as label_err:
-        print(f"Error replacing background label: {label_err}")
 
     # Replace QR code with Ministry Logo (top right)
     try:
@@ -233,6 +239,8 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     # Handle Photo - clear existing photo area and insert new one
     # The photo is on the right side around the name rows
     photo_data = user_data.get("photo")
+    photo_inserted = False
+    
     if photo_data:
         try:
             img_bytes = None
@@ -289,11 +297,24 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
                 # Photo rect - right side of the form near names
                 photo_rect = fitz.Rect(474, 154, 558, 250)
                 page.insert_image(photo_rect, stream=img_bytes)
+                photo_inserted = True
                 print("Photo inserted successfully")
         except Exception as e:
             print(f"Error inserting photo: {e}")
-    else:
-        print("No photo data provided")
+
+    if not photo_inserted:
+        print("No photo inserted, drawing empty placeholder frame")
+        try:
+            # Clear a wider area to remove any old photo frame or background residue completely
+            photo_clear_rect = fitz.Rect(460, 140, 565, 260)
+            page.draw_rect(photo_clear_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
+
+            # Draw a clean empty photo frame placeholder
+            photo_rect = fitz.Rect(474, 154, 558, 250)
+            page.draw_rect(photo_rect, color=(0,0,0), fill=(1,1,1), width=0.5, overlay=True)
+            print("Original photo cleared and empty placeholder border drawn")
+        except Exception as e:
+            print(f"Error drawing empty photo placeholder: {e}")
 
     doc.save(output_pdf, deflate=True)
     doc.close()

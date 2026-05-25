@@ -1367,6 +1367,25 @@
     </div>
 
     <script>
+        function formatPhoneNumber(phone) {
+            const raw = String(phone || '').trim();
+            if (!raw) return '';
+
+            const digits = raw.replace(/\D/g, '');
+            if (!digits) return raw;
+
+            if (digits.startsWith('213') && digits.length === 12) {
+                const local = digits.slice(3);
+                return `+213 ${local.slice(0, 3)} ${local.slice(3, 5)} ${local.slice(5, 7)} ${local.slice(7, 9)}`;
+            }
+
+            if (digits.length === 9) {
+                return `${digits.slice(0, 3)} ${digits.slice(3, 5)} ${digits.slice(5, 7)} ${digits.slice(7, 9)}`;
+            }
+
+            return digits.match(/.{1,2}/g).join(' ');
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const storedUser = JSON.parse(localStorage.getItem('libraryUser'));
             if (!storedUser || !storedUser.lecteurId) {
@@ -1464,7 +1483,7 @@
                 safeSetText('profileProfession', translatedProf);
                 safeSetText('profileNIN', user.nin);
                 safeSetText('profileEmail', user.email);
-                safeSetText('profilePhone', user.telephone);
+                safeSetText('profilePhone', formatPhoneNumber(user.telephone));
                 safeSetText('profileAddress', user.adresse);
 
                 // Update document status pills
@@ -1623,14 +1642,11 @@
                     LEC_RFID: user.rfid || user.LEC_RFID,
                     LEC_STATUT: user.statut !== undefined ? user.statut : (user.LEC_STATUT !== undefined ? user.LEC_STATUT : 0)
                 };
-                const status = parseInt(r.LEC_STATUT || 0);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.LEC_ID}`;
                 const target = document.getElementById(targetId);
                 if (!target) return;
 
                 const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : `https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff`;
-                const displayId = (status === 1) ? (r.LEC_RFID || r.LEC_ID) : r.LEC_ID;
-
                 const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
                 const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -1664,7 +1680,6 @@
 
                         <div class="recto-qr-box">
                             <img src="${qrUrl}">
-                            <div class="recto-id-number">${displayId}</div>
                         </div>
                         <div class="recto-date-footer">تاريخ التسجيل: ${regDateStr}</div>
                     </div>
@@ -1851,7 +1866,7 @@
                 translatedProf = professionMap[profKey][activeLang] || professionMap[profKey]['ar'];
             }
             document.getElementById('p-job').textContent = translatedProf;
-            document.getElementById('p-phone').textContent = user.telephone || '';
+            document.getElementById('p-phone').textContent = formatPhoneNumber(user.telephone);
             document.getElementById('p-nin').textContent = user.nin || '';
             document.getElementById('p-address').textContent = user.adresse || '';
             const el = document.getElementById('registrationFormPrint');
