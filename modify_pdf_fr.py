@@ -45,8 +45,11 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     css = f"""
     @font-face {{ font-family: 'Arial'; src: url('{font_path}'); }}
     @font-face {{ font-family: 'Arial'; src: url('{font_bold_path}'); font-weight: bold; }}
-    body {{ font-family: 'Arial'; font-size: 10pt; margin: 0; padding: 0; }}
-    div, p {{ font-weight: bold; }}
+    @font-face {{ font-family: 'ArialBold'; src: url('{font_bold_path}'); }}
+    body {{ font-family: 'Arial'; font-size: 10pt; margin: 0; padding: 0; color: #000; }}
+    div, p {{ color: #000; }}
+    .pdf-value {{ font-family: 'ArialBold', 'Arial'; font-size: 10pt; font-weight: 900; color: #000; }}
+    .pdf-label {{ font-family: 'ArialBold', 'Arial'; font-weight: 900; color: #000; }}
     """
 
     def format_date(date_str):
@@ -196,7 +199,7 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
-        style = "margin: 0; padding: 0; line-height: 1.2; font-weight: bold;"
+        style = "margin: 0; padding: 0; line-height: 1.2;"
         align_attr = 'align="left"'
         
         if align_class == "rtl":
@@ -211,13 +214,13 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         if padding > 0:
             style += f" padding-left: {padding}px;"
             
-        html = f'<p {align_attr} style="{style}">{value}</p>'
+        html = f'<p class="pdf-value" {align_attr} style="{style}">{value}</p>'
         page.insert_htmlbox(rect, html, css=css)
 
     try:
         label_rect = fitz.Rect(120.0, 256.20, 210.0, 273.24)
         page.draw_rect(label_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
-        label_html = '<p align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-family: \'Arial\'; font-size: 7.4pt; font-weight: bold;">Date et lieu de naissance :</p>'
+        label_html = '<p class="pdf-label" align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-size: 7.4pt;">Date et lieu de naissance :</p>'
         page.insert_htmlbox(label_rect, label_html, css=css)
     except Exception as label_err:
         print(f"Error replacing FR birth label: {label_err}")

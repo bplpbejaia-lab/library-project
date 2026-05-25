@@ -45,8 +45,10 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     css = f"""
     @font-face {{ font-family: 'Arial'; src: url('{font_path}'); }}
     @font-face {{ font-family: 'Arial'; src: url('{font_bold_path}'); font-weight: bold; }}
-    body {{ font-family: 'Arial'; font-size: 10pt; margin: 0; padding: 0; }}
-    div, p {{ font-weight: bold; }}
+    @font-face {{ font-family: 'ArialBold'; src: url('{font_bold_path}'); }}
+    body {{ font-family: 'Arial'; font-size: 10pt; margin: 0; padding: 0; color: #000; }}
+    div, p {{ color: #000; }}
+    .pdf-value {{ font-family: 'ArialBold', 'Arial'; font-size: 10pt; font-weight: 900; color: #000; }}
     """
 
     def format_date(date_str):
@@ -204,7 +206,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
-        style = "margin: 0; padding: 0; line-height: 1.2; padding-top: 1px; font-weight: bold;"
+        style = "margin: 0; padding: 0; line-height: 1.2; padding-top: 1px;"
         align_attr = 'align="left"'
         
         if align_class == "rtl":
@@ -219,7 +221,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         elif align_class == "center":
             align_attr = 'align="center"'
                 
-        html = f'<p {align_attr} style="{style}">{value}</p>'
+        html = f'<p class="pdf-value" {align_attr} style="{style}">{value}</p>'
         page.insert_htmlbox(rect, html, css=css)
 
     # Replace QR code with Ministry Logo (top right)
