@@ -6,6 +6,10 @@ import base64
 from datetime import datetime
 
 def modify_pdf(user_data, input_pdf, output_pdf):
+    # Legacy entrypoint: keep it aligned with the maintained Arabic exporter.
+    from modify_pdf_ar import modify_pdf_ar
+    return modify_pdf_ar(user_data, input_pdf, output_pdf)
+
     doc = fitz.open(input_pdf)
     page = doc[0]
     
@@ -90,6 +94,8 @@ def modify_pdf(user_data, input_pdf, output_pdf):
 
     # 3. Handle Photo
     photo_data = user_data.get("photo")
+    photo_inserted = False
+    
     if photo_data:
         try:
             img_bytes = None
@@ -130,11 +136,24 @@ def modify_pdf(user_data, input_pdf, output_pdf):
                 
                 # Insert new photo
                 page.insert_image(photo_rect, stream=img_bytes)
+                photo_inserted = True
                 print("Photo inserted successfully")
         except Exception as e:
             print(f"Error inserting photo: {e}")
-    else:
-        print("No photo data provided in user_data")
+
+    if not photo_inserted:
+        print("No photo inserted, drawing empty placeholder frame")
+        try:
+            # Clear a wider area to remove any old photo frame or background residue completely
+            photo_clear_rect = fitz.Rect(460, 140, 565, 260)
+            page.draw_rect(photo_clear_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
+
+            # Draw a clean empty photo frame placeholder
+            photo_rect = fitz.Rect(474, 154, 558, 250)
+            page.draw_rect(photo_rect, color=(0,0,0), fill=(1,1,1), width=0.5, overlay=True)
+            print("Original photo cleared and empty placeholder border drawn")
+        except Exception as e:
+            print(f"Error drawing empty photo placeholder: {e}")
 
     # Save as PDF
     doc.save(output_pdf)
