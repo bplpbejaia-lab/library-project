@@ -142,6 +142,11 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     if lieu_naissance:
         dob_text = naissance + " à " + lieu_naissance
 
+    def insert_dark_htmlbox(rect, html):
+        page.insert_htmlbox(rect, html, css=css)
+        page.insert_htmlbox(fitz.Rect(rect.x0 + 0.16, rect.y0, rect.x1 + 0.16, rect.y1), html, css=css)
+        page.insert_htmlbox(fitz.Rect(rect.x0, rect.y0 + 0.10, rect.x1, rect.y1 + 0.10), html, css=css)
+
     # Field coordinates for ggfr.pdf (Latin positions)
     # Format: (rect, value, is_arabic, align_class)
     fields = [
@@ -215,13 +220,13 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
             style += f" padding-left: {padding}px;"
             
         html = f'<p class="pdf-value" {align_attr} style="{style}">{value}</p>'
-        page.insert_htmlbox(rect, html, css=css)
+        insert_dark_htmlbox(rect, html)
 
     try:
         label_rect = fitz.Rect(120.0, 256.20, 210.0, 273.24)
         page.draw_rect(label_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
         label_html = '<p class="pdf-label" align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-size: 7.4pt;">Date et lieu de naissance :</p>'
-        page.insert_htmlbox(label_rect, label_html, css=css)
+        insert_dark_htmlbox(label_rect, label_html)
     except Exception as label_err:
         print(f"Error replacing FR birth label: {label_err}")
 

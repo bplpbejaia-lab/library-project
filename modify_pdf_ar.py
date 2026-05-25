@@ -148,6 +148,11 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     if lieu_naissance:
         dob_text = naissance + " - " + lieu_naissance
 
+    def insert_dark_htmlbox(rect, html):
+        page.insert_htmlbox(rect, html, css=css)
+        page.insert_htmlbox(fitz.Rect(rect.x0 + 0.16, rect.y0, rect.x1 + 0.16, rect.y1), html, css=css)
+        page.insert_htmlbox(fitz.Rect(rect.x0, rect.y0 + 0.10, rect.x1, rect.y1 + 0.10), html, css=css)
+
     fields = [
         # Nom Arabe (اللقب)
         (fitz.Rect(270.36, 208.20, 420.24, 225.24), nom_ar, True, "rtl"),
@@ -222,7 +227,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
             align_attr = 'align="center"'
                 
         html = f'<p class="pdf-value" {align_attr} style="{style}">{value}</p>'
-        page.insert_htmlbox(rect, html, css=css)
+        insert_dark_htmlbox(rect, html)
 
     # Replace QR code with Ministry Logo (top right)
     try:
