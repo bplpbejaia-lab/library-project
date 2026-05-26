@@ -108,7 +108,13 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     if not is_valid_text(nom_ar): nom_ar = user_data.get("nom", "")
     if not is_valid_text(prenom_ar): prenom_ar = user_data.get("prenom", "")
     
-    lecteur_id = user_data.get("id") or user_data.get("ID") or user_data.get("LEC_ID") or user_data.get("lecteurId", "")
+    lecteur_id = (
+        user_data.get("lecteurId")
+        or user_data.get("LEC_ID")
+        or user_data.get("id")
+        or user_data.get("ID")
+        or ""
+    )
     nin = user_data.get("nin", "")
     profession = sanitize_value(user_data.get("profession", ""))
     email = user_data.get("email", "")
@@ -116,6 +122,10 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     telephone = format_phone(user_data.get("telephone", ""))
     nationalite = sanitize_value(user_data.get("nationalite", "Algérie"))
     wilaya = sanitize_value(user_data.get("wilaya", "Béjaïa"))
+    if any(x in nationalite.lower() for x in ["alg", "dz"]) or "جزائر" in nationalite:
+        nationalite = "Algérie"
+    if any(x in wilaya.lower() for x in ["beja", "béja", "bgayet"]) or "بجا" in wilaya:
+        wilaya = "Béjaïa"
     raw_genre = sanitize_value(str(user_data.get("genre") or user_data.get("sexe") or "")).strip().lower()
     first_name_lat = str(user_data.get("prenomLatin") or user_data.get("prenom") or "").strip().lower()
     first_name_ar = str(user_data.get("prenomAr") or "").strip()
@@ -163,10 +173,10 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         (fitz.Rect(174.24, 231.60, 309.60, 248.64), prenom_lat, False, "ltr"),
         
         # Date & lieu de naissance
-        (fitz.Rect(212.16, 256.20, 300.00, 273.24), dob_text, False, "ltr"),
+        (fitz.Rect(232.00, 256.20, 360.00, 273.24), dob_text, False, "ltr", fitz.Rect(212.16, 256.20, 360.00, 273.24)),
         
         # Profession
-        (fitz.Rect(360.84, 256.20, 565.92, 273.24), profession, False, "ltr"),
+        (fitz.Rect(430.00, 256.20, 565.92, 273.24), profession, False, "ltr", fitz.Rect(360.84, 256.20, 565.92, 273.24)),
         
         # Code lecteur
         (fitz.Rect(193.56, 280.32, 343.92, 297.36), lecteur_id, False, "ltr"),
@@ -195,13 +205,18 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
 
     for item in fields:
         rect, value, is_arabic, align_class = item[0], item[1], item[2], item[3]
-        padding = item[4] if len(item) > 4 else 0
+        padding = item[4] if len(item) > 4 and isinstance(item[4], (int, float)) else 0
         if not value:
             continue
+        repair_rect = item[4] if len(item) > 4 and isinstance(item[4], fitz.Rect) else None
             
-        # Clear the area (width=0 prevents white stroke from bleeding over original borders)
-        clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
-        page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+        if repair_rect:
+            page.draw_rect(repair_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+            page.draw_rect(rect, color=(0.90,0.90,0.90), fill=None, width=0.35, overlay=True)
+        else:
+            # Clear the area (width=0 prevents white stroke from bleeding over original borders)
+            clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
+            page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
         style = "margin: 0; padding: 0; line-height: 1.2;"
@@ -223,10 +238,15 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         insert_dark_htmlbox(rect, html)
 
     try:
-        label_rect = fitz.Rect(120.0, 256.20, 210.0, 273.24)
+        label_rect = fitz.Rect(118.0, 256.20, 230.0, 273.24)
         page.draw_rect(label_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
-        label_html = '<p class="pdf-label" align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-size: 7.4pt;">Date et lieu de naissance :</p>'
+        label_html = '<p class="pdf-label" align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-size: 8.6pt; white-space: nowrap;">Date et lieu de naissance :</p>'
         insert_dark_htmlbox(label_rect, label_html)
+
+        profession_label_rect = fitz.Rect(362.0, 256.20, 428.0, 273.24)
+        page.draw_rect(profession_label_rect, color=(1,1,1), fill=(1,1,1), overlay=True)
+        profession_label_html = '<p class="pdf-label" align="left" style="margin: 0; padding-left: 2px; line-height: 1.1; font-size: 8.6pt; white-space: nowrap;">Profession :</p>'
+        insert_dark_htmlbox(profession_label_rect, profession_label_html)
     except Exception as label_err:
         print(f"Error replacing FR birth label: {label_err}")
 

@@ -115,7 +115,13 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         prenom_ar = user_data.get("prenomLatin", "")
     nom_lat = user_data.get("nomLatin", user_data.get("nom", ""))
     prenom_lat = user_data.get("prenomLatin", user_data.get("prenom", ""))
-    lecteur_id = user_data.get("id") or user_data.get("ID") or user_data.get("LEC_ID") or user_data.get("lecteurId", "")
+    lecteur_id = (
+        user_data.get("lecteurId")
+        or user_data.get("LEC_ID")
+        or user_data.get("id")
+        or user_data.get("ID")
+        or ""
+    )
     nin = user_data.get("nin", "")
     profession = sanitize_value(user_data.get("profession", ""))
     email = user_data.get("email", "")
@@ -123,6 +129,10 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     telephone = format_phone(user_data.get("telephone", ""))
     nationalite = sanitize_value(user_data.get("nationalite", "الجزائر"))
     wilaya = sanitize_value(user_data.get("wilaya", "بجاية"))
+    if any(x in nationalite.lower() for x in ["alg", "dz"]) or "جزائر" in nationalite:
+        nationalite = "الجزائر"
+    if any(x in wilaya.lower() for x in ["beja", "béja", "bgayet"]) or "بجا" in wilaya:
+        wilaya = "بجاية"
     raw_genre = sanitize_value(str(user_data.get("genre") or user_data.get("sexe") or "")).strip().lower()
     first_name_lat = str(user_data.get("prenomLatin") or user_data.get("prenom") or "").strip().lower()
     first_name_ar = str(user_data.get("prenomAr") or "").strip()
@@ -167,7 +177,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         (fitz.Rect(69.36, 233.64, 204.72, 250.68), prenom_lat, False, "ltr"),
         
         # Genre (الجنس)
-        (fitz.Rect(443.40, 260.40, 487.32, 277.44), genre, True, "center"),
+        (fitz.Rect(443.40, 260.40, 485.64, 277.44), genre, True, "center", fitz.Rect(443.40, 260.40, 487.32, 277.44)),
         
         # Date et lieu de naissance - occupying the full combined middle box
         (fitz.Rect(162.84, 260.40, 364.32, 277.44), dob_text, False, "center"),
@@ -191,24 +201,30 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         (fitz.Rect(16.20, 384.36, 485.64, 426.12), adresse, True, "center"),
         
         # Wilaya (ولاية)
-        (fitz.Rect(41.04, 433.20, 510.12, 450.24), wilaya, True, "rtl"),
+        (fitz.Rect(41.04, 433.20, 485.64, 450.24), wilaya, True, "rtl", fitz.Rect(41.04, 433.20, 510.12, 450.24)),
         
         # Téléphone (الهاتف)
-        (fitz.Rect(284.88, 465.36, 518.04, 482.40), telephone, False, "center"),
+        (fitz.Rect(284.88, 465.36, 485.64, 482.40), telephone, False, "center", fitz.Rect(284.88, 465.36, 518.04, 482.40)),
         
         # Pays / البلد
         (fitz.Rect(77.76, 465.84, 230.64, 482.88), nationalite, True, "center"),
     ]
 
-    for rect, value, is_arabic, align_class in fields:
+    for item in fields:
+        rect, value, is_arabic, align_class = item[0], item[1], item[2], item[3]
+        repair_rect = item[4] if len(item) > 4 else None
         if not value:
             print(f"Skipping empty field at {rect}")
             continue
         
         print(f"Replacing field at {rect} with value: {value[:30]}...")
-        # Clear the area (width=0 prevents white stroke from bleeding over original borders)
-        clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
-        page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+        if repair_rect:
+            page.draw_rect(repair_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+            page.draw_rect(rect, color=(0.90,0.90,0.90), fill=None, width=0.35, overlay=True)
+        else:
+            # Clear the area (width=0 prevents white stroke from bleeding over original borders)
+            clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
+            page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
         style = "margin: 0; padding: 0; line-height: 1.2; padding-top: 1px;"

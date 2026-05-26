@@ -126,6 +126,26 @@ function generateId() {
     return 'LEC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 }
 
+async function generateAnnualLecteurId(client = pool) {
+    const year = String(new Date().getFullYear());
+    const prefix = `${year}-`;
+    const result = await client.query(
+        'SELECT "LEC_ID" FROM "LECTEUR" WHERE "LEC_ID" LIKE $1',
+        [`${prefix}%`]
+    );
+
+    let maxOrder = 0;
+    const annualIdPattern = new RegExp(`^${year}-(\\d+)$`);
+    for (const row of result.rows) {
+        const match = String(row.LEC_ID || '').match(annualIdPattern);
+        if (match) {
+            maxOrder = Math.max(maxOrder, parseInt(match[1], 10));
+        }
+    }
+
+    return `${year}-${String(maxOrder + 1).padStart(4, '0')}`;
+}
+
 // Generate verification code
 function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -319,107 +339,118 @@ export async function registerStep1(fastify, opts) {
         try {
             const {
                 nom, prenom, nomAr, prenomAr, dateNaissance, email, telephone,
-                adresse, nin, categorie, password, username,
-                photo, cniFront, cniBack, profession, genre
+                adresse, nin, categorie, password,
+                photo, cniFront, cniBack, profession, genre,
+                lieuNaissance, nationalite, ville, codePostal, whatsapp
             } = request.body;
 
-            // Validation: nomAr/prenomAr (Arabic), dateNaissance, username, password
-            if (!nomAr || !prenomAr || !dateNaissance || !username || !password) {
-                return reply.status(400).send({ error: 'Champs obligatoires manquants (Nom, Prénom, Date de naissance, Nom d\'utilisateur, Mot de passe)' });
+            // Validation: nomAr/prenomAr (Arabic), dateNaissance, password
+            if (!nomAr || !prenomAr || !dateNaissance || !password) {
+                return reply.status(400).send({ error: 'Champs obligatoires manquants (Nom, Prénom, Date de naissance, Mot de passe)' });
             }
 
-            // Check if username/lecteurId already exists
-            const existingUser = await pool.query(
-                'SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1',
-                [username]
-            );
-
-            if (existingUser.rows.length > 0) {
-                return reply.status(400).send({ error: 'Cet identifiant est déjà utilisé' });
-            }
-
-            // NIN Check (unless isParent is true)
             const { isParent } = request.body;
-            if (nin && !isParent) {
-                const existingNin = await pool.query(
-                    'SELECT * FROM "LECTEUR" WHERE "LEC_NIN" = $1',
-                    [nin]
-                );
-                if (existingNin.rows.length > 0) {
-                    return reply.status(400).send({ error: 'Ce numéro national (NIN) est déjà utilisé' });
-                }
-            }
+            const client = await pool.connect();
+            let lecteurId;
+            let emailToken;
 
-            if (email) {
-                const existingEmail = await pool.query(
-                    'SELECT * FROM "LECTEUR" WHERE "LEC_EMAIL" = $1',
-                    [email]
-                );
-
-                if (existingEmail.rows.length > 0) {
-                    return reply.status(400).send({ error: 'Email déjà utilisé' });
-                }
-            }
-
-            // Use username as the ID if it fits the schema
-            const lecteurId = username;
-            const verificationCode = generateVerificationCode();
-
-            // Handle Photo and ID Images
-            const photoPath = saveBase64Image(photo, 'users', `photo_${lecteurId.replace(/[^a-zA-Z0-9]/g, '_')}`);
-            const cniFrontPath = saveBase64Image(cniFront, 'cni', `cni_front_${lecteurId.replace(/[^a-zA-Z0-9]/g, '_')}`);
-            const cniBackPath = saveBase64Image(cniBack, 'cni', `cni_back_${lecteurId.replace(/[^a-zA-Z0-9]/g, '_')}`);
-
-            // Store verification code
-            verificationCodes.set(lecteurId, {
-                code: verificationCode,
-                email: email || null,
-                createdAt: Date.now(),
-                expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
-            });
-
-            // Insert into database
-            const hashedPassword = hashPassword(password);
-            await pool.query(
-                `INSERT INTO "LECTEUR" ("LEC_ID", "CAT_ID", "LEC_NOM", "LEC_PRENOM", "LEC_DATE_NAISSANCE",
-                 "LEC_ADRESSE", "LEC_TEL", "LEC_EMAIL", "LEC_PASSWORD", "LEC_NIN", "BIB_ID", "CREATE_USER",
-                 "CREATE_DATE", "LEC_STATUT", "LEC_NOM_AR", "LEC_PRENOM_AR", "LEC_PHOTO", "LEC_CNI_FRONT", "LEC_CNI_BACK", "LEC_PROFESSION", "LEC_GENRE")
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1, 'system', NOW(), 0, $11, $12, $13, $14, $15, $16, $17)`,
-                [
-                    lecteurId, categorie || 1, nom || null, prenom || null, dateNaissance,
-                    adresse || null, telephone || null, email || null, hashedPassword, nin || null,
-                    nomAr, prenomAr, photoPath, cniFrontPath, cniBackPath, profession || null, genre || null
-                ]
-            );
-
-            // Also insert into registrations table for admin panel sync
             try {
-                await pool.query(
-                    `INSERT INTO "registrations" (nom, prenom, email, telephone, nin, cat_id, date_naiss, adresse,
-                     inscription_source, id_card_recto_path, id_card_verso_path, status, registration_date, lec_id)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'EXTERNE', $9, $10, 'PENDING', NOW(), $11)
-                     ON CONFLICT DO NOTHING`,
+                await client.query('BEGIN');
+                await client.query('SELECT pg_advisory_xact_lock($1)', [new Date().getFullYear()]);
+
+                // NIN Check (unless isParent is true)
+                if (nin && !isParent) {
+                    const existingNin = await client.query(
+                        'SELECT * FROM "LECTEUR" WHERE "LEC_NIN" = $1',
+                        [nin]
+                    );
+                    if (existingNin.rows.length > 0) {
+                        await client.query('ROLLBACK');
+                        return reply.status(400).send({ error: 'Ce numéro national (NIN) est déjà utilisé' });
+                    }
+                }
+
+                if (email) {
+                    const existingEmail = await client.query(
+                        'SELECT * FROM "LECTEUR" WHERE "LEC_EMAIL" = $1',
+                        [email]
+                    );
+
+                    if (existingEmail.rows.length > 0) {
+                        await client.query('ROLLBACK');
+                        return reply.status(400).send({ error: 'Email déjà utilisé' });
+                    }
+                }
+
+                lecteurId = await generateAnnualLecteurId(client);
+                const verificationCode = generateVerificationCode();
+
+                // Handle Photo and ID Images
+                const safeLecteurId = lecteurId.replace(/[^a-zA-Z0-9]/g, '_');
+                const photoPath = saveBase64Image(photo, 'users', `photo_${safeLecteurId}`);
+                const cniFrontPath = saveBase64Image(cniFront, 'cni', `cni_front_${safeLecteurId}`);
+                const cniBackPath = saveBase64Image(cniBack, 'cni', `cni_back_${safeLecteurId}`);
+
+                // Store verification code
+                verificationCodes.set(lecteurId, {
+                    code: verificationCode,
+                    email: email || null,
+                    createdAt: Date.now(),
+                    expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+                });
+
+                // Insert into database
+                const hashedPassword = hashPassword(password);
+                await client.query(
+                    `INSERT INTO "LECTEUR" ("LEC_ID", "CAT_ID", "LEC_NOM", "LEC_PRENOM", "LEC_DATE_NAISSANCE",
+                     "LEC_ADRESSE", "LEC_TEL", "LEC_EMAIL", "LEC_PASSWORD", "LEC_NIN", "BIB_ID", "CREATE_USER",
+                     "CREATE_DATE", "LEC_STATUT", "LEC_NOM_AR", "LEC_PRENOM_AR", "LEC_PHOTO", "LEC_CNI_FRONT",
+                     "LEC_CNI_BACK", "LEC_PROFESSION", "LEC_GENRE", "LEC_LIEU_NAISSANCE", "LEC_NATIONALITE",
+                     "LEC_VILLE", "LEC_CODE_POSTAL", "LEC_WHATSAPP")
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1, 'system', NOW(), 0, $11, $12, $13,
+                     $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
                     [
-                        nomAr || nom, prenomAr || prenom, email || null, telephone || null, nin || null,
-                        categorie || null, dateNaissance || null, adresse || null,
-                        cniFrontPath, cniBackPath, lecteurId
+                        lecteurId, categorie || 1, nom || null, prenom || null, dateNaissance,
+                        adresse || null, telephone || null, email || null, hashedPassword, nin || null,
+                        nomAr, prenomAr, photoPath, cniFrontPath, cniBackPath, profession || null, genre || null,
+                        lieuNaissance || null, nationalite || 'Algérienne', ville || null, codePostal || null, whatsapp || null
                     ]
                 );
-                console.log(`Registration synced to admin table for: ${lecteurId}`);
-            } catch (syncError) {
-                console.error('CRITICAL: Failed to sync registration to admin table:', syncError);
-                // We don't throw here to not block the main registration if sync fails, 
-                // but at least we log it now.
-            }
 
-            // Generate and Send verification email
-            const emailToken = crypto.randomBytes(32).toString('hex');
-            
-            // Save token to DB
-            await pool.query(
-                `UPDATE "LECTEUR" SET "LEC_VERIFICATION_TOKEN" = $1 WHERE "LEC_ID" = $2`,
-                [emailToken, lecteurId]
-            );
+                // Also insert into registrations table for admin panel sync
+                await client.query('SAVEPOINT registration_sync');
+                try {
+                    await client.query(
+                        `INSERT INTO "registrations" (nom, prenom, email, telephone, nin, cat_id, date_naiss, adresse,
+                         inscription_source, id_card_recto_path, id_card_verso_path, status, registration_date, lec_id)
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'EXTERNE', $9, $10, 'PENDING', NOW(), $11)
+                         ON CONFLICT DO NOTHING`,
+                        [
+                            nomAr || nom, prenomAr || prenom, email || null, telephone || null, nin || null,
+                            categorie || null, dateNaissance || null, adresse || null,
+                            cniFrontPath, cniBackPath, lecteurId
+                        ]
+                    );
+                    console.log(`Registration synced to admin table for: ${lecteurId}`);
+                } catch (syncError) {
+                    await client.query('ROLLBACK TO SAVEPOINT registration_sync');
+                    console.error('CRITICAL: Failed to sync registration to admin table:', syncError);
+                }
+
+                // Generate and save verification email token
+                emailToken = crypto.randomBytes(32).toString('hex');
+                await client.query(
+                    `UPDATE "LECTEUR" SET "LEC_VERIFICATION_TOKEN" = $1 WHERE "LEC_ID" = $2`,
+                    [emailToken, lecteurId]
+                );
+
+                await client.query('COMMIT');
+            } catch (dbError) {
+                await client.query('ROLLBACK');
+                throw dbError;
+            } finally {
+                client.release();
+            }
 
             try {
                 if (email) {
@@ -918,15 +949,20 @@ export async function exportEngagementPdfAr(fastify, opts) {
     fastify.post('/api/auth/export-engagement-pdf-ar', async (request, reply) => {
         try {
             const userData = request.body;
-            if (!userData || !userData.lecteurId) {
+            const lookupLecteur = userData?.lecteurId || userData?.LEC_ID || userData?.id || userData?.email || userData?.nin;
+            if (!userData || !lookupLecteur) {
                 return reply.status(400).send({ error: 'Données utilisateur manquantes' });
             }
 
             // Sync with latest DB state to ensure 100% up-to-date values (especially for photo, names, gender, etc.)
             try {
-                const dbResult = await pool.query('SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1', [userData.lecteurId]);
+                const dbResult = await pool.query(
+                    'SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1 OR "LEC_EMAIL" = $1 OR "LEC_NIN" = $1',
+                    [lookupLecteur]
+                );
                 if (dbResult.rows.length > 0) {
                     const dbUser = dbResult.rows[0];
+                    userData.lecteurId = dbUser.LEC_ID || userData.lecteurId;
                     userData.photo = dbUser.LEC_PHOTO || userData.photo;
                     userData.nom = dbUser.LEC_NOM_AR || userData.nom;
                     userData.prenom = dbUser.LEC_PRENOM_AR || userData.prenom;
@@ -1081,15 +1117,20 @@ export async function exportEngagementPdfFr(fastify, opts) {
     fastify.post('/api/auth/export-engagement-pdf-fr', async (request, reply) => {
         try {
             const userData = request.body;
-            if (!userData || !userData.lecteurId) {
+            const lookupLecteur = userData?.lecteurId || userData?.LEC_ID || userData?.id || userData?.email || userData?.nin;
+            if (!userData || !lookupLecteur) {
                 return reply.status(400).send({ error: 'Données utilisateur manquantes' });
             }
 
             // Sync with latest DB state to ensure 100% up-to-date values (especially for photo, names, gender, etc.)
             try {
-                const dbResult = await pool.query('SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1', [userData.lecteurId]);
+                const dbResult = await pool.query(
+                    'SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1 OR "LEC_EMAIL" = $1 OR "LEC_NIN" = $1',
+                    [lookupLecteur]
+                );
                 if (dbResult.rows.length > 0) {
                     const dbUser = dbResult.rows[0];
+                    userData.lecteurId = dbUser.LEC_ID || userData.lecteurId;
                     userData.photo = dbUser.LEC_PHOTO || userData.photo;
                     userData.nom = dbUser.LEC_NOM_AR || userData.nom;
                     userData.prenom = dbUser.LEC_PRENOM_AR || userData.prenom;
