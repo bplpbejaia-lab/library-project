@@ -127,8 +127,8 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     email = user_data.get("email", "")
     adresse = sanitize_value(user_data.get("adresse", ""))
     telephone = format_phone(user_data.get("telephone", ""))
-    nationalite = sanitize_value(user_data.get("nationalite", "الجزائر"))
-    wilaya = sanitize_value(user_data.get("wilaya", "بجاية"))
+    nationalite = sanitize_value(user_data.get("nationalite", ""))
+    wilaya = sanitize_value(user_data.get("wilaya", user_data.get("ville", "")))
     if any(x in nationalite.lower() for x in ["alg", "dz"]) or "جزائر" in nationalite:
         nationalite = "الجزائر"
     if any(x in wilaya.lower() for x in ["beja", "béja", "bgayet"]) or "بجا" in wilaya:
@@ -144,12 +144,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     elif any(x in raw_genre for x in ['masc', 'm', 'homme', 'h', 'male', 'ذكر']):
         genre = 'ذكر'
     else:
-        # Smart fallback based on Arabic and Latin first names (e.g. Lina, Lene, Sara, Moh, etc.)
-        if any(x in first_name_lat for x in ['lina', 'linda', 'sara', 'hayat', 'amina', 'nour', 'fatma', 'khadidja', 'mari', 'mery', 'meriem']) or \
-           any(x in first_name_ar for x in ['لينة', 'سارة', 'حياة', 'أمينة', 'نور', 'فاطمة', 'خديجة', 'مريم', 'ياسمين', 'نهاد']):
-            genre = 'أنثى'
-        else:
-            genre = 'ذكر' # Default fallback
+        genre = ''
     naissance = format_date(user_data.get("naissance", ""))
     lieu_naissance = sanitize_value(user_data.get("lieuNaissance", ""))
     date_reg = format_date(user_data.get("date_adhesion", user_data.get("date_enregistrement", datetime.now().isoformat())))

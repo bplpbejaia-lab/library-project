@@ -138,7 +138,7 @@ const i18n = {
             "profile-action-search": "بحث الكتب",
             "profile-action-logout": "خروج",
             "profile-action-upload-eng": "رفع التعهد الموقّع",
-            "profile-upload-title": "رفع الفيشة الموقّعة",
+            "profile-upload-title": "رفع استمارة التسجيل الموقّعة",
             "profile-upload-desc": "قم برفع نسخة مسح ضوئي (PDF أو صورة) من فيشة التعهد بعد توقيعها",
             "profile-upload-dropzone": "انقر لاختيار ملف",
             "profile-upload-formats": "PDF، JPG، PNG — حجم أقصى 10MB",
@@ -218,7 +218,7 @@ const i18n = {
             "g-label-dob": "تاريخ الميلاد",
             "g-label-pob": "مكان الميلاد",
             "g-placeholder-pob": "اختر بلدية الميلاد",
-            "g-label-nin-title": "رقم الهوية الوطنية",
+            "g-label-nin-title": "رقم التعريف الوطني",
             "g-placeholder-nin": "123456789012345678",
             "g-hint-nin": "18 رقم بدون مسافات",
             "g-label-is-parent": "التسجيل كـ ولي أمر (لتسجيل الأطفال بنفس الرقم الوطني)",
@@ -1847,7 +1847,7 @@ const i18n = {
             "main section p.text-2xl.md\\:text-3xl": "hero-chahid",
             "main section button[onclick*='pages/g.html']": "hero-btn-card",
             "main section button[onclick*='books-catalog.html']": "hero-btn-catalog",
-            "main h2": "events-section-title",
+            ".events-carousel-section h2": "events-section-title",
             ".events-carousel-section p": "events-section-subtitle",
 
             // Auth modal

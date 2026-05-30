@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
 
-// Ensure image upload directories exist
+// Ensure upload directories exist
 const uploadDirs = ['users', 'cni'];
 uploadDirs.forEach(dir => {
     const dirPath = path.join(projectRoot, 'images', dir);
@@ -23,20 +23,153 @@ uploadDirs.forEach(dir => {
     }
 });
 
-function saveBase64Image(dataUrl, folder, filename) {
+const BEJAIA_COMMUNES = [
+    'Adekar', 'Aït Maouche', 'Aït Mellikeche', "Aït R'zine", 'Aït-Smail', 'Akbou', 'Akfadou',
+    'Amalou', 'Amizour', 'Aokas', 'Barbacha', 'Béjaïa', 'Beni Djellil', 'Beni Ksila',
+    'Boudjellil', 'Bouhamza', 'Boukhelifa', 'Chellata', 'Chemini', 'Darguina', 'Draâ El-Kaïd',
+    'El Kseur', 'Fenaïa Ilmaten', 'Ferraoun', 'Ighil Ali', 'Ighram', 'Kendira', 'Kherrata',
+    'Leflaye', "M'cisna", 'Melbou', 'Oued Ghir', 'Ouzellaguen', 'Seddouk', 'Semaoun',
+    'Sidi-Aïch', 'Sidi-Ayad', 'Souk El Ténine', 'Souk-Oufella', 'Tala Hamza', 'Tamokra',
+    'Tamridjet', 'Taourirt Ighil', 'Taskriout', 'Tazmalt', 'Tibane', 'Tichy', 'Tifra',
+    'Timezrit', 'Tinabdher', "Tizi N'Berber", 'Toudja'
+];
+const COMMUNE_LOOKUP = new Set(BEJAIA_COMMUNES.map(normalizeText));
+const OUTSIDE_BEJAIA_VALUES = new Set([
+    normalizeText('Né(e) hors Béjaïa'),
+    normalizeText('Ne hors Bejaia'),
+    normalizeText('مولود خارج بجاية'),
+    normalizeText('مولود خارج ولاية بجاية'),
+    normalizeText('خارج بجاية'),
+    normalizeText('خارج ولاية بجاية'),
+    normalizeText('مولود خارج بجاية / Né(e) hors Béjaïa')
+]);
+
+const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const CNI_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
+const SIGNED_ENGAGEMENT_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png']);
+const MIME_EXTENSIONS = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'application/pdf': 'pdf'
+};
+
+function normalizeText(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+}
+
+function cleanString(value) {
+    if (value === undefined || value === null) return '';
+    const cleaned = String(value).trim().replace(/\s+/g, ' ');
+    return ['null', 'undefined'].includes(cleaned.toLowerCase()) ? '' : cleaned;
+}
+
+function digitsOnly(value) {
+    return String(value || '').replace(/\D/g, '');
+}
+
+function isValidEmail(email) {
+    const value = cleanString(email).toLowerCase();
+    if (value.length > 254 || !/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(value)) {
+        return false;
+    }
+    const [local, domain] = value.split('@');
+    if (!local || !domain || local.startsWith('.') || local.endsWith('.') || local.includes('..')) return false;
+    return domain.split('.').every(label => label && !label.startsWith('-') && !label.endsWith('-'));
+}
+
+function isValidDateOnly(value) {
+    const date = cleanString(value);
+    const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return false;
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) {
+        return false;
+    }
+    const today = new Date();
+    const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+    return parsed.getTime() <= todayUtc;
+}
+
+function dateOnly(value) {
+    if (!value) return '';
+    if (value instanceof Date) {
+        const year = value.getUTCFullYear();
+        const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(value.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    const raw = String(value);
+    const match = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : raw;
+}
+
+function hasDigits(value) {
+    return /\d/.test(cleanString(value));
+}
+
+function isValidTextValue(value) {
+    return /[\p{L}\u0600-\u06FF]/u.test(cleanString(value)) && !hasDigits(value);
+}
+
+function isBejaiaCommune(value) {
+    return COMMUNE_LOOKUP.has(normalizeText(value));
+}
+
+function isOutsideBejaiaChoice(value) {
+    return OUTSIDE_BEJAIA_VALUES.has(normalizeText(value));
+}
+
+function parseDataUrl(dataUrl) {
     if (!dataUrl || typeof dataUrl !== 'string') return null;
-    const matches = dataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) return null;
-    const buffer = Buffer.from(matches[2], 'base64');
-    let ext = matches[1].split('/')[1] || 'png';
-    // Clean up extensions
-    if (ext === 'jpeg') ext = 'jpg';
-    if (ext.includes('svg')) ext = 'svg';
+    const matches = dataUrl.match(/^data:([A-Za-z0-9.+/-]+);base64,([A-Za-z0-9+/=\s]+)$/);
+    if (!matches) return null;
+    try {
+        return {
+            mime: matches[1].toLowerCase(),
+            buffer: Buffer.from(matches[2].replace(/\s/g, ''), 'base64')
+        };
+    } catch {
+        return null;
+    }
+}
+
+function sniffMime(buffer) {
+    if (!buffer || buffer.length < 4) return '';
+    if (buffer.subarray(0, 4).toString('latin1') === '%PDF') return 'application/pdf';
+    if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return 'image/jpeg';
+    if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) return 'image/png';
+    if (buffer.subarray(0, 4).toString('latin1') === 'RIFF' && buffer.subarray(8, 12).toString('latin1') === 'WEBP') return 'image/webp';
+    return '';
+}
+
+function saveBase64Image(dataUrl, folder, filename, options = {}) {
+    if (!dataUrl || typeof dataUrl !== 'string') return null;
+    const parsed = parseDataUrl(dataUrl);
+    if (!parsed) return null;
+
+    const allowedMimes = options.allowedMimes || IMAGE_MIME_TYPES;
+    const maxBytes = options.maxBytes || 5 * 1024 * 1024;
+    const detectedMime = sniffMime(parsed.buffer);
+    if (!allowedMimes.has(parsed.mime) || !allowedMimes.has(detectedMime) || parsed.mime !== detectedMime) {
+        return null;
+    }
+    if (parsed.buffer.length === 0 || parsed.buffer.length > maxBytes) return null;
+
+    const ext = MIME_EXTENSIONS[detectedMime];
 
     const relPath = `/images/${folder}/${filename}.${ext}`;
     const fullPath = path.join(projectRoot, 'images', folder, `${filename}.${ext}`);
 
-    fs.writeFileSync(fullPath, buffer);
+    fs.writeFileSync(fullPath, parsed.buffer);
     return relPath;
 }
 
@@ -157,6 +290,120 @@ function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+function validateRegistrationPayload(body) {
+    const errors = [];
+    const requiredTextFields = [
+        ['nomAr', 'اللقب بالعربية'],
+        ['prenomAr', 'الاسم بالعربية'],
+        ['dateNaissance', 'تاريخ الميلاد'],
+        ['genre', 'الجنس'],
+        ['nationalite', 'الجنسية'],
+        ['lieuNaissance', 'مكان الميلاد'],
+        ['nin', 'رقم التعريف الوطني'],
+        ['email', 'البريد الإلكتروني'],
+        ['telephone', 'رقم الهاتف'],
+        ['adresse', 'العنوان'],
+        ['ville', 'المدينة'],
+        ['password', 'كلمة المرور']
+    ];
+
+    for (const [field, label] of requiredTextFields) {
+        if (!cleanString(body[field])) errors.push(`${label} مطلوب`);
+    }
+
+    if (cleanString(body.nomAr) && !isValidTextValue(body.nomAr)) errors.push('اللقب بالعربية لا يجب أن يحتوي على أرقام');
+    if (cleanString(body.prenomAr) && !isValidTextValue(body.prenomAr)) errors.push('الاسم بالعربية لا يجب أن يحتوي على أرقام');
+    if (cleanString(body.nom) && !isValidTextValue(body.nom)) errors.push('اللقب باللاتينية لا يجب أن يحتوي على أرقام');
+    if (cleanString(body.prenom) && !isValidTextValue(body.prenom)) errors.push('الاسم باللاتينية لا يجب أن يحتوي على أرقام');
+
+    if (cleanString(body.dateNaissance) && !isValidDateOnly(body.dateNaissance)) {
+        errors.push('تاريخ الميلاد غير صالح');
+    }
+
+    if (cleanString(body.nationalite) && (!/[\p{L}\u0600-\u06FF]/u.test(cleanString(body.nationalite)) || hasDigits(body.nationalite))) {
+        errors.push('الجنسية غير صالحة');
+    }
+
+    const birthPlace = cleanString(body.lieuNaissance);
+    if (birthPlace && !isBejaiaCommune(birthPlace) && !isOutsideBejaiaChoice(birthPlace)) {
+        errors.push('مكان الميلاد يجب أن يكون بلدية من بجاية أو خيار مولود خارج بجاية');
+    }
+
+    const city = cleanString(body.ville);
+    if (city && !isBejaiaCommune(city)) {
+        errors.push('مدينة الإقامة يجب أن تكون بلدية صحيحة من ولاية بجاية');
+    }
+
+    const ninDigits = digitsOnly(body.nin);
+    if (cleanString(body.nin) && !/^\d{18}$/.test(ninDigits)) {
+        errors.push('رقم التعريف الوطني يجب أن يتكون من 18 رقما');
+    }
+
+    const phoneDigits = digitsOnly(body.telephone);
+    if (cleanString(body.telephone) && !/^0\d{9}$/.test(phoneDigits)) {
+        errors.push('رقم الهاتف يجب أن يتكون من 10 أرقام ويبدأ بـ 0');
+    }
+
+    const whatsappDigits = digitsOnly(body.whatsapp);
+    if (cleanString(body.whatsapp) && !/^0\d{9}$/.test(whatsappDigits)) {
+        errors.push('رقم واتساب يجب أن يتكون من 10 أرقام ويبدأ بـ 0');
+    }
+
+    const zipDigits = digitsOnly(body.codePostal);
+    if (cleanString(body.codePostal) && !/^\d{5}$/.test(zipDigits)) {
+        errors.push('الرمز البريدي يجب أن يتكون من 5 أرقام');
+    }
+
+    if (cleanString(body.email) && !isValidEmail(body.email)) {
+        errors.push('البريد الإلكتروني غير صالح');
+    }
+
+    if (!body.cniFront) errors.push('بطاقة الهوية - الوجه الأمامي مطلوبة');
+    if (!body.cniBack) errors.push('بطاقة الهوية - الوجه الخلفي مطلوبة');
+    if (body.conditionsAccepted !== true) errors.push('يجب قبول شروط الاستخدام');
+
+    return errors;
+}
+
+function mapLecteurRow(user, includePrivateDates = false) {
+    const isInvalid = (s) => !s || String(s).trim().split('').every(c => c === '?');
+    const mapped = {
+        lecteurId: user.LEC_ID,
+        username: user.LEC_ID,
+        nom: isInvalid(user.LEC_NOM_AR) ? user.LEC_NOM : user.LEC_NOM_AR,
+        prenom: isInvalid(user.LEC_PRENOM_AR) ? user.LEC_PRENOM : user.LEC_PRENOM_AR,
+        nomLatin: user.LEC_NOM,
+        prenomLatin: user.LEC_PRENOM,
+        email: user.LEC_EMAIL,
+        telephone: user.LEC_TEL,
+        adresse: user.LEC_ADRESSE,
+        naissance: dateOnly(user.LEC_DATE_NAISSANCE),
+        lieuNaissance: user.LEC_LIEU_NAISSANCE || '',
+        nationalite: user.LEC_NATIONALITE || '',
+        genre: user.LEC_GENRE || '',
+        profession: user.LEC_PROFESSION || '',
+        nin: user.LEC_NIN,
+        photo: user.LEC_PHOTO,
+        cniFront: user.LEC_CNI_FRONT,
+        cniBack: user.LEC_CNI_BACK,
+        ville: user.LEC_VILLE || '',
+        codePostal: user.LEC_CODE_POSTAL || '',
+        whatsapp: user.LEC_WHATSAPP || '',
+        statut: user.LEC_STATUT,
+        categorie: user.CAT_ID,
+        emailVerified: user.LEC_EMAIL_VERIFIED || false
+    };
+
+    if (includePrivateDates) {
+        mapped.rfid = user.LEC_RFID;
+        mapped.date_expiration = dateOnly(user.LEC_DATE_EXPIRATION);
+        mapped.date_adhesion = dateOnly(user.CREATE_DATE);
+        mapped.docEngagement = user.LEC_DOC_ENGAGEMENT || '';
+    }
+
+    return mapped;
+}
+
 export async function login(fastify, opts) {
     fastify.post('/api/auth/login', async (request, reply) => {
         try {
@@ -212,38 +459,13 @@ export async function login(fastify, opts) {
 
             const user = result.rows[0];
 
-            console.log('Stored password hash (raw):', user.LEC_PASSWORD);
-            console.log('Input password hash (raw):', hashedPassword);
-
             // Using trim() to avoid padding issues if any, although unlikely for varchar
             if (user.LEC_PASSWORD.trim() !== hashedPassword.trim()) {
                 console.log('Hash mismatch!');
                 return reply.status(401).send({ error: 'Identifiant ou mot de passe incorrect' });
             }
 
-            // Map database fields to frontend expected fields
-            const userData = {
-                lecteurId: user.LEC_ID,
-                username: user.LEC_ID,
-                nom: user.LEC_NOM_AR || user.LEC_NOM,
-                prenom: user.LEC_PRENOM_AR || user.LEC_PRENOM,
-                nomLatin: user.LEC_NOM,
-                prenomLatin: user.LEC_PRENOM,
-                email: user.LEC_EMAIL,
-                telephone: user.LEC_TEL,
-                adresse: user.LEC_ADRESSE,
-                naissance: user.LEC_DATE_NAISSANCE,
-                lieuNaissance: user.LEC_LIEU_NAISSANCE || '',
-                nationalite: user.LEC_NATIONALITE || '',
-                genre: user.LEC_GENRE || '',
-                profession: user.LEC_PROFESSION || '',
-                nin: user.LEC_NIN,
-                photo: user.LEC_PHOTO,
-                cniFront: user.LEC_CNI_FRONT,
-                cniBack: user.LEC_CNI_BACK,
-                statut: user.LEC_STATUT,
-                categorie: user.CAT_ID
-            };
+            const userData = mapLecteurRow(user);
 
             reply.send({ user: userData });
         } catch (error) {
@@ -267,33 +489,7 @@ export async function getUserProfile(fastify, opts) {
             }
 
             const user = result.rows[0];
-            const isInvalid = (s) => !s || s.trim().split('').every(c => c === '?');
-            const userData = {
-                lecteurId: user.LEC_ID,
-                username: user.LEC_ID,
-                nom: isInvalid(user.LEC_NOM_AR) ? user.LEC_NOM : user.LEC_NOM_AR,
-                prenom: isInvalid(user.LEC_PRENOM_AR) ? user.LEC_PRENOM : user.LEC_PRENOM_AR,
-                nomLatin: user.LEC_NOM,
-                prenomLatin: user.LEC_PRENOM,
-                email: user.LEC_EMAIL,
-                telephone: user.LEC_TEL,
-                adresse: user.LEC_ADRESSE,
-                naissance: user.LEC_DATE_NAISSANCE,
-                lieuNaissance: user.LEC_LIEU_NAISSANCE || '',
-                nationalite: user.LEC_NATIONALITE || '',
-                genre: user.LEC_GENRE || '',
-                profession: user.LEC_PROFESSION || '',
-                nin: user.LEC_NIN,
-                photo: user.LEC_PHOTO,
-                cniFront: user.LEC_CNI_FRONT,
-                cniBack: user.LEC_CNI_BACK,
-                statut: user.LEC_STATUT,
-                categorie: user.CAT_ID,
-                rfid: user.LEC_RFID,
-                date_expiration: user.LEC_DATE_EXPIRATION,
-                date_adhesion: user.CREATE_DATE,
-                emailVerified: user.LEC_EMAIL_VERIFIED || false
-            };
+            const userData = mapLecteurRow(user, true);
 
             reply.send({ user: userData });
         } catch (error) {
@@ -309,10 +505,14 @@ export async function checkNin(fastify, opts) {
         try {
             const { nin, isParent } = request.body;
             if (!nin) return reply.status(400).send({ error: 'NIN requis' });
+            const normalizedNin = digitsOnly(nin);
+            if (!/^\d{18}$/.test(normalizedNin)) {
+                return reply.status(400).send({ error: 'Le NIN doit contenir exactement 18 chiffres' });
+            }
 
             const result = await pool.query(
                 'SELECT "LEC_ID", "LEC_NOM_AR", "LEC_PRENOM_AR" FROM "LECTEUR" WHERE "LEC_NIN" = $1',
-                [nin]
+                [normalizedNin]
             );
 
             if (result.rows.length > 0) {
@@ -344,10 +544,26 @@ export async function registerStep1(fastify, opts) {
                 lieuNaissance, nationalite, ville, codePostal, whatsapp
             } = request.body;
 
-            // Validation: nomAr/prenomAr (Arabic), dateNaissance, password
-            if (!nomAr || !prenomAr || !dateNaissance || !password) {
-                return reply.status(400).send({ error: 'Champs obligatoires manquants (Nom, Prénom, Date de naissance, Mot de passe)' });
+            const validationErrors = validateRegistrationPayload(request.body);
+            if (validationErrors.length > 0) {
+                return reply.status(400).send({ error: validationErrors.join('، ') });
             }
+
+            const normalizedEmail = cleanString(email).toLowerCase();
+            const normalizedPhone = digitsOnly(telephone);
+            const normalizedWhatsapp = cleanString(whatsapp) ? digitsOnly(whatsapp) : null;
+            const normalizedNin = digitsOnly(nin);
+            const normalizedPostalCode = cleanString(codePostal) ? digitsOnly(codePostal) : null;
+            const cleanNom = cleanString(nom) || null;
+            const cleanPrenom = cleanString(prenom) || null;
+            const cleanNomAr = cleanString(nomAr);
+            const cleanPrenomAr = cleanString(prenomAr);
+            const cleanAdresse = cleanString(adresse);
+            const cleanProfession = cleanString(profession) || null;
+            const cleanGenre = cleanString(genre);
+            const cleanLieuNaissance = cleanString(lieuNaissance);
+            const cleanNationalite = cleanString(nationalite);
+            const cleanVille = cleanString(ville);
 
             const { isParent } = request.body;
             const client = await pool.connect();
@@ -359,10 +575,10 @@ export async function registerStep1(fastify, opts) {
                 await client.query('SELECT pg_advisory_xact_lock($1)', [new Date().getFullYear()]);
 
                 // NIN Check (unless isParent is true)
-                if (nin && !isParent) {
+                if (normalizedNin && !isParent) {
                     const existingNin = await client.query(
                         'SELECT * FROM "LECTEUR" WHERE "LEC_NIN" = $1',
-                        [nin]
+                        [normalizedNin]
                     );
                     if (existingNin.rows.length > 0) {
                         await client.query('ROLLBACK');
@@ -370,16 +586,14 @@ export async function registerStep1(fastify, opts) {
                     }
                 }
 
-                if (email) {
-                    const existingEmail = await client.query(
-                        'SELECT * FROM "LECTEUR" WHERE "LEC_EMAIL" = $1',
-                        [email]
-                    );
+                const existingEmail = await client.query(
+                    'SELECT * FROM "LECTEUR" WHERE LOWER("LEC_EMAIL") = LOWER($1)',
+                    [normalizedEmail]
+                );
 
-                    if (existingEmail.rows.length > 0) {
-                        await client.query('ROLLBACK');
-                        return reply.status(400).send({ error: 'Email déjà utilisé' });
-                    }
+                if (existingEmail.rows.length > 0) {
+                    await client.query('ROLLBACK');
+                    return reply.status(400).send({ error: 'Email déjà utilisé' });
                 }
 
                 lecteurId = await generateAnnualLecteurId(client);
@@ -387,14 +601,32 @@ export async function registerStep1(fastify, opts) {
 
                 // Handle Photo and ID Images
                 const safeLecteurId = lecteurId.replace(/[^a-zA-Z0-9]/g, '_');
-                const photoPath = saveBase64Image(photo, 'users', `photo_${safeLecteurId}`);
-                const cniFrontPath = saveBase64Image(cniFront, 'cni', `cni_front_${safeLecteurId}`);
-                const cniBackPath = saveBase64Image(cniBack, 'cni', `cni_back_${safeLecteurId}`);
+                const photoPath = photo ? saveBase64Image(photo, 'users', `photo_${safeLecteurId}`, {
+                    allowedMimes: IMAGE_MIME_TYPES,
+                    maxBytes: 5 * 1024 * 1024
+                }) : null;
+                if (photo && !photoPath) {
+                    await client.query('ROLLBACK');
+                    return reply.status(400).send({ error: 'Photo invalide. Formats acceptés: JPG, PNG, WEBP (5MB max).' });
+                }
+
+                const cniFrontPath = saveBase64Image(cniFront, 'cni', `cni_front_${safeLecteurId}`, {
+                    allowedMimes: CNI_MIME_TYPES,
+                    maxBytes: 5 * 1024 * 1024
+                });
+                const cniBackPath = saveBase64Image(cniBack, 'cni', `cni_back_${safeLecteurId}`, {
+                    allowedMimes: CNI_MIME_TYPES,
+                    maxBytes: 5 * 1024 * 1024
+                });
+                if (!cniFrontPath || !cniBackPath) {
+                    await client.query('ROLLBACK');
+                    return reply.status(400).send({ error: 'Les deux faces de la carte d’identité sont obligatoires. Formats acceptés: JPG, PNG, WEBP ou PDF (5MB max).' });
+                }
 
                 // Store verification code
                 verificationCodes.set(lecteurId, {
                     code: verificationCode,
-                    email: email || null,
+                    email: normalizedEmail,
                     createdAt: Date.now(),
                     expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
                 });
@@ -410,10 +642,10 @@ export async function registerStep1(fastify, opts) {
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1, 'system', NOW(), 0, $11, $12, $13,
                      $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
                     [
-                        lecteurId, categorie || 1, nom || null, prenom || null, dateNaissance,
-                        adresse || null, telephone || null, email || null, hashedPassword, nin || null,
-                        nomAr, prenomAr, photoPath, cniFrontPath, cniBackPath, profession || null, genre || null,
-                        lieuNaissance || null, nationalite || 'Algérienne', ville || null, codePostal || null, whatsapp || null
+                        lecteurId, categorie || 1, cleanNom, cleanPrenom, dateNaissance,
+                        cleanAdresse, normalizedPhone, normalizedEmail, hashedPassword, normalizedNin,
+                        cleanNomAr, cleanPrenomAr, photoPath, cniFrontPath, cniBackPath, cleanProfession, cleanGenre,
+                        cleanLieuNaissance, cleanNationalite, cleanVille, normalizedPostalCode, normalizedWhatsapp
                     ]
                 );
 
@@ -426,8 +658,8 @@ export async function registerStep1(fastify, opts) {
                          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'EXTERNE', $9, $10, 'PENDING', NOW(), $11)
                          ON CONFLICT DO NOTHING`,
                         [
-                            nomAr || nom, prenomAr || prenom, email || null, telephone || null, nin || null,
-                            categorie || null, dateNaissance || null, adresse || null,
+                            cleanNomAr || cleanNom, cleanPrenomAr || cleanPrenom, normalizedEmail, normalizedPhone, normalizedNin,
+                            categorie || null, dateNaissance || null, cleanAdresse,
                             cniFrontPath, cniBackPath, lecteurId
                         ]
                     );
@@ -452,17 +684,18 @@ export async function registerStep1(fastify, opts) {
                 client.release();
             }
 
+            let emailSent = true;
             try {
-                if (email) {
-                    await sendVerificationEmail(email, emailToken, lecteurId);
-                    console.log(`Verification email sent to: ${email}`);
-                }
+                await sendVerificationEmail(normalizedEmail, emailToken, lecteurId);
+                console.log(`Verification email sent to: ${normalizedEmail}`);
             } catch (mailError) {
+                emailSent = false;
                 console.error('Failed to send verification email:', mailError);
             }
 
             reply.send({
                 lecteurId: lecteurId,
+                emailSent,
                 message: 'Inscription étape 1 validée. Vérifiez votre email.'
             });
         } catch (error) {
@@ -971,11 +1204,15 @@ export async function exportEngagementPdfAr(fastify, opts) {
                     userData.genre = dbUser.LEC_GENRE || dbUser.LEC_SEXE || userData.genre;
                     userData.adresse = dbUser.LEC_ADRESSE || userData.adresse;
                     userData.telephone = dbUser.LEC_TEL || dbUser.LEC_TELEPHONE || userData.telephone;
-                    userData.naissance = dbUser.LEC_DATE_NAISSANCE || userData.naissance;
+                    userData.naissance = dateOnly(dbUser.LEC_DATE_NAISSANCE) || userData.naissance;
                     userData.lieuNaissance = dbUser.LEC_LIEU_NAISSANCE || userData.lieuNaissance;
                     userData.profession = dbUser.LEC_PROFESSION || userData.profession;
                     userData.nin = dbUser.LEC_CNI || dbUser.LEC_NIN || userData.nin;
                     userData.email = dbUser.LEC_EMAIL || userData.email;
+                    userData.ville = dbUser.LEC_VILLE || userData.ville;
+                    userData.codePostal = dbUser.LEC_CODE_POSTAL || userData.codePostal;
+                    userData.whatsapp = dbUser.LEC_WHATSAPP || userData.whatsapp;
+                    userData.date_adhesion = dateOnly(dbUser.CREATE_DATE) || userData.date_adhesion;
                 }
             } catch (dbErr) {
                 console.error('Failed to sync user data with DB during PDF generation:', dbErr);
@@ -1139,11 +1376,15 @@ export async function exportEngagementPdfFr(fastify, opts) {
                     userData.genre = dbUser.LEC_GENRE || dbUser.LEC_SEXE || userData.genre;
                     userData.adresse = dbUser.LEC_ADRESSE || userData.adresse;
                     userData.telephone = dbUser.LEC_TEL || dbUser.LEC_TELEPHONE || userData.telephone;
-                    userData.naissance = dbUser.LEC_DATE_NAISSANCE || userData.naissance;
+                    userData.naissance = dateOnly(dbUser.LEC_DATE_NAISSANCE) || userData.naissance;
                     userData.lieuNaissance = dbUser.LEC_LIEU_NAISSANCE || userData.lieuNaissance;
                     userData.profession = dbUser.LEC_PROFESSION || userData.profession;
                     userData.nin = dbUser.LEC_CNI || dbUser.LEC_NIN || userData.nin;
                     userData.email = dbUser.LEC_EMAIL || userData.email;
+                    userData.ville = dbUser.LEC_VILLE || userData.ville;
+                    userData.codePostal = dbUser.LEC_CODE_POSTAL || userData.codePostal;
+                    userData.whatsapp = dbUser.LEC_WHATSAPP || userData.whatsapp;
+                    userData.date_adhesion = dateOnly(dbUser.CREATE_DATE) || userData.date_adhesion;
                 }
             } catch (dbErr) {
                 console.error('Failed to sync user data with DB during PDF generation:', dbErr);
@@ -1598,7 +1839,10 @@ export async function updateProfilePhoto(fastify, opts) {
                 return reply.status(400).send({ error: 'lecteurId and photo are required' });
             }
 
-            const photoPath = saveBase64Image(photo, 'users', `photo_${lecteurId.replace(/[^a-zA-Z0-9]/g, '_')}`);
+            const photoPath = saveBase64Image(photo, 'users', `photo_${lecteurId.replace(/[^a-zA-Z0-9]/g, '_')}`, {
+                allowedMimes: IMAGE_MIME_TYPES,
+                maxBytes: 5 * 1024 * 1024
+            });
             if (!photoPath) {
                 return reply.status(400).send({ error: 'Invalid photo format' });
             }
@@ -1829,16 +2073,29 @@ export async function uploadSignedEngagement(fastify, opts) {
                 return reply.status(400).send({ error: 'Données manquantes' });
             }
 
+            const parsed = parseDataUrl(fileData);
+            if (!parsed) {
+                return reply.status(400).send({ error: 'Fichier invalide' });
+            }
+
+            const detectedMime = sniffMime(parsed.buffer);
+            if (!SIGNED_ENGAGEMENT_MIME_TYPES.has(parsed.mime) || !SIGNED_ENGAGEMENT_MIME_TYPES.has(detectedMime) || parsed.mime !== detectedMime) {
+                return reply.status(400).send({ error: 'Format refusé. Formats acceptés: PDF, JPG, PNG.' });
+            }
+
+            if (parsed.buffer.length === 0 || parsed.buffer.length > 10 * 1024 * 1024) {
+                return reply.status(400).send({ error: 'Le fichier dépasse 10MB ou est vide' });
+            }
+
             const uploadDir = path.join(projectRoot, 'uploads', 'engagements');
             if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-            const ext = (fileName || 'engagement.pdf').split('.').pop().replace(/[^a-zA-Z0-9]/g, '') || 'pdf';
+            const ext = MIME_EXTENSIONS[detectedMime] || 'pdf';
             const safeId = String(lecteurId).replace(/[^a-zA-Z0-9_\-]/g, '_');
             const filename = `engagement_signe_${safeId}_${Date.now()}.${ext}`;
             const fullPath = path.join(uploadDir, filename);
 
-            const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
-            fs.writeFileSync(fullPath, Buffer.from(base64Data, 'base64'));
+            fs.writeFileSync(fullPath, parsed.buffer);
 
             const relPath = `/uploads/engagements/${filename}`;
             await pool.query('UPDATE "LECTEUR" SET "LEC_DOC_ENGAGEMENT" = $1 WHERE "LEC_ID" = $2', [relPath, lecteurId]);
@@ -1859,7 +2116,9 @@ export async function uploadSignedEngagement(fastify, opts) {
             const filePath = path.join(projectRoot, 'uploads', 'engagements', safeFilename);
             if (!fs.existsSync(filePath)) return reply.status(404).send({ error: 'Fichier non trouvé' });
             const buf = fs.readFileSync(filePath);
-            reply.type('application/pdf');
+            const ext = path.extname(filePath).toLowerCase();
+            const contentType = ext === '.pdf' ? 'application/pdf' : ext === '.png' ? 'image/png' : 'image/jpeg';
+            reply.type(contentType);
             return reply.send(buf);
         } catch (error) {
             reply.status(500).send({ error: error.message });

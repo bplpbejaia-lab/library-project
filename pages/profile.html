@@ -954,7 +954,7 @@
         <!-- Upload Signed Engagement Modal -->
         <div id="uploadEngagementModal" class="login-overlay" onclick="if(event.target===this)closeUploadEngagement()">
             <div class="login-modal-popup" style="max-width:480px;width:100%;">
-                <h2 class="text-xl font-bold mb-2 text-center" data-i18n="profile-upload-title">رفع الفيشة الموقّعة</h2>
+                <h2 class="text-xl font-bold mb-2 text-center" data-i18n="profile-upload-title">رفع استمارة التسجيل الموقّعة</h2>
                 <p class="text-sm text-slate-500 text-center mb-6" data-i18n="profile-upload-desc">قم برفع نسخة مسح ضوئي (PDF أو صورة) من فيشة التعهد بعد توقيعها</p>
                 <div id="engUploadDropzone" onclick="document.getElementById('engFileInput').click()" style="border:2px dashed #d1d5db;border-radius:16px;padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:#f8fafc;" onmouseover="this.style.borderColor='#2E7D32'" onmouseout="this.style.borderColor='#d1d5db'">
                     <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">cloud_upload</span>
@@ -1386,6 +1386,14 @@
             return digits.match(/.{1,2}/g).join(' ');
         }
 
+        function formatDateForDisplay(value) {
+            if (!value) return '';
+            const raw = String(value);
+            const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+            return raw;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const storedUser = JSON.parse(localStorage.getItem('libraryUser'));
             if (!storedUser || !storedUser.lecteurId) {
@@ -1460,7 +1468,7 @@
 
                 safeSetText('profileFullName', (user.nom || '').toUpperCase() + ' ' + (user.prenom || ''));
                 safeSetText('profileNomLatin', (user.nomLatin || '') + ' ' + (user.prenomLatin || ''));
-                safeSetText('profileBirthdate', user.naissance ? new Date(user.naissance).toLocaleDateString('fr-FR') : '...');
+                safeSetText('profileBirthdate', user.naissance ? formatDateForDisplay(user.naissance) : '...');
                 
                 // Map and translate profession
                 let translatedProf = user.profession || '';
@@ -1586,9 +1594,9 @@
             renderRfidCard('directRfidRecto', user);
 
             const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
-            const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const regDateStr = formatDateForDisplay(regDate);
             const expiry = user.date_expiration || user.LEC_DATE_EXPIRATION;
-            const expiryStr = expiry ? new Date(expiry).toLocaleDateString('fr-FR') : 'Indéfinie';
+            const expiryStr = expiry ? formatDateForDisplay(expiry) : 'Indéfinie';
 
             document.getElementById('directRfidVerso').innerHTML = `
                 <div class="rfid-card-new back" style="display:flex !important; visibility:visible !important; opacity:1 !important;">
@@ -1648,7 +1656,7 @@
 
                 const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : `https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff`;
                 const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
-                const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const regDateStr = formatDateForDisplay(regDate);
 
                 target.innerHTML = `
                     <div class="rfid-card-new front" style="display:block !important;">
@@ -1708,7 +1716,18 @@
         function handleEngFileSelect(input) {
             const file = input.files[0];
             if (!file) return;
-            if (file.size > 10 * 1024 * 1024) { alert('حجم الملف يتجاوز 10MB'); return; }
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+            const allowedExt = /\.(pdf|jpe?g|png)$/i;
+            if (file.size > 10 * 1024 * 1024) {
+                alert('حجم الملف يتجاوز 10MB');
+                input.value = '';
+                return;
+            }
+            if (!allowedTypes.includes(file.type) || !allowedExt.test(file.name)) {
+                alert('صيغة الملف غير مقبولة. الصيغ المقبولة: PDF, JPG, PNG');
+                input.value = '';
+                return;
+            }
             engSelectedFile = file;
             document.getElementById('engFileName').textContent = file.name;
             document.getElementById('engFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
@@ -1914,9 +1933,9 @@
             renderRfidCard('rfidRecto', user);
 
             const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
-            const regDateStr = new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const regDateStr = formatDateForDisplay(regDate);
             const expiry = user.date_expiration || user.LEC_DATE_EXPIRATION;
-            const expiryStr = expiry ? new Date(expiry).toLocaleDateString('fr-FR') : 'Indéfinie';
+            const expiryStr = expiry ? formatDateForDisplay(expiry) : 'Indéfinie';
 
             document.getElementById('rfidVerso').innerHTML = `
                 <div class="rfid-card-new back">

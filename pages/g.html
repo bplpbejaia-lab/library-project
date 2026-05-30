@@ -2105,11 +2105,11 @@
                         <label class="form-label required">مكان الميلاد <span
                                 class="material-symbols-outlined text-[18px] mr-2">location_on</span></label>
                         <input type="text" class="form-input" id="lieuNaissance" placeholder="اختر بلدية الميلاد"
-                            list="bejaiaCommunesList" required>
+                            list="birthPlacesList" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label required">رقم الهوية الوطنية <span
+                        <label class="form-label required">رقم التعريف الوطني <span
                                 class="material-symbols-outlined text-[18px] mr-2">badge</span></label>
                         <input type="text" class="form-input" id="nin" placeholder="123456789012345678" maxlength="18"
                             required>
@@ -2150,6 +2150,9 @@
                     </div>
                 </div>
 
+                <datalist id="birthPlacesList">
+                    <option value="مولود خارج بجاية / Né(e) hors Béjaïa"></option>
+                </datalist>
                 <datalist id="bejaiaCommunesList">
                     <option value="Adekar"></option>
                     <option value="Aït Maouche"></option>
@@ -2230,7 +2233,7 @@
                             <img id="photoPreviewImg" src="" alt="Photo preview">
                         </div>
                         <div class="photo-name" id="photoNameDisplay">
-                            بنسالم ناصم
+                            الصورة اختيارية
                         </div>
                     </div>
 
@@ -2261,7 +2264,7 @@
                     </div>
                 </div>
 
-                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+                <input type="file" id="photoUpload" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" style="display: none;">
 
                 <div class="navigation-buttons">
                     <button class="btn btn-next" id="nextToStep3">
@@ -2432,7 +2435,7 @@
                                 </button>
                             </div>
 
-                            <input type="file" id="cniUpload" accept="image/*,.pdf" style="display: none;">
+                            <input type="file" id="cniUpload" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" style="display: none;">
                         </div>
 
                         <div class="document-item">
@@ -2464,7 +2467,7 @@
                                 </button>
                             </div>
 
-                            <input type="file" id="cniBackUpload" accept="image/*,.pdf" style="display: none;">
+                            <input type="file" id="cniBackUpload" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" style="display: none;">
                         </div>
                     </div>
 
@@ -2478,7 +2481,7 @@
                         <ul style="color: var(--gray-color); font-size: 0.85rem; padding-right: 20px;">
                             <li>بطاقة الهوية (الوجهين) إلزامية لجميع المسجلين</li>
                             <li>تأكد من وضوح الصورة والبيانات</li>
-                            <li>الصيغ المقبولة: JPG, PNG, PDF (حد أقصى 5MB)</li>
+                            <li>الصيغ المقبولة: JPG, PNG, WEBP, PDF (حد أقصى 5MB)</li>
                             <li>يمكنك مسح المستندات بكاميرتك</li>
                         </ul>
                     </div>
@@ -2513,7 +2516,7 @@
                                 <img id="summaryPhotoImgModern" src="" alt="Photo">
                             </div>
                             <div class="summary-name-modern" id="summaryNameModern">
-                                بنسالم ناصم
+                                -
                             </div>
                             <div class="summary-id-modern">
                                 <span class="material-symbols-outlined text-[18px] ml-2">badge</span> الرقم الوطني:
@@ -2836,6 +2839,94 @@
                 'لا': 'b', 'لأ': 'b', 'لإ': 'b', 'لآ': 'b'
             };
             const countryCodes = 'AF AX AL DZ AS AD AO AI AQ AG AR AM AW AU AT AZ BS BH BD BB BY BE BZ BJ BM BT BO BQ BA BW BV BR IO BN BG BF BI CV KH CM CA KY CF TD CL CN CX CC CO KM CG CD CK CR CI HR CU CW CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FK FO FJ FI FR GF PF TF GA GM GE DE GH GI GR GL GD GP GU GT GG GN GW GY HT HM VA HN HK HU IS IN ID IR IQ IE IM IL IT JM IL IT JM JP JE JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MQ MR MU YT MX FM MD MC MN ME MS MA MZ MM NA NR NP NL NC NZ NI NE NG NU NF MK MP NO OM PK PW PS PA PG PY PE PH PN PL PT PR QA RE RO RU RW BL SH KN LC MF PM VC WS SM ST SA SN RS SC SL SG SX SK SI SB SO ZA GS SS ES LK SD SR SJ SE CH SY TW TJ TZ TH TL TG TK TO TT TN TR TM TC TV UG UA AE GB US UM UY UZ VU VE VN VG VI WF EH YE ZM ZW'.split(' ');
+            const outsideBejaiaBirthPlace = 'مولود خارج بجاية / Né(e) hors Béjaïa';
+            const validDocumentTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+            const validPhotoTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            const maxUploadBytes = 5 * 1024 * 1024;
+
+            function normalizeValue(value) {
+                return String(value || '')
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .toLowerCase();
+            }
+
+            function getDigits(value) {
+                return String(value || '').replace(/\D/g, '');
+            }
+
+            function getInputValue(id) {
+                return (document.getElementById(id)?.value || '').trim();
+            }
+
+            function getBejaiaCommunes() {
+                return Array.from(document.querySelectorAll('#bejaiaCommunesList option')).map(option => option.value);
+            }
+
+            function isBejaiaCommune(value) {
+                const normalized = normalizeValue(value);
+                return getBejaiaCommunes().some(commune => normalizeValue(commune) === normalized);
+            }
+
+            function isOutsideBejaiaBirthPlace(value) {
+                const normalized = normalizeValue(value);
+                return [
+                    outsideBejaiaBirthPlace,
+                    'Né(e) hors Béjaïa',
+                    'Ne hors Bejaia',
+                    'مولود خارج بجاية',
+                    'خارج بجاية',
+                    'خارج ولاية بجاية'
+                ].some(option => normalizeValue(option) === normalized);
+            }
+
+            function isValidEmail(value) {
+                const email = String(value || '').trim().toLowerCase();
+                if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(email)) return false;
+                const [local, domain] = email.split('@');
+                if (!local || !domain || local.startsWith('.') || local.endsWith('.') || local.includes('..')) return false;
+                return domain.split('.').every(label => label && !label.startsWith('-') && !label.endsWith('-'));
+            }
+
+            function isValidDateOnly(value) {
+                const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (!match) return false;
+                const year = Number(match[1]);
+                const month = Number(match[2]);
+                const day = Number(match[3]);
+                const parsed = new Date(Date.UTC(year, month - 1, day));
+                if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) return false;
+                const today = new Date();
+                return parsed.getTime() <= Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+            }
+
+            function hasDigits(value) {
+                return /\d/.test(String(value || ''));
+            }
+
+            function hasLetters(value) {
+                return /[A-Za-z\u00C0-\u024F\u0600-\u06FF]/.test(String(value || ''));
+            }
+
+            function focusFirstInvalid(errors) {
+                if (errors[0]?.field) document.getElementById(errors[0].field)?.focus();
+            }
+
+            function showValidationErrors(errors) {
+                if (!errors.length) return true;
+                focusFirstInvalid(errors);
+                showNotification(errors.map(error => error.message).join('<br>'), 'error');
+                return false;
+            }
+
+            function populateBirthPlaces() {
+                const birthList = document.getElementById('birthPlacesList');
+                const communesList = document.getElementById('bejaiaCommunesList');
+                if (!birthList || !communesList) return;
+                birthList.innerHTML = `<option value="${outsideBejaiaBirthPlace}"></option>` + communesList.innerHTML;
+            }
 
             function convertKeyboardText(value, map, sequenceMap = null) {
                 if (sequenceMap) {
@@ -2915,6 +3006,7 @@
             }
 
             bindKeyboardConverters();
+            populateBirthPlaces();
             populateNationalities();
             document.addEventListener('i18nChanged', populateNationalities);
 
@@ -2923,7 +3015,9 @@
                 s.style.cursor = 'pointer';
                 s.addEventListener('click', () => {
                     const step = parseInt(s.getAttribute('data-step'));
-                    goToStep(step);
+                    if (step <= currentStep || validateStepsBefore(step)) {
+                        goToStep(step);
+                    }
                 });
             });
             const formSections = document.querySelectorAll('.form-section');
@@ -2939,7 +3033,6 @@
                 const errorEl = document.getElementById('ninExistsError');
 
                 if (!validateCurrentStep()) {
-                    showNotification('يرجى ملء الحقول الإلزامية: اللقب، الاسم، وتاريخ الميلاد.', 'error');
                     return;
                 }
 
@@ -2968,9 +3061,15 @@
 
                 goToStep(2);
             });
-            document.getElementById('nextToStep3').addEventListener('click', () => goToStep(3));
-            document.getElementById('nextToStep4').addEventListener('click', () => goToStep(4));
-            document.getElementById('nextToStep5').addEventListener('click', () => goToStep(5));
+            document.getElementById('nextToStep3').addEventListener('click', () => {
+                if (validateCurrentStep()) goToStep(3);
+            });
+            document.getElementById('nextToStep4').addEventListener('click', () => {
+                if (validateCurrentStep()) goToStep(4);
+            });
+            document.getElementById('nextToStep5').addEventListener('click', () => {
+                if (validateCurrentStep()) goToStep(5);
+            });
             document.getElementById('prevToStep1').addEventListener('click', () => goToStep(1));
             document.getElementById('prevToStep2').addEventListener('click', () => goToStep(2));
             document.getElementById('prevToStep3').addEventListener('click', () => goToStep(3));
@@ -2983,65 +3082,107 @@
             const removeCniBtn = document.getElementById('removeCniBtn');
             const removeCniBackBtn = document.getElementById('removeCniBackBtn');
 
-            document.getElementById('uploadCniBtn').addEventListener('click', () => cniUpload.click());
+            document.getElementById('uploadCniBtn').addEventListener('click', () => {
+                cniUpload.value = '';
+                cniUpload.click();
+            });
             document.getElementById('scanCniBtn').addEventListener('click', () => openScanner('cni'));
             cniUpload.addEventListener('change', (e) => handleDocumentUpload(e, 'cni'));
 
-            document.getElementById('uploadCniBackBtn').addEventListener('click', () => cniBackUpload.click());
+            document.getElementById('uploadCniBackBtn').addEventListener('click', () => {
+                cniBackUpload.value = '';
+                cniBackUpload.click();
+            });
             document.getElementById('scanCniBackBtn').addEventListener('click', () => openScanner('cniBack'));
             cniBackUpload.addEventListener('change', (e) => handleDocumentUpload(e, 'cniBack'));
 
+            function setDocumentPreview(type, dataUrl, fileName = '') {
+                const isFront = type === 'cni';
+                const preview = document.getElementById(isFront ? 'cniPreview' : 'cniBackPreview');
+                const img = isFront ? cniPreviewImg : cniBackPreviewImg;
+                const removeBtn = isFront ? removeCniBtn : removeCniBackBtn;
+                const icon = preview.querySelector('.material-symbols-outlined');
+                const label = Array.from(preview.querySelectorAll('span')).find(span => !span.classList.contains('material-symbols-outlined'));
+                const isImage = dataUrl.startsWith('data:image/');
+
+                if (isFront) cniDataUrl = dataUrl;
+                else cniBackDataUrl = dataUrl;
+
+                if (isImage) {
+                    img.src = dataUrl;
+                    img.style.display = 'block';
+                    icon.style.display = 'none';
+                    if (label) label.style.display = 'none';
+                } else {
+                    img.style.display = 'none';
+                    img.src = '';
+                    icon.textContent = 'picture_as_pdf';
+                    icon.style.display = 'inline-block';
+                    if (label) {
+                        label.style.display = 'inline-block';
+                        label.textContent = fileName || 'تم اختيار ملف PDF';
+                    }
+                }
+
+                removeBtn.style.display = 'inline-flex';
+                if (currentStep === 5) updateModernSummary();
+            }
+
+            function resetDocumentPreview(type) {
+                const isFront = type === 'cni';
+                const preview = document.getElementById(isFront ? 'cniPreview' : 'cniBackPreview');
+                const img = isFront ? cniPreviewImg : cniBackPreviewImg;
+                const removeBtn = isFront ? removeCniBtn : removeCniBackBtn;
+                const input = isFront ? cniUpload : cniBackUpload;
+                const icon = preview.querySelector('.material-symbols-outlined');
+                const label = Array.from(preview.querySelectorAll('span')).find(span => !span.classList.contains('material-symbols-outlined'));
+
+                if (isFront) cniDataUrl = '';
+                else cniBackDataUrl = '';
+
+                img.style.display = 'none';
+                img.src = '';
+                icon.textContent = 'badge';
+                icon.style.display = 'inline-block';
+                if (label) {
+                    label.style.display = 'inline-block';
+                    label.textContent = 'لم يتم اختيار مستند';
+                }
+                input.value = '';
+                removeBtn.style.display = 'none';
+                if (currentStep === 5) updateModernSummary();
+            }
+
             function handleDocumentUpload(event, type) {
                 const file = event.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const dataUrl = e.target.result;
-                        if (type === 'cni') {
-                            cniDataUrl = dataUrl;
-                            cniPreviewImg.src = dataUrl;
-                            cniPreviewImg.style.display = 'block';
-                            document.getElementById('cniPreview').querySelector('.material-symbols-outlined').style.display = 'none';
-                            document.getElementById('cniPreview').querySelector('span').style.display = 'none';
-                            removeCniBtn.style.display = 'inline-flex';
-                        } else if (type === 'cniBack') {
-                            cniBackDataUrl = dataUrl;
-                            cniBackPreviewImg.src = dataUrl;
-                            cniBackPreviewImg.style.display = 'block';
-                            document.getElementById('cniBackPreview').querySelector('.material-symbols-outlined').style.display = 'none';
-                            document.getElementById('cniBackPreview').querySelector('span').style.display = 'none';
-                            removeCniBackBtn.style.display = 'inline-flex';
-                        }
-                        if (currentStep === 5) updateModernSummary();
-                    };
-                    reader.readAsDataURL(file);
+                if (!file) return;
+                if (file.size > maxUploadBytes) {
+                    showNotification('حجم الملف يجب ألا يتجاوز 5MB.', 'error');
+                    event.target.value = '';
+                    return;
                 }
+                if (!validDocumentTypes.includes(file.type)) {
+                    showNotification('صيغة المستند غير مقبولة. الصيغ المقبولة: JPG, PNG, WEBP, PDF.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    setDocumentPreview(type, e.target.result, file.name);
+                };
+                reader.readAsDataURL(file);
             }
 
             removeCniBtn.addEventListener('click', () => {
-                cniDataUrl = '';
-                cniPreviewImg.style.display = 'none';
-                cniPreviewImg.src = '';
-                document.getElementById('cniPreview').querySelector('.material-symbols-outlined').style.display = 'block';
-                document.getElementById('cniPreview').querySelector('span').style.display = 'inline-block';
-                document.getElementById('cniPreview').querySelector('span').textContent = 'لم يتم اختيار مستند';
-                removeCniBtn.style.display = 'none';
-                if (currentStep === 5) updateModernSummary();
+                resetDocumentPreview('cni');
             });
 
             removeCniBackBtn.addEventListener('click', () => {
-                cniBackDataUrl = '';
-                cniBackPreviewImg.style.display = 'none';
-                cniBackPreviewImg.src = '';
-                document.getElementById('cniBackPreview').querySelector('.material-symbols-outlined').style.display = 'block';
-                document.getElementById('cniBackPreview').querySelector('span').style.display = 'inline-block';
-                document.getElementById('cniBackPreview').querySelector('span').textContent = 'لم يتم اختيار مستند';
-                removeCniBackBtn.style.display = 'none';
-                if (currentStep === 5) updateModernSummary();
+                resetDocumentPreview('cniBack');
             });
 
             function goToStep(step) {
-                // Validation is bypassed to allow free navigation between steps
                 currentStep = step;
 
                 steps.forEach(s => {
@@ -3066,35 +3207,82 @@
                 }
             }
 
-            function validateCurrentStep() {
-                if (currentStep === 1) {
-                    const required = ['nom', 'prenom', 'naissance']; // Only Arabic name fields and date naissance required
-                    for (let field of required) {
-                        const element = document.getElementById(field);
-                        if (!element || !element.value.trim()) {
-                            if (element) element.focus();
-                            return false;
-                        }
+            function validateStep(step) {
+                const errors = [];
+
+                if (step === 1) {
+                    const nom = getInputValue('nom');
+                    const prenom = getInputValue('prenom');
+                    const nomLatin = getInputValue('nomLatin');
+                    const prenomLatin = getInputValue('prenomLatin');
+                    const nationalite = getInputValue('nationalite');
+                    const lieuNaissance = getInputValue('lieuNaissance');
+                    const nin = getDigits(getInputValue('nin'));
+
+                    if (!nom) errors.push({ field: 'nom', message: 'اللقب بالعربية مطلوب.' });
+                    if (!prenom) errors.push({ field: 'prenom', message: 'الاسم بالعربية مطلوب.' });
+                    if (nom && hasDigits(nom)) errors.push({ field: 'nom', message: 'اللقب بالعربية لا يجب أن يحتوي على أرقام.' });
+                    if (prenom && hasDigits(prenom)) errors.push({ field: 'prenom', message: 'الاسم بالعربية لا يجب أن يحتوي على أرقام.' });
+                    if (nomLatin && hasDigits(nomLatin)) errors.push({ field: 'nomLatin', message: 'اللقب باللاتينية لا يجب أن يحتوي على أرقام.' });
+                    if (prenomLatin && hasDigits(prenomLatin)) errors.push({ field: 'prenomLatin', message: 'الاسم باللاتينية لا يجب أن يحتوي على أرقام.' });
+                    if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: 'يرجى اختيار الجنس.' });
+                    if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
+                    if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
+                    if (!lieuNaissance || (!isBejaiaCommune(lieuNaissance) && !isOutsideBejaiaBirthPlace(lieuNaissance))) {
+                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد يجب أن يكون بلدية من بجاية أو خيار مولود خارج بجاية.' });
                     }
-                    return true;
+                    if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.' });
                 }
 
-                if (currentStep === 5) {
+                if (step === 3) {
+                    const phone = getDigits(getInputValue('telephone'));
+                    const whatsapp = getDigits(getInputValue('whatsapp'));
+                    const ville = getInputValue('ville');
+                    const codePostal = getDigits(getInputValue('codePostal'));
+
+                    if (!isValidEmail(getInputValue('email'))) errors.push({ field: 'email', message: 'يرجى إدخال بريد إلكتروني صحيح.' });
+                    if (!/^0\d{9}$/.test(phone)) errors.push({ field: 'telephone', message: 'رقم الهاتف يجب أن يتكون من 10 أرقام ويبدأ بـ 0.' });
+                    if (whatsapp && !/^0\d{9}$/.test(whatsapp)) errors.push({ field: 'whatsapp', message: 'رقم واتساب يجب أن يتكون من 10 أرقام ويبدأ بـ 0.' });
+                    if (!getInputValue('adresse')) errors.push({ field: 'adresse', message: 'العنوان مطلوب.' });
+                    if (!ville || !isBejaiaCommune(ville)) errors.push({ field: 'ville', message: 'يرجى اختيار مدينة إقامة صحيحة من ولاية بجاية.' });
+                    if (codePostal && !/^\d{5}$/.test(codePostal)) errors.push({ field: 'codePostal', message: 'الرمز البريدي يجب أن يتكون من 5 أرقام.' });
+                }
+
+                if (step === 4) {
+                    if (!cniDataUrl) errors.push({ field: 'cniUpload', message: 'بطاقة الهوية - الوجه الأمامي مطلوبة.' });
+                    if (!cniBackDataUrl) errors.push({ field: 'cniBackUpload', message: 'بطاقة الهوية - الوجه الخلفي مطلوبة.' });
+                }
+
+                if (step === 5) {
                     const password = document.getElementById('password').value;
                     const confirm = document.getElementById('confirmPassword').value;
-
-                    if (!password) {
-                        showNotification('كلمة المرور مطلوبة.', 'error');
-                        return false;
-                    }
-                    if (password !== confirm) {
-                        showNotification('كلمات المرور غير متطابقة.', 'error');
-                        return false;
-                    }
-                    return true;
+                    if (!password) errors.push({ field: 'password', message: 'كلمة المرور مطلوبة.' });
+                    if (password && password.length < 6) errors.push({ field: 'password', message: 'كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل.' });
+                    if (password !== confirm) errors.push({ field: 'confirmPassword', message: 'كلمات المرور غير متطابقة.' });
+                    if (!document.getElementById('conditions').checked) errors.push({ field: 'conditions', message: 'يجب قبول شروط الاستخدام.' });
                 }
 
-                return true;
+                return errors;
+            }
+
+            function validateStepsBefore(targetStep) {
+                const errors = [];
+                for (let step = 1; step < targetStep; step++) {
+                    errors.push(...validateStep(step));
+                }
+                return showValidationErrors(errors);
+            }
+
+            function validateAllSteps() {
+                const errors = [];
+                for (let step = 1; step <= 5; step++) {
+                    errors.push(...validateStep(step));
+                }
+                return showValidationErrors(errors);
+            }
+
+            function validateCurrentStep() {
+                return showValidationErrors(validateStep(currentStep));
             }
 
             function updateModernSummary() {
@@ -3104,6 +3292,8 @@
                 if (nom && prenom) {
                     photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
                     document.getElementById('summaryNameModern').textContent = `${nom.toUpperCase()} ${prenom}`;
+                } else {
+                    document.getElementById('summaryNameModern').textContent = '-';
                 }
 
                 const summaryPhotoImgModern = document.getElementById('summaryPhotoImgModern');
@@ -3139,7 +3329,11 @@
                         summaryElement.textContent = source() || '-';
                     } else {
                         const element = document.getElementById(source);
-                        summaryElement.textContent = element ? element.value || '-' : '-';
+                        if (element && element.tagName === 'SELECT') {
+                            summaryElement.textContent = element.value ? element.options[element.selectedIndex].text : '-';
+                        } else {
+                            summaryElement.textContent = element ? element.value || '-' : '-';
+                        }
                     }
                 }
 
@@ -3171,25 +3365,37 @@
             }
 
             document.getElementById('uploadOption').addEventListener('click', () => {
+                photoUpload.value = '';
                 photoUpload.click();
             });
 
             photoUpload.addEventListener('change', function (e) {
                 const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        photoDataUrl = e.target.result;
-                        updatePhotoPreview();
-                    };
-                    reader.readAsDataURL(file);
+                if (!file) return;
+                if (file.size > maxUploadBytes) {
+                    showNotification('حجم الصورة يجب ألا يتجاوز 5MB.', 'error');
+                    photoUpload.value = '';
+                    return;
                 }
+                if (!validPhotoTypes.includes(file.type)) {
+                    showNotification('صيغة الصورة غير مقبولة. الصيغ المقبولة: JPG, PNG, WEBP.', 'error');
+                    photoUpload.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    photoDataUrl = e.target.result;
+                    updatePhotoPreview();
+                };
+                reader.readAsDataURL(file);
             });
 
             document.getElementById('webcamOption').addEventListener('click', openWebcam);
 
             removePhotoBtn.addEventListener('click', function () {
                 photoDataUrl = '';
+                photoUpload.value = '';
                 updatePhotoPreview();
             });
 
@@ -3214,7 +3420,7 @@
                     if (nom && prenom) {
                         photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
                     } else {
-                        photoNameDisplay.textContent = 'بنسالم ناصم';
+                        photoNameDisplay.textContent = 'الصورة اختيارية';
                     }
                 }
             }
@@ -3264,6 +3470,27 @@
             const captureBtn = document.getElementById('captureBtn');
             const retakeBtn = document.getElementById('retakeBtn');
 
+            async function requestCameraStream(preferEnvironment = false) {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('NO_CAMERA_API');
+                }
+
+                const preferredConstraints = {
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        ...(preferEnvironment ? { facingMode: { ideal: 'environment' } } : {})
+                    },
+                    audio: false
+                };
+
+                try {
+                    return await navigator.mediaDevices.getUserMedia(preferredConstraints);
+                } catch (firstError) {
+                    return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                }
+            }
+
             async function openWebcam() {
                 webcamModal.style.display = 'flex';
                 captured = false;
@@ -3271,15 +3498,14 @@
                 retakeBtn.style.display = 'none';
 
                 try {
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 }
-                        }
-                    });
+                    stream = await requestCameraStream(false);
                     webcamVideo.srcObject = stream;
+                    await webcamVideo.play().catch(() => {});
                 } catch (err) {
-                    showNotification('لا يمكن الوصول إلى الكاميرا. يرجى التحقق من الأذونات.', 'error');
+                    const message = err.message === 'NO_CAMERA_API'
+                        ? 'الكاميرا غير متاحة في هذا المتصفح. يمكنك رفع صورة من جهازك.'
+                        : 'لا يمكن الوصول إلى الكاميرا. يرجى التحقق من الأذونات أو رفع صورة من جهازك.';
+                    showNotification(message, 'error');
                     closeWebcam();
                 }
             }
@@ -3296,6 +3522,10 @@
             cancelWebcamBtn.addEventListener('click', closeWebcam);
 
             captureBtn.addEventListener('click', function () {
+                if (!webcamVideo.videoWidth || !webcamVideo.videoHeight) {
+                    showNotification('الكاميرا لم تصبح جاهزة بعد. حاول مرة أخرى بعد لحظة.', 'error');
+                    return;
+                }
                 const context = webcamCanvas.getContext('2d');
                 webcamCanvas.width = webcamVideo.videoWidth;
                 webcamCanvas.height = webcamVideo.videoHeight;
@@ -3334,16 +3564,14 @@
                 retakeScannerBtn.style.display = 'none';
 
                 try {
-                    scannerStream = await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: 'environment',
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 }
-                        }
-                    });
+                    scannerStream = await requestCameraStream(true);
                     scannerVideo.srcObject = scannerStream;
+                    await scannerVideo.play().catch(() => {});
                 } catch (err) {
-                    showNotification('لا يمكن الوصول إلى الكاميرا.', 'error');
+                    const message = err.message === 'NO_CAMERA_API'
+                        ? 'الكاميرا غير متاحة في هذا المتصفح. يمكنك رفع المستند من جهازك.'
+                        : 'لا يمكن الوصول إلى الكاميرا. يرجى التحقق من الأذونات أو رفع المستند من جهازك.';
+                    showNotification(message, 'error');
                     closeScanner();
                 }
             }
@@ -3361,6 +3589,10 @@
             cancelScannerBtn.addEventListener('click', closeScanner);
 
             captureScannerBtn.addEventListener('click', function () {
+                if (!scannerVideo.videoWidth || !scannerVideo.videoHeight) {
+                    showNotification('الكاميرا لم تصبح جاهزة بعد. حاول مرة أخرى بعد لحظة.', 'error');
+                    return;
+                }
                 const context = scannerCanvas.getContext('2d');
                 scannerCanvas.width = scannerVideo.videoWidth;
                 scannerCanvas.height = scannerVideo.videoHeight;
@@ -3373,25 +3605,14 @@
                 const scannedDataUrl = scannerCanvas.toDataURL('image/png');
 
                 if (currentScanner === 'cni') {
-                    cniDataUrl = scannedDataUrl;
-                    cniPreviewImg.src = cniDataUrl;
-                    cniPreviewImg.style.display = 'block';
-                    document.getElementById('cniPreview').querySelector('.material-symbols-outlined').style.display = 'none';
-                    document.getElementById('cniPreview').querySelector('span').style.display = 'none';
-                    removeCniBtn.style.display = 'inline-flex';
+                    setDocumentPreview('cni', scannedDataUrl, 'scan-cni.png');
                 } else if (currentScanner === 'cniBack') {
-                    cniBackDataUrl = scannedDataUrl;
-                    cniBackPreviewImg.src = cniBackDataUrl;
-                    cniBackPreviewImg.style.display = 'block';
-                    document.getElementById('cniBackPreview').querySelector('.material-symbols-outlined').style.display = 'none';
-                    document.getElementById('cniBackPreview').querySelector('span').style.display = 'none';
-                    removeCniBackBtn.style.display = 'inline-flex';
+                    setDocumentPreview('cniBack', scannedDataUrl, 'scan-cni-verso.png');
                 }
 
                 captured = true;
                 captureScannerBtn.style.display = 'none';
                 retakeScannerBtn.style.display = 'inline-flex';
-                if (currentStep === 5) updateModernSummary();
             });
 
             retakeScannerBtn.addEventListener('click', function () {
@@ -3403,13 +3624,7 @@
             const confirmPasswordInput = document.getElementById('confirmPassword');
 
             document.getElementById('submitBtn').addEventListener('click', function () {
-                if (!validateCurrentStep()) {
-                    showNotification('يرجى ملء الحقول الإلزامية: اللقب، الاسم، تاريخ الميلاد، وكلمة المرور.', 'error');
-                    return;
-                }
-
-                if (!document.getElementById('conditions').checked) {
-                    showNotification('يجب قبول شروط الاستخدام.', 'error');
+                if (!validateAllSteps()) {
                     return;
                 }
 
@@ -3419,29 +3634,29 @@
                 this.disabled = true;
 
                 const formData = {
-                    nom: document.getElementById('nomLatin').value || null,
-                    prenom: document.getElementById('prenomLatin').value || null,
-                    nomAr: document.getElementById('nom').value,
-                    prenomAr: document.getElementById('prenom').value,
+                    nom: getInputValue('nomLatin') || null,
+                    prenom: getInputValue('prenomLatin') || null,
+                    nomAr: getInputValue('nom'),
+                    prenomAr: getInputValue('prenom'),
                     genre: document.querySelector('input[name="genre"]:checked')?.value || null,
-                    dateNaissance: document.getElementById('naissance').value,
-                    lieuNaissance: document.getElementById('lieuNaissance').value || null,
-                    nationalite: document.getElementById('nationalite').value || null,
-                    nin: document.getElementById('nin').value || null,
+                    dateNaissance: getInputValue('naissance'),
+                    lieuNaissance: getInputValue('lieuNaissance') || null,
+                    nationalite: getInputValue('nationalite') || null,
+                    nin: getDigits(getInputValue('nin')),
                     isParent: document.getElementById('isParent').checked,
-                    profession: document.getElementById('profession').value || null,
+                    profession: getInputValue('profession') || null,
                     categorie: 1,
                     photo: photoDataUrl || null,
                     cniFront: cniDataUrl || null,
                     cniBack: cniBackDataUrl || null,
-                    adresse: document.getElementById('adresse').value || null,
-                    ville: document.getElementById('ville').value || null,
-                    codePostal: document.getElementById('codePostal').value || null,
-                    telephone: document.getElementById('telephone').value || null,
-                    whatsapp: document.getElementById('whatsapp').value || null,
-                    email: document.getElementById('email').value || null,
+                    adresse: getInputValue('adresse') || null,
+                    ville: getInputValue('ville') || null,
+                    codePostal: getDigits(getInputValue('codePostal')) || null,
+                    telephone: getDigits(getInputValue('telephone')) || null,
+                    whatsapp: getDigits(getInputValue('whatsapp')) || null,
+                    email: getInputValue('email').toLowerCase() || null,
                     password: password,
-                    conditionsAccepted: true
+                    conditionsAccepted: document.getElementById('conditions').checked
                 };
 
                 fetch('/api/auth/register-step1', {
@@ -3449,18 +3664,22 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            showNotification('خطأ: ' + data.error, 'error');
+                    .then(async response => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok || data.error) {
+                            showNotification('خطأ: ' + (data.error || 'تعذر إتمام التسجيل.'), 'error');
                             this.innerHTML = '<span class="material-symbols-outlined">error</span> إعادة المحاولة';
                             this.disabled = false;
-                            return;
+                            return null;
                         }
+                        return data;
+                    })
+                    .then(data => {
+                        if (!data) return;
 
                         showSuccessModal(
                             'تم التسجيل بنجاح!',
-                            `مرحبا <b>${formData.prenomAr} ${formData.nomAr}</b>، لقد تم تسجيل حسابك بنجاح. بيانات الدخول الخاصة بك: <br> • رمز القارئ: <b>${data.lecteurId}</b><br><br> يمكنك الآن تسجيل الدخول برمز القارئ أو البريد الإلكتروني والاستفادة من خدماتنا.`
+                            `مرحبا <b>${formData.prenomAr} ${formData.nomAr}</b>، لقد تم تسجيل حسابك بنجاح. بيانات الدخول الخاصة بك: <br> • رمز القارئ: <b>${data.lecteurId}</b><br><br>${data.emailSent === false ? 'تعذر إرسال رسالة التحقق حالياً، يمكنك إعادة إرسالها من ملفك الشخصي.' : 'تحقق من بريدك الإلكتروني لتفعيل الحساب.'}`
                         );
 
                         this.innerHTML = '<span class="material-symbols-outlined">check_circle</span> اكتمل التسجيل';
@@ -3543,32 +3762,17 @@
 
             updatePhotoPreview();
 
+            function formatPhoneInput(value) {
+                const digits = getDigits(value).slice(0, 10);
+                return digits.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+            }
+
             document.getElementById('telephone').addEventListener('input', function (e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 2) {
-                    value = value.substring(0, 2) + ' ' + value.substring(2);
-                }
-                if (value.length > 5) {
-                    value = value.substring(0, 5) + ' ' + value.substring(5);
-                }
-                if (value.length > 8) {
-                    value = value.substring(0, 8) + ' ' + value.substring(8);
-                }
-                e.target.value = value.substring(0, 14);
+                e.target.value = formatPhoneInput(e.target.value);
             });
 
             document.getElementById('whatsapp').addEventListener('input', function (e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 2) {
-                    value = value.substring(0, 2) + ' ' + value.substring(2);
-                }
-                if (value.length > 5) {
-                    value = value.substring(0, 5) + ' ' + value.substring(5);
-                }
-                if (value.length > 8) {
-                    value = value.substring(0, 8) + ' ' + value.substring(8);
-                }
-                e.target.value = value.substring(0, 14);
+                e.target.value = formatPhoneInput(e.target.value);
             });
 
             document.getElementById('nin').addEventListener('input', function (e) {
