@@ -2087,19 +2087,6 @@
                         <label class="form-label">الاسم باللاتينية <span
                                 class="material-symbols-outlined text-[18px] mr-2">translate</span></label>
                         <input type="text" class="form-input" id="prenomLatin" placeholder="Prénom en latin" dir="ltr"
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">اللقب باللاتينية <span
-                                class="material-symbols-outlined text-[18px] mr-2">translate</span></label>
-                        <input type="text" class="form-input" id="nomLatin" placeholder="Nom en latin" dir="ltr"
-                            style="text-align:left !important;">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">الاسم باللاتينية <span
-                                class="material-symbols-outlined text-[18px] mr-2">translate</span></label>
-                        <input type="text" class="form-input" id="prenomLatin" placeholder="Prénom en latin" dir="ltr"
                             style="text-align:left !important;">
                     </div>
 
@@ -2126,6 +2113,11 @@
                         <input type="text" class="form-input" id="nationalite" list="nationalitesList"
                             value="جزائرية" placeholder="اكتب أو اختر الجنسية" required onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value==='') this.value=this.getAttribute('data-val') || 'جزائرية';">
                         <datalist id="nationalitesList"></datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">تاريخ الميلاد <span
+                                class="material-symbols-outlined text-[18px] mr-2">calendar_month</span></label>
                         <input type="date" class="form-input" id="naissance" required dir="ltr" style="text-align: right;">
                     </div>
 
@@ -2133,7 +2125,7 @@
                         <label class="form-label required">مكان الميلاد <span
                                 class="material-symbols-outlined text-[18px] mr-2">location_on</span></label>
                         <input type="text" class="form-input" id="lieuNaissance" placeholder="اختر بلدية الميلاد"
-                            list="birthPlacesList" required>
+                            list="bejaiaCommunesList" required>
                     </div>
 
                     <div class="form-group">
@@ -2963,12 +2955,7 @@
                 const birthList = document.getElementById('birthPlacesList');
                 const communesList = document.getElementById('bejaiaCommunesList');
                 if (!birthList || !communesList) return;
-                const lang = getRegistrationLang();
-                const values = Array.from(communesList.querySelectorAll('option')).map(option => option.value);
-                birthList.innerHTML = values.map(value => {
-                    const display = lang === 'ar' && normalizeValue(value) === normalizeValue('Béjaïa') ? 'بجاية' : value;
-                    return `<option value="${escapeOption(display)}"></option>`;
-                }).join('');
+                birthList.innerHTML = `<option value="${outsideBejaiaBirthPlace}"></option>` + communesList.innerHTML;
             }
 
             function convertKeyboardText(value, map, sequenceMap = null) {
@@ -3290,7 +3277,7 @@
                     if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
                     if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
                     if (!lieuNaissance || !hasLetters(lieuNaissance) || hasDigits(lieuNaissance)) {
-                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب.' });
+                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب ولا يجب أن يحتوي على أرقام.' });
                     }
                     if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.' });
                 }
