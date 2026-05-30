@@ -69,6 +69,17 @@ function cleanString(value) {
     return ['null', 'undefined'].includes(cleaned.toLowerCase()) ? '' : cleaned;
 }
 
+function normalizeArabicNationality(value) {
+    const clean = cleanString(value);
+    if (!/[\u0600-\u06FF]/.test(clean)) return clean;
+    const normalized = clean.replace(/^ال/, '');
+    if (normalized.endsWith('ية') || normalized.endsWith('يّة')) return normalized;
+    if (normalized.endsWith('يا')) return normalized.slice(0, -2) + 'ية';
+    if (normalized.endsWith('ا')) return normalized.slice(0, -1) + 'ية';
+    if (normalized.endsWith('ان')) return normalized.slice(0, -2) + 'انية';
+    return normalized + 'ية';
+}
+
 function digitsOnly(value) {
     return String(value || '').replace(/\D/g, '');
 }
@@ -562,7 +573,7 @@ export async function registerStep1(fastify, opts) {
             const cleanProfession = cleanString(profession) || null;
             const cleanGenre = cleanString(genre);
             const cleanLieuNaissance = cleanString(lieuNaissance);
-            const cleanNationalite = cleanString(nationalite);
+            const cleanNationalite = normalizeArabicNationality(nationalite);
             const cleanVille = cleanString(ville);
 
             const { isParent } = request.body;

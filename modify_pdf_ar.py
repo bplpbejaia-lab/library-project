@@ -124,6 +124,14 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     )
     nin = user_data.get("nin", "")
     profession = sanitize_value(user_data.get("profession", ""))
+    profession_ar_map = {
+        "eleve": "تلميذ", "élève": "تلميذ", "eleve": "تلميذ",
+        "etudiant": "طالب", "étudiant": "طالب",
+        "enseignant": "معلم", "commercant": "تاجر", "commerçant": "تاجر",
+        "fonctionnaire": "موظف", "cadre": "إطار", "chercheur": "باحث",
+        "retraite": "متقاعد", "retraité": "متقاعد", "autre": "أخرى"
+    }
+    profession = profession_ar_map.get(profession.strip().lower(), profession)
     email = user_data.get("email", "")
     adresse = sanitize_value(user_data.get("adresse", ""))
     telephone = format_phone(user_data.get("telephone", ""))

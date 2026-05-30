@@ -117,6 +117,12 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     )
     nin = user_data.get("nin", "")
     profession = sanitize_value(user_data.get("profession", ""))
+    profession_fr_map = {
+        "تلميذ": "élève", "طالب": "étudiant", "معلم": "enseignant",
+        "تاجر": "commerçant", "موظف": "fonctionnaire", "موظف حكومي": "fonctionnaire",
+        "إطار": "cadre", "باحث": "chercheur", "متقاعد": "retraité", "أخرى": "autre"
+    }
+    profession = profession_fr_map.get(profession.strip(), profession)
     email = user_data.get("email", "")
     adresse = sanitize_value(user_data.get("adresse", ""))
     telephone = format_phone(user_data.get("telephone", ""))

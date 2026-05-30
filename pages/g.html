@@ -530,6 +530,26 @@
             background: #ffffff !important;
         }
 
+        .form-input.field-invalid,
+        .form-select.field-invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08) !important;
+        }
+
+        .field-error-message {
+            display: none;
+            color: #dc2626;
+            font-size: 0.78rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .field-error-message.show {
+            display: block;
+        }
+
         .form-select {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -2914,8 +2934,29 @@
                 if (errors[0]?.field) document.getElementById(errors[0].field)?.focus();
             }
 
+            function clearFieldErrors() {
+                document.querySelectorAll('.field-error-message').forEach(el => el.remove());
+                document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+            }
+
+            function showFieldError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+                field.classList.add('field-invalid');
+                const group = field.closest('.form-group') || field.parentElement;
+                if (!group) return;
+                const error = document.createElement('div');
+                error.className = 'field-error-message show';
+                error.textContent = message;
+                group.appendChild(error);
+            }
+
             function showValidationErrors(errors) {
+                clearFieldErrors();
                 if (!errors.length) return true;
+                errors.forEach(error => {
+                    if (error.field) showFieldError(error.field, error.message);
+                });
                 focusFirstInvalid(errors);
                 showNotification(errors.map(error => error.message).join('<br>'), 'error');
                 return false;
@@ -2972,6 +3013,17 @@
                 return 'Algérienne';
             }
 
+            function toArabicNationality(value) {
+                const clean = String(value || '').trim();
+                if (!clean) return clean;
+                const normalized = clean.replace(/^ال/, '');
+                if (normalized.endsWith('ية') || normalized.endsWith('يّة')) return normalized;
+                if (normalized.endsWith('يا')) return normalized.slice(0, -2) + 'ية';
+                if (normalized.endsWith('ا')) return normalized.slice(0, -1) + 'ية';
+                if (normalized.endsWith('ان')) return normalized.slice(0, -2) + 'انية';
+                return normalized + 'ية';
+            }
+
             function escapeOption(value) {
                 return String(value).replace(/[&<>"']/g, char => ({
                     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -2997,13 +3049,20 @@
 
                 const values = [defaultValue];
                 countryCodes.forEach(code => {
-                    const label = displayNames ? displayNames.of(code) : code;
+                    let label = displayNames ? displayNames.of(code) : code;
+                    if (lang === 'ar') label = toArabicNationality(label);
                     if (label && !values.includes(label)) values.push(label);
                 });
 
                 list.innerHTML = values.map(value => `<option value="${escapeOption(value)}"></option>`).join('');
                 if (shouldResetDefault) input.value = defaultValue;
             }
+
+            document.getElementById('nationalite')?.addEventListener('blur', (event) => {
+                if (getRegistrationLang() === 'ar') {
+                    event.target.value = toArabicNationality(event.target.value);
+                }
+            });
 
             bindKeyboardConverters();
             populateBirthPlaces();
@@ -3676,6 +3735,9 @@
                     })
                     .then(data => {
                         if (!data) return;
+
+                        const usernameField = document.getElementById('username');
+                        if (usernameField) usernameField.value = data.lecteurId;
 
                         showSuccessModal(
                             'تم التسجيل بنجاح!',
