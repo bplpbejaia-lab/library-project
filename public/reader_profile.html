@@ -924,6 +924,24 @@
             return user.LEC_DOC_ENGAGEMENT || user.docEngagement || user.doc_engagement || '';
         }
 
+        function formatDateInput(value) {
+            if (!value) return '';
+            const text = String(value);
+            if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+            const date = new Date(text);
+            if (Number.isNaN(date.getTime())) return text.split('T')[0] || '';
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Africa/Algiers',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).formatToParts(date).reduce((acc, part) => {
+                acc[part.type] = part.value;
+                return acc;
+            }, {});
+            return `${parts.year}-${parts.month}-${parts.day}`;
+        }
+
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
@@ -959,7 +977,7 @@
             document.getElementById('lecNom').value = nomLatin;
             document.getElementById('lecPrenom').value = prenomLatin;
 
-            document.getElementById('lecBirthdate').value = u.LEC_DATE_NAISSANCE ? u.LEC_DATE_NAISSANCE.split('T')[0] : (u.naissance ? u.naissance.split('T')[0] : '');
+            document.getElementById('lecBirthdate').value = formatDateInput(u.LEC_DATE_NAISSANCE || u.naissance);
             document.getElementById('lecProfession').value = u.LEC_PROFESSION || u.profession || '';
             document.getElementById('lecNIN').value = u.LEC_NIN || u.nin || '';
             document.getElementById('lecEmail').value = u.LEC_EMAIL || u.email || '';
@@ -1234,7 +1252,7 @@
             document.getElementById('p-prenom').textContent = names.prenomAr;
             document.getElementById('p-nom-la').textContent = names.nomLatin;
             document.getElementById('p-prenom-la').textContent = names.prenomLatin;
-            document.getElementById('p-dob').textContent = currentReader.LEC_DATE_NAISSANCE ? currentReader.LEC_DATE_NAISSANCE.split('T')[0] : '';
+            document.getElementById('p-dob').textContent = formatDateInput(currentReader.LEC_DATE_NAISSANCE);
             document.getElementById('p-job').textContent = currentReader.LEC_PROFESSION || '';
             document.getElementById('p-phone').textContent = currentReader.LEC_TEL || '';
             document.getElementById('p-nin').textContent = currentReader.LEC_NIN || '';
@@ -1265,7 +1283,7 @@
                 prenom: names.prenomAr,
                 nomLatin: names.nomLatin,
                 prenomLatin: names.prenomLatin,
-                naissance: currentReader.LEC_DATE_NAISSANCE ? currentReader.LEC_DATE_NAISSANCE.split('T')[0] : '',
+                naissance: formatDateInput(currentReader.LEC_DATE_NAISSANCE),
                 profession: currentReader.LEC_PROFESSION || '',
                 telephone: currentReader.LEC_TEL || '',
                 nin: currentReader.LEC_NIN || '',
