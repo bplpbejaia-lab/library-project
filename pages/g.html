@@ -2087,6 +2087,19 @@
                         <label class="form-label">الاسم باللاتينية <span
                                 class="material-symbols-outlined text-[18px] mr-2">translate</span></label>
                         <input type="text" class="form-input" id="prenomLatin" placeholder="Prénom en latin" dir="ltr"
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">اللقب باللاتينية <span
+                                class="material-symbols-outlined text-[18px] mr-2">translate</span></label>
+                        <input type="text" class="form-input" id="nomLatin" placeholder="Nom en latin" dir="ltr"
+                            style="text-align:left !important;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الاسم باللاتينية <span
+                                class="material-symbols-outlined text-[18px] mr-2">translate</span></label>
+                        <input type="text" class="form-input" id="prenomLatin" placeholder="Prénom en latin" dir="ltr"
                             style="text-align:left !important;">
                     </div>
 
@@ -2111,13 +2124,8 @@
                         <label class="form-label required">الجنسية <span
                                 class="material-symbols-outlined text-[18px] mr-2">flag</span></label>
                         <input type="text" class="form-input" id="nationalite" list="nationalitesList"
-                            value="جزائرية" placeholder="اكتب أو اختر الجنسية" required>
+                            value="جزائرية" placeholder="اكتب أو اختر الجنسية" required onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value==='') this.value=this.getAttribute('data-val') || 'جزائرية';">
                         <datalist id="nationalitesList"></datalist>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">تاريخ الميلاد <span
-                                class="material-symbols-outlined text-[18px] mr-2">calendar_month</span></label>
                         <input type="date" class="form-input" id="naissance" required dir="ltr" style="text-align: right;">
                     </div>
 
@@ -2170,62 +2178,59 @@
                     </div>
                 </div>
 
-                <datalist id="birthPlacesList">
-                    <option value="مولود خارج بجاية / Né(e) hors Béjaïa"></option>
-                </datalist>
                 <datalist id="bejaiaCommunesList">
-                    <option value="Adekar"></option>
-                    <option value="Aït Maouche"></option>
-                    <option value="Aït Mellikeche"></option>
-                    <option value="Aït R'zine"></option>
-                    <option value="Aït-Smail"></option>
-                    <option value="Akbou"></option>
-                    <option value="Akfadou"></option>
-                    <option value="Amalou"></option>
-                    <option value="Amizour"></option>
-                    <option value="Aokas"></option>
-                    <option value="Barbacha"></option>
-                    <option value="Béjaïa"></option>
-                    <option value="Beni Djellil"></option>
-                    <option value="Beni Ksila"></option>
-                    <option value="Boudjellil"></option>
-                    <option value="Bouhamza"></option>
-                    <option value="Boukhelifa"></option>
-                    <option value="Chellata"></option>
-                    <option value="Chemini"></option>
-                    <option value="Darguina"></option>
-                    <option value="Draâ El-Kaïd"></option>
-                    <option value="El Kseur"></option>
-                    <option value="Fenaïa Ilmaten"></option>
-                    <option value="Ferraoun"></option>
-                    <option value="Ighil Ali"></option>
-                    <option value="Ighram"></option>
-                    <option value="Kendira"></option>
-                    <option value="Kherrata"></option>
-                    <option value="Leflaye"></option>
-                    <option value="M'cisna"></option>
-                    <option value="Melbou"></option>
-                    <option value="Oued Ghir"></option>
-                    <option value="Ouzellaguen"></option>
-                    <option value="Seddouk"></option>
-                    <option value="Semaoun"></option>
-                    <option value="Sidi-Aïch"></option>
-                    <option value="Sidi-Ayad"></option>
-                    <option value="Souk El Ténine"></option>
-                    <option value="Souk-Oufella"></option>
-                    <option value="Tala Hamza"></option>
-                    <option value="Tamokra"></option>
-                    <option value="Tamridjet"></option>
-                    <option value="Taourirt Ighil"></option>
-                    <option value="Taskriout"></option>
-                    <option value="Tazmalt"></option>
-                    <option value="Tibane"></option>
-                    <option value="Tichy"></option>
-                    <option value="Tifra"></option>
-                    <option value="Timezrit"></option>
-                    <option value="Tinabdher"></option>
-                    <option value="Tizi N'Berber"></option>
-                    <option value="Toudja"></option>
+                    <option value="أدكار"></option>
+                    <option value="بني معوش"></option>
+                    <option value="أيت مليكش"></option>
+                    <option value="أيت رزين"></option>
+                    <option value="أيت إسماعيل"></option>
+                    <option value="أقبو"></option>
+                    <option value="أكفادو"></option>
+                    <option value="أمالو"></option>
+                    <option value="أميزور"></option>
+                    <option value="أوقاس"></option>
+                    <option value="برباشة"></option>
+                    <option value="بجاية"></option>
+                    <option value="بني جليل"></option>
+                    <option value="بني كسيلة"></option>
+                    <option value="بودجليل"></option>
+                    <option value="بوحمزة"></option>
+                    <option value="بوخليفة"></option>
+                    <option value="شلاطة"></option>
+                    <option value="شميني"></option>
+                    <option value="درقينة"></option>
+                    <option value="ذراع القايد"></option>
+                    <option value="القصر"></option>
+                    <option value="فناية الماثن"></option>
+                    <option value="فرعون"></option>
+                    <option value="إغيل علي"></option>
+                    <option value="إغرم"></option>
+                    <option value="كنديرة"></option>
+                    <option value="خراطة"></option>
+                    <option value="لفلای"></option>
+                    <option value="مسيسنة"></option>
+                    <option value="ملبو"></option>
+                    <option value="وادي غير"></option>
+                    <option value="أوزلاقن"></option>
+                    <option value="صدوق"></option>
+                    <option value="سمعون"></option>
+                    <option value="سيدي عيش"></option>
+                    <option value="سيدي عياد"></option>
+                    <option value="سوق الإثنين"></option>
+                    <option value="سوق أوفلا"></option>
+                    <option value="تالة حمزة"></option>
+                    <option value="تامقرة"></option>
+                    <option value="تامريجت"></option>
+                    <option value="تاوريرت إغيل"></option>
+                    <option value="تاسكريوت"></option>
+                    <option value="تزمالت"></option>
+                    <option value="طيبان"></option>
+                    <option value="تيشي"></option>
+                    <option value="تيفرة"></option>
+                    <option value="تيمزريت"></option>
+                    <option value="تينبذار"></option>
+                    <option value="تيزي نبربر"></option>
+                    <option value="توجة"></option>
                 </datalist>
                 <div class="navigation-buttons">
                     <button class="btn btn-next" id="nextToStep2">
@@ -2891,15 +2896,7 @@
             }
 
             function isOutsideBejaiaBirthPlace(value) {
-                const normalized = normalizeValue(value);
-                return [
-                    outsideBejaiaBirthPlace,
-                    'Né(e) hors Béjaïa',
-                    'Ne hors Bejaia',
-                    'مولود خارج بجاية',
-                    'خارج بجاية',
-                    'خارج ولاية بجاية'
-                ].some(option => normalizeValue(option) === normalized);
+                return false;
             }
 
             function isValidEmail(value) {
@@ -2966,7 +2963,12 @@
                 const birthList = document.getElementById('birthPlacesList');
                 const communesList = document.getElementById('bejaiaCommunesList');
                 if (!birthList || !communesList) return;
-                birthList.innerHTML = `<option value="${outsideBejaiaBirthPlace}"></option>` + communesList.innerHTML;
+                const lang = getRegistrationLang();
+                const values = Array.from(communesList.querySelectorAll('option')).map(option => option.value);
+                birthList.innerHTML = values.map(value => {
+                    const display = lang === 'ar' && normalizeValue(value) === normalizeValue('Béjaïa') ? 'بجاية' : value;
+                    return `<option value="${escapeOption(display)}"></option>`;
+                }).join('');
             }
 
             function convertKeyboardText(value, map, sequenceMap = null) {
@@ -3287,10 +3289,14 @@
                     if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: 'يرجى اختيار الجنس.' });
                     if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
                     if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
-                    if (!lieuNaissance || (!isBejaiaCommune(lieuNaissance) && !isOutsideBejaiaBirthPlace(lieuNaissance))) {
-                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد يجب أن يكون بلدية من بجاية أو خيار مولود خارج بجاية.' });
+                    if (!lieuNaissance || !hasLetters(lieuNaissance) || hasDigits(lieuNaissance)) {
+                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب.' });
                     }
                     if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.' });
+                }
+
+                if (step === 2) {
+                    if (!photoDataUrl) errors.push({ field: 'uploadOption', message: 'صورة الهوية مطلوبة للتسجيل.' });
                 }
 
                 if (step === 3) {
