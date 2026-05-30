@@ -890,6 +890,17 @@
             }) || '';
         }
 
+        function transliterateArabicName(value) {
+            const map = {
+                'ا': 'a', 'أ': 'a', 'إ': 'i', 'آ': 'a', 'ى': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th',
+                'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's',
+                'ش': 'ch', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh', 'ف': 'f',
+                'ق': 'k', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n', 'ه': 'h', 'ة': 'a', 'و': 'ou',
+                'ؤ': 'ou', 'ي': 'i', 'ئ': 'i', 'ء': '', ' ': ' ', '-': '-'
+            };
+            return String(value || '').split('').map(ch => map[ch] ?? '').join('').replace(/\s+/g, ' ').trim().toUpperCase();
+        }
+
         function getReaderNameParts(user) {
             const storedNom = user.LEC_NOM || user.nom || '';
             const storedPrenom = user.LEC_PRENOM || user.prenom || '';
@@ -897,13 +908,15 @@
             const prenomLatin = firstLatinValue(user.prenomLatin, user.registration_prenom, storedPrenom);
             const nomAr = firstCleanValue(user.LEC_NOM_AR, hasArabicText(storedNom) ? storedNom : '', user.nomAr, nomLatin);
             const prenomAr = firstCleanValue(user.LEC_PRENOM_AR, hasArabicText(storedPrenom) ? storedPrenom : '', user.prenomAr, prenomLatin);
+            const displayNomLatin = nomLatin || transliterateArabicName(nomAr || storedNom);
+            const displayPrenomLatin = prenomLatin || transliterateArabicName(prenomAr || storedPrenom);
             return {
                 nomAr,
                 prenomAr,
-                nomLatin,
-                prenomLatin,
+                nomLatin: displayNomLatin,
+                prenomLatin: displayPrenomLatin,
                 ar: `${nomAr} ${prenomAr}`.trim(),
-                latin: `${nomLatin} ${prenomLatin}`.trim()
+                latin: `${displayNomLatin} ${displayPrenomLatin}`.trim()
             };
         }
 

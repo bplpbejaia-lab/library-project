@@ -1212,6 +1212,17 @@
             }) || '';
         }
 
+        function transliterateArabicName(value) {
+            const map = {
+                'ا': 'a', 'أ': 'a', 'إ': 'i', 'آ': 'a', 'ى': 'a', 'ب': 'b', 'ت': 't', 'ث': 'th',
+                'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'dh', 'ر': 'r', 'ز': 'z', 'س': 's',
+                'ش': 'ch', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh', 'ف': 'f',
+                'ق': 'k', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n', 'ه': 'h', 'ة': 'a', 'و': 'ou',
+                'ؤ': 'ou', 'ي': 'i', 'ئ': 'i', 'ء': '', ' ': ' ', '-': '-'
+            };
+            return String(value || '').split('').map(ch => map[ch] ?? '').join('').replace(/\s+/g, ' ').trim().toUpperCase();
+        }
+
         function getReaderNameParts(reader) {
             const storedNom = reader.LEC_NOM || reader.nom || '';
             const storedPrenom = reader.LEC_PRENOM || reader.prenom || '';
@@ -1219,9 +1230,11 @@
             const prenomLatin = firstLatinValue(reader.prenomLatin, reader.registration_prenom, storedPrenom);
             const nomAr = firstCleanValue(reader.LEC_NOM_AR, hasArabicText(storedNom) ? storedNom : '', reader.nomAr, nomLatin);
             const prenomAr = firstCleanValue(reader.LEC_PRENOM_AR, hasArabicText(storedPrenom) ? storedPrenom : '', reader.prenomAr, prenomLatin);
+            const displayNomLatin = nomLatin || transliterateArabicName(nomAr || storedNom);
+            const displayPrenomLatin = prenomLatin || transliterateArabicName(prenomAr || storedPrenom);
             return {
                 ar: `${nomAr} ${prenomAr}`.trim(),
-                latin: `${nomLatin} ${prenomLatin}`.trim()
+                latin: `${displayNomLatin} ${displayPrenomLatin}`.trim()
             };
         }
 
@@ -1358,7 +1371,7 @@
         // ===================== DETAILED EDIT FUNCTIONS =====================
         async function openDetailEditModal(lecId) {
             // Opens the full profile page in a new tab
-            window.open('reader_profile.html?id=' + lecId, '_blank');
+            window.location.href = '/admin/reader_profile.html?id=' + encodeURIComponent(lecId);
         }
 
         function renewSubscription() {
