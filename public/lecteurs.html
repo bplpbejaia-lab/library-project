@@ -1221,7 +1221,7 @@
             const prenomAr = firstCleanValue(reader.LEC_PRENOM_AR, hasArabicText(storedPrenom) ? storedPrenom : '', reader.prenomAr, prenomLatin);
             return {
                 ar: `${nomAr} ${prenomAr}`.trim(),
-                latin: `${nomLatin || storedNom} ${prenomLatin || storedPrenom}`.trim()
+                latin: `${nomLatin} ${prenomLatin}`.trim()
             };
         }
 

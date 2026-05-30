@@ -900,10 +900,10 @@
             return {
                 nomAr,
                 prenomAr,
-                nomLatin: nomLatin || storedNom,
-                prenomLatin: prenomLatin || storedPrenom,
+                nomLatin,
+                prenomLatin,
                 ar: `${nomAr} ${prenomAr}`.trim(),
-                latin: `${nomLatin || storedNom} ${prenomLatin || storedPrenom}`.trim()
+                latin: `${nomLatin} ${prenomLatin}`.trim()
             };
         }
 
