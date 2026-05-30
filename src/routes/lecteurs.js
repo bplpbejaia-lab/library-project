@@ -1,7 +1,86 @@
 const db = require('../db/pool');
+const path = require('path');
+const fs = require('fs');
+
+let lecteurColumnsCache = null;
+let registrationColumnsCache = null;
+
+async function getTableColumns(tableName) {
+    const result = await db.query(
+        `SELECT column_name FROM information_schema.columns WHERE table_name = $1`,
+        [tableName]
+    );
+    return new Set(result.rows.map(row => row.column_name));
+}
+
+async function getLecteurColumns() {
+    if (!lecteurColumnsCache) lecteurColumnsCache = await getTableColumns('LECTEUR');
+    return lecteurColumnsCache;
+}
+
+async function getRegistrationColumns() {
+    if (!registrationColumnsCache) registrationColumnsCache = await getTableColumns('registrations');
+    return registrationColumnsCache;
+}
+
+async function ensureReaderDocumentColumns() {
+    await db.query(`
+        ALTER TABLE "LECTEUR"
+        ADD COLUMN IF NOT EXISTS "LEC_DOC_ENGAGEMENT" TEXT,
+        ADD COLUMN IF NOT EXISTS "LEC_DOC_INSCRIPTION" TEXT,
+        ADD COLUMN IF NOT EXISTS "LEC_DOC_IDENTITE" TEXT
+    `);
+    lecteurColumnsCache = null;
+}
+
+async function buildReaderRegistrationJoin() {
+    const regCols = await getRegistrationColumns();
+    const joinConditions = [];
+    const selectParts = [];
+
+    if (regCols.has('lec_id')) joinConditions.push(`r.lec_id::text = l."LEC_ID"::text`);
+    if (regCols.has('email')) joinConditions.push(`LOWER(r.email) = LOWER(l."LEC_EMAIL")`);
+    if (regCols.has('nin')) joinConditions.push(`r.nin = l."LEC_NIN"`);
+    if (regCols.has('nom') && regCols.has('prenom')) {
+        joinConditions.push(`(r.nom = l."LEC_NOM" AND r.prenom = l."LEC_PRENOM")`);
+    }
+
+    const where = joinConditions.length ? joinConditions.join(' OR ') : 'FALSE';
+    const statusFilter = regCols.has('status') ? `r.status = 'APPROVED' AND ` : '';
+    const order = regCols.has('registration_date') ? 'r.registration_date DESC NULLS LAST,' : '';
+    const fallbackOrder = regCols.has('id') ? 'r.id DESC NULLS LAST' : '1';
+
+    selectParts.push(regCols.has('inscription_source')
+        ? `COALESCE(r.inscription_source, 'EXTERNE') AS inscription_source`
+        : `'EXTERNE' AS inscription_source`);
+
+    for (const col of ['id_card_recto_path', 'id_card_verso_path', 'nom', 'prenom', 'email', 'telephone', 'nin']) {
+        selectParts.push(regCols.has(col)
+            ? `r.${col} AS registration_${col}`
+            : `NULL AS registration_${col}`);
+    }
+
+    return {
+        select: selectParts.join(',\n                       '),
+        join: `
+                LEFT JOIN LATERAL (
+                    SELECT r.*
+                    FROM "registrations" r
+                    WHERE ${statusFilter}(${where})
+                    ORDER BY ${order} ${fallbackOrder}
+                    LIMIT 1
+                ) r ON TRUE`
+    };
+}
 
 /** @param {import('fastify').FastifyInstance} fastify */
 async function lecteursRoutes(fastify) {
+    try {
+        await ensureReaderDocumentColumns();
+    } catch (err) {
+        fastify.log.warn({ err }, 'Could not ensure reader document columns');
+    }
+
     // Get readers stats
     fastify.get('/stats', async (request, reply) => {
         try {
@@ -32,12 +111,13 @@ async function lecteursRoutes(fastify) {
                 SELECT COUNT(*) as total FROM "LECTEUR" l WHERE "LEC_STATUT" = 1 ${dateFilter}
             `);
 
+            const regJoin = await buildReaderRegistrationJoin();
+
             // Use l.* to avoid referencing columns that may not exist in all schemas
             const result = await db.query(`
-                SELECT l.*, COALESCE(r.inscription_source, 'EXTERNE') as inscription_source,
-                       r.id_card_recto_path, r.id_card_verso_path
+                SELECT l.*, ${regJoin.select}
                 FROM "LECTEUR" l
-                LEFT JOIN "registrations" r ON r.status = 'APPROVED' AND r.nom = l."LEC_NOM" AND r.prenom = l."LEC_PRENOM"
+                ${regJoin.join}
                 WHERE l."LEC_STATUT" = 1 ${dateFilter}
                 ORDER BY l."CREATE_DATE" DESC NULLS LAST, l."LEC_ID" DESC
                 LIMIT $1 OFFSET $2
@@ -53,11 +133,11 @@ async function lecteursRoutes(fastify) {
     fastify.get('/:id', async (request, reply) => {
         const { id } = request.params;
         try {
+            const regJoin = await buildReaderRegistrationJoin();
             const result = await db.query(`
-                SELECT l.*, COALESCE(r.inscription_source, 'EXTERNE') as inscription_source,
-                       r.id_card_recto_path, r.id_card_verso_path
+                SELECT l.*, ${regJoin.select}
                 FROM "LECTEUR" l
-                LEFT JOIN "registrations" r ON r.status = 'APPROVED' AND r.nom = l."LEC_NOM" AND r.prenom = l."LEC_PRENOM"
+                ${regJoin.join}
                 WHERE l."LEC_ID" = $1
             `, [id]);
             if (result.rows.length === 0) return reply.status(404).send({ error: 'Reader not found' });
@@ -149,10 +229,15 @@ async function lecteursRoutes(fastify) {
         const { 
             nom, prenom, nomAr, prenomAr, email, tel, nin, cat_id, date_naiss, adresse, rfid, date_expiration, password,
             genre, lieu_naiss, nationalite, profession, ville, code_postal, whatsapp,
-            photo, cni_front, cni_back, statut
+            photo, cni_front, cni_back, statut,
+            doc_engagement, doc_inscription, doc_identite
         } = request.body;
 
         try {
+            const existing = await db.query('SELECT * FROM "LECTEUR" WHERE "LEC_ID" = $1', [id]);
+            if (existing.rows.length === 0) return reply.status(404).send({ error: 'Reader not found' });
+
+            const lecteurColumns = await getLecteurColumns();
             const updates = [];
             const values = [];
             let idx = 1;
@@ -165,11 +250,14 @@ async function lecteursRoutes(fastify) {
                 "LEC_ADRESSE": adresse, "LEC_RFID": rfid, "LEC_DATE_EXPIRATION": date_expiration,
                 "LEC_GENRE": genre, "LEC_LIEU_NAISSANCE": lieu_naiss, "LEC_NATIONALITE": nationalite,
                 "LEC_PROFESSION": profession, "LEC_VILLE": ville, "LEC_CODE_POSTAL": code_postal,
-                "LEC_WHATSAPP": whatsapp, "LEC_STATUT": statut
+                "LEC_WHATSAPP": whatsapp, "LEC_STATUT": statut,
+                "LEC_DOC_ENGAGEMENT": doc_engagement,
+                "LEC_DOC_INSCRIPTION": doc_inscription,
+                "LEC_DOC_IDENTITE": doc_identite
             };
 
             for (const [col, val] of Object.entries(fields)) {
-                if (val !== undefined) {
+                if (val !== undefined && lecteurColumns.has(col)) {
                     updates.push(`"${col}" = $${idx++}`);
                     values.push(val || null);
                 }
@@ -189,16 +277,16 @@ async function lecteursRoutes(fastify) {
             };
 
             const photoUrl = handleImage(photo, 'photo');
-            if (photoUrl) { updates.push(`"LEC_PHOTO" = $${idx++}`); values.push(photoUrl); }
+            if (photoUrl && lecteurColumns.has('LEC_PHOTO')) { updates.push(`"LEC_PHOTO" = $${idx++}`); values.push(photoUrl); }
 
             const cniFrontUrl = handleImage(cni_front, 'cni_front');
-            if (cniFrontUrl) { updates.push(`"LEC_CNI_FRONT" = $${idx++}`); values.push(cniFrontUrl); }
+            if (cniFrontUrl && lecteurColumns.has('LEC_CNI_FRONT')) { updates.push(`"LEC_CNI_FRONT" = $${idx++}`); values.push(cniFrontUrl); }
 
             const cniBackUrl = handleImage(cni_back, 'cni_back');
-            if (cniBackUrl) { updates.push(`"LEC_CNI_BACK" = $${idx++}`); values.push(cniBackUrl); }
+            if (cniBackUrl && lecteurColumns.has('LEC_CNI_BACK')) { updates.push(`"LEC_CNI_BACK" = $${idx++}`); values.push(cniBackUrl); }
 
             // Handle password update
-            if (password) {
+            if (password && lecteurColumns.has('LEC_PASSWORD')) {
                 const crypto = require('crypto');
                 const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
                 updates.push(`"LEC_PASSWORD" = $${idx++}`);

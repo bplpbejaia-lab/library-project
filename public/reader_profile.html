@@ -721,6 +721,13 @@
                             </div>
                             <span id="photoStatus" class="doc-pill missing">...</span>
                         </div>
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700">استمارة التسجيل الموقعة</span>
+                                <button class="btn-view-doc mt-1" id="viewSignedEngagement" style="display:none">عرض</button>
+                            </div>
+                            <span id="engagementStatus" class="doc-pill missing">...</span>
+                        </div>
                     </div>
                 </div>
 
@@ -868,6 +875,42 @@
         const readerId = urlParams.get('id');
         let currentReader = null;
 
+        function hasArabicText(value) {
+            return /[\u0600-\u06FF]/.test(String(value || ''));
+        }
+
+        function firstCleanValue(...values) {
+            return values.find(value => String(value || '').trim()) || '';
+        }
+
+        function firstLatinValue(...values) {
+            return values.find(value => {
+                const clean = String(value || '').trim();
+                return clean && !hasArabicText(clean);
+            }) || '';
+        }
+
+        function getReaderNameParts(user) {
+            const storedNom = user.LEC_NOM || user.nom || '';
+            const storedPrenom = user.LEC_PRENOM || user.prenom || '';
+            const nomLatin = firstLatinValue(user.nomLatin, user.registration_nom, storedNom);
+            const prenomLatin = firstLatinValue(user.prenomLatin, user.registration_prenom, storedPrenom);
+            const nomAr = firstCleanValue(user.LEC_NOM_AR, hasArabicText(storedNom) ? storedNom : '', user.nomAr, nomLatin);
+            const prenomAr = firstCleanValue(user.LEC_PRENOM_AR, hasArabicText(storedPrenom) ? storedPrenom : '', user.prenomAr, prenomLatin);
+            return {
+                nomAr,
+                prenomAr,
+                nomLatin: nomLatin || storedNom,
+                prenomLatin: prenomLatin || storedPrenom,
+                ar: `${nomAr} ${prenomAr}`.trim(),
+                latin: `${nomLatin || storedNom} ${prenomLatin || storedPrenom}`.trim()
+            };
+        }
+
+        function getSignedEngagementPath(user) {
+            return user.LEC_DOC_ENGAGEMENT || user.docEngagement || user.doc_engagement || '';
+        }
+
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
@@ -887,12 +930,11 @@
         }
 
         function populateForm(u) {
-            const nomAr = u.LEC_NOM_AR || u.nomAr || u.nom || '';
-            const prenomAr = u.LEC_PRENOM_AR || u.prenomAr || u.prenom || '';
-            const nomLatin = u.LEC_NOM || u.nom || '';
-            const prenomLatin = u.LEC_PRENOM || u.prenom || '';
+            const names = getReaderNameParts(u);
+            const { nomAr, prenomAr, nomLatin, prenomLatin } = names;
+            const signedEngagement = getSignedEngagementPath(u);
 
-            document.getElementById('heroName').textContent = nomAr + ' ' + prenomAr;
+            document.getElementById('heroName').textContent = names.ar;
             document.getElementById('heroEmail').textContent = u.LEC_EMAIL || u.email || 'No email';
             document.getElementById('heroCardNumber').textContent = u.LEC_ID || u.lecteurId || 'BJA-XXXX';
 
@@ -931,17 +973,37 @@
                 const backLink = u.LEC_CNI_BACK || u.cniBack;
                 if (frontLink) {
                     document.getElementById('viewCniFront').style.display = 'inline-block';
-                    document.getElementById('viewCniFront').onclick = () => viewDocumentUrl(frontLink);
+                    document.getElementById('viewCniFront').onclick = () => openDocumentUrl(frontLink);
                 }
                 if (backLink) {
                     document.getElementById('viewCniBack').style.display = 'inline-block';
-                    document.getElementById('viewCniBack').onclick = () => viewDocumentUrl(backLink);
+                    document.getElementById('viewCniBack').onclick = () => openDocumentUrl(backLink);
                 }
             }
             if (hasPhoto) {
                 document.getElementById('viewUserPhoto').style.display = 'inline-block';
                 document.getElementById('viewUserPhoto').onclick = () => viewDocumentUrl(photo);
             }
+
+            const engagementStatus = document.getElementById('engagementStatus');
+            const engagementBtn = document.getElementById('viewSignedEngagement');
+            if (engagementStatus) {
+                engagementStatus.className = signedEngagement ? 'doc-pill uploaded' : 'doc-pill missing';
+                engagementStatus.textContent = signedEngagement ? 'تم الرفع' : 'غير متوفر';
+            }
+            if (engagementBtn && signedEngagement) {
+                engagementBtn.style.display = 'inline-block';
+                engagementBtn.onclick = () => openDocumentUrl(signedEngagement);
+            }
+        }
+
+        function openDocumentUrl(url) {
+            if (!url) return;
+            if (/\.pdf(\?|#|$)/i.test(url)) {
+                window.open(url, '_blank');
+                return;
+            }
+            viewDocumentUrl(url);
         }
 
         function viewDocumentUrl(url) {
@@ -979,7 +1041,7 @@
             // Step 1: Info (Always blue/green for admin)
             setStepStatus(1, true);
             setStepStatus(2, !!(u.LEC_EMAIL || u.email || u.LEC_EMAIL_VERIFIED));
-            setStepStatus(3, !!(u.LEC_PHOTO || u.photo));
+            setStepStatus(3, !!(u.LEC_PHOTO || u.photo || u.LEC_CNI_FRONT || u.LEC_CNI_BACK || getSignedEngagementPath(u)));
             setStepStatus(4, status === 1);
         }
 
@@ -1054,15 +1116,12 @@
         function renderRfidCard(targetId, user) {
             try {
                 if (!user) return;
-                const nomAr = user.LEC_NOM_AR || user.nomAr || user.nom || '';
-                const prenomAr = user.LEC_PRENOM_AR || user.prenomAr || user.prenom || '';
-                const nomLatin = user.LEC_NOM || user.nomLatin || user.nom || '';
-                const prenomLatin = user.LEC_PRENOM || user.prenomLatin || user.prenom || '';
+                const names = getReaderNameParts(user);
                 const r = {
-                    LEC_NOM: nomLatin,
-                    LEC_PRENOM: prenomLatin,
-                    LEC_NOM_AR: nomAr,
-                    LEC_PRENOM_AR: prenomAr,
+                    LEC_NOM: names.nomLatin,
+                    LEC_PRENOM: names.prenomLatin,
+                    LEC_NOM_AR: names.nomAr,
+                    LEC_PRENOM_AR: names.prenomAr,
                     LEC_PHOTO: user.LEC_PHOTO || user.photo,
                     LEC_ID: user.LEC_ID || user.lecteurId || 'BJA-READER',
                     LEC_RFID: user.LEC_RFID || user.rfid
@@ -1097,8 +1156,8 @@
                         </div>
 
                         <div class="recto-names-area">
-                            <div class="name-ar-big">${r.LEC_NOM_AR || r.LEC_NOM || ''} ${r.LEC_PRENOM_AR || r.LEC_PRENOM || ''}</div>
-                            <div class="name-la-big">${(r.LEC_NOM || '') + ' ' + (r.LEC_PRENOM || '')}</div>
+                            <div class="name-ar-big">${names.ar}</div>
+                            <div class="name-la-big">${names.latin}</div>
                         </div>
 
                         <div class="recto-qr-box">
@@ -1132,6 +1191,11 @@
                 body.photo = photoSrc;
             }
 
+            if (hasArabicText(body.nom) || hasArabicText(body.prenom)) {
+                alert('Veuillez renseigner le nom et le prénom en latin dans les champs latins.');
+                return;
+            }
+
             try {
                 const res = await fetch(`/api/admin/lecteurs/${readerId}/full-update`, {
                     method: 'PUT',
@@ -1151,15 +1215,12 @@
 
         function printRegistrationForm() {
             if (!currentReader) return;
-            const nomAr = currentReader.LEC_NOM_AR || currentReader.nomAr || currentReader.nom || '';
-            const prenomAr = currentReader.LEC_PRENOM_AR || currentReader.prenomAr || currentReader.prenom || '';
-            const nomLatin = currentReader.LEC_NOM || currentReader.nomLatin || currentReader.nom || '';
-            const prenomLatin = currentReader.LEC_PRENOM || currentReader.prenomLatin || currentReader.prenom || '';
+            const names = getReaderNameParts(currentReader);
 
-            document.getElementById('p-nom').textContent = nomAr;
-            document.getElementById('p-prenom').textContent = prenomAr;
-            document.getElementById('p-nom-la').textContent = nomLatin;
-            document.getElementById('p-prenom-la').textContent = prenomLatin;
+            document.getElementById('p-nom').textContent = names.nomAr;
+            document.getElementById('p-prenom').textContent = names.prenomAr;
+            document.getElementById('p-nom-la').textContent = names.nomLatin;
+            document.getElementById('p-prenom-la').textContent = names.prenomLatin;
             document.getElementById('p-dob').textContent = currentReader.LEC_DATE_NAISSANCE ? currentReader.LEC_DATE_NAISSANCE.split('T')[0] : '';
             document.getElementById('p-job').textContent = currentReader.LEC_PROFESSION || '';
             document.getElementById('p-phone').textContent = currentReader.LEC_TEL || '';
@@ -1183,17 +1244,14 @@
                 return;
             }
 
-            const nomAr = currentReader.LEC_NOM_AR || currentReader.nomAr || currentReader.nom || '';
-            const prenomAr = currentReader.LEC_PRENOM_AR || currentReader.prenomAr || currentReader.prenom || '';
-            const nomLatin = currentReader.LEC_NOM || currentReader.nomLatin || currentReader.nom || '';
-            const prenomLatin = currentReader.LEC_PRENOM || currentReader.prenomLatin || currentReader.prenom || '';
+            const names = getReaderNameParts(currentReader);
 
             const printUser = {
                 lecteurId: currentReader.LEC_ID || currentReader.lecteurId,
-                nom: nomAr,
-                prenom: prenomAr,
-                nomLatin: nomLatin,
-                prenomLatin: prenomLatin,
+                nom: names.nomAr,
+                prenom: names.prenomAr,
+                nomLatin: names.nomLatin,
+                prenomLatin: names.prenomLatin,
                 naissance: currentReader.LEC_DATE_NAISSANCE ? currentReader.LEC_DATE_NAISSANCE.split('T')[0] : '',
                 profession: currentReader.LEC_PROFESSION || '',
                 telephone: currentReader.LEC_TEL || '',
