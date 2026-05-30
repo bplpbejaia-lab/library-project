@@ -201,8 +201,6 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
     for item in fields:
         rect, value, is_arabic, align_class = item[0], item[1], item[2], item[3]
         padding = item[4] if len(item) > 4 and isinstance(item[4], (int, float)) else 0
-        if not value:
-            continue
         repair_rect = item[4] if len(item) > 4 and isinstance(item[4], fitz.Rect) else None
             
         if repair_rect:
@@ -212,6 +210,9 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
             # Clear the area (width=0 prevents white stroke from bleeding over original borders)
             clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
             page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+
+        if not value:
+            continue
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
         style = "margin: 0; padding: 0; line-height: 1.2;"

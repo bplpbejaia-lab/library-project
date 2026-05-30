@@ -208,11 +208,6 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
     for item in fields:
         rect, value, is_arabic, align_class = item[0], item[1], item[2], item[3]
         repair_rect = item[4] if len(item) > 4 else None
-        if not value:
-            print(f"Skipping empty field at {rect}")
-            continue
-        
-        print(f"Replacing field at {rect} with value: {value[:30]}...")
         if repair_rect:
             page.draw_rect(repair_rect, color=None, fill=(1,1,1), width=0, overlay=True)
             page.draw_rect(rect, color=(0.90,0.90,0.90), fill=None, width=0.35, overlay=True)
@@ -220,6 +215,12 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
             # Clear the area (width=0 prevents white stroke from bleeding over original borders)
             clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
             page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+
+        if not value:
+            print(f"Cleared empty field at {rect}")
+            continue
+        
+        print(f"Replacing field at {rect} with value: {value[:30]}...")
         
         # Force explicit text alignment using HTML align attribute for perfect rendering in LiteHTML
         style = "margin: 0; padding: 0; line-height: 1.2; padding-top: 1px;"
