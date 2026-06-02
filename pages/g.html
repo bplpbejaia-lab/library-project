@@ -365,12 +365,23 @@
         }
 
         .scan-beta-card {
+            display: none;
             border: 1.5px solid #bbf7d0;
             border-radius: 18px;
             background: #f7fdf9;
             padding: 18px;
             margin-bottom: 24px;
             box-shadow: 0 12px 28px rgba(22, 101, 52, 0.08);
+        }
+
+        .scan-beta-card.active {
+            display: block;
+        }
+
+        .auto-registration-entry {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 18px;
         }
 
         .scan-beta-head {
@@ -470,12 +481,7 @@
         }
 
         .manual-registration-flow {
-            display: none;
             margin-top: 20px;
-        }
-
-        .manual-registration-flow.active {
-            display: block;
         }
 
         .review-edit-section {
@@ -2226,13 +2232,20 @@
                     </div>
                 </div>
 
+                <div class="auto-registration-entry">
+                    <button class="btn btn-secondary" id="showAutoRegistrationBtn" type="button">
+                        <span class="material-symbols-outlined">document_scanner</span> inscription automatique
+                        <span class="scan-beta-badge">BETA</span>
+                    </button>
+                </div>
+
                 <div class="scan-beta-card" id="ocrBetaCard">
                     <div class="scan-beta-head">
                         <span class="scan-beta-badge">BETA</span>
                         <div>
                             <div class="scan-beta-title">
                                 <span class="material-symbols-outlined">document_scanner</span>
-                                التسجيل التلقائي بالذكاء الاصطناعي
+                                inscription automatique
                             </div>
                             <div class="scan-beta-note">
                                 ضع بطاقة الهوية recto/verso أمام الكاميرا بشكل واضح ومضاء. إذا استعملت رخصة سياقة أو صورة غير واضحة قد تحتاج إلى تصحيح بعض الحقول في آخر خطوة.
@@ -2281,7 +2294,7 @@
                             <span class="material-symbols-outlined">auto_awesome</span> استخراج المعلومات والانتقال للتحقق
                         </button>
                         <button class="btn btn-secondary" id="manualRegistrationBtn" type="button">
-                            <span class="material-symbols-outlined">edit</span> ملء الاستمارة يدوياً
+                            <span class="material-symbols-outlined">close</span> إخفاء
                         </button>
                     </div>
                     <div class="scan-status" id="ocrBetaStatus"></div>
@@ -3584,9 +3597,14 @@
             document.getElementById('scanCniBackBtn').addEventListener('click', () => openScanner('cniBack'));
             cniBackUpload.addEventListener('change', (e) => handleDocumentUpload(e, 'cniBack'));
 
+            document.getElementById('showAutoRegistrationBtn')?.addEventListener('click', () => {
+                const card = document.getElementById('ocrBetaCard');
+                card?.classList.add('active');
+                card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
             document.getElementById('manualRegistrationBtn')?.addEventListener('click', () => {
-                document.getElementById('manualRegistrationFlow')?.classList.add('active');
-                showNotification('يمكنك الآن ملء الاستمارة يدوياً.', 'info');
+                document.getElementById('ocrBetaCard')?.classList.remove('active');
             });
 
             document.getElementById('autoUploadCniBtn')?.addEventListener('click', () => {
@@ -3623,7 +3641,7 @@
             document.getElementById('runOcrRegistrationBtn')?.addEventListener('click', async function () {
                 const status = document.getElementById('ocrBetaStatus');
                 if (!cniDataUrl || !cniBackDataUrl) {
-                    status.textContent = 'يرجى مسح أو رفع الوجهين قبل تشغيل الذكاء الاصطناعي.';
+                    status.textContent = 'يرجى مسح أو رفع الوجهين قبل تشغيل التسجيل التلقائي.';
                     showNotification('يرجى توفير الوجه الأمامي والخلفي للبطاقة.', 'error');
                     return;
                 }
