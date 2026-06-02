@@ -492,6 +492,10 @@
             margin-bottom: 24px;
         }
 
+        .review-edit-section[hidden] {
+            display: none !important;
+        }
+
         .review-section-title {
             display: flex;
             align-items: center;
@@ -1398,6 +1402,56 @@
             font-weight: 600;
             color: var(--dark-color);
             font-size: 0.95rem;
+        }
+
+        .summary-name-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            width: min(100%, 520px);
+            margin: 0 auto 12px;
+        }
+
+        .summary-edit-control {
+            width: 100%;
+            min-height: 42px;
+            border: 1.5px solid #dbeafe;
+            border-radius: 10px;
+            background: #ffffff;
+            color: var(--dark-color);
+            padding: 9px 12px;
+            font: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: right;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .summary-edit-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.12);
+        }
+
+        .summary-header-modern .summary-edit-control {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.45);
+            color: white;
+            text-align: center;
+        }
+
+        .summary-header-modern .summary-edit-control::placeholder {
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        select.summary-edit-control {
+            appearance: auto;
+        }
+
+        @media (max-width: 560px) {
+            .summary-name-fields {
+                grid-template-columns: 1fr;
+            }
         }
 
         .status-grid-modern {
@@ -2764,7 +2818,7 @@
                     </div>
                 </div>
 
-                <div class="review-edit-section" id="ocrReviewSection">
+                <div class="review-edit-section" id="ocrReviewSection" hidden>
                     <div class="review-section-title">
                         <span>تحقق من البيانات المستخرجة</span>
                         <span class="material-symbols-outlined">fact_check</span>
@@ -2877,7 +2931,7 @@
                             </div>
                             <div class="summary-id-modern">
                                 <span class="material-symbols-outlined text-[18px] ml-2">badge</span> الرقم الوطني:
-                                <span id="summaryNinModern">-</span>
+                                <input type="text" class="summary-edit-control review-sync" id="summaryNinModern" data-sync-target="nin" maxlength="18" inputmode="numeric" dir="ltr" style="text-align:center;">
                             </div>
                         </div>
 
@@ -3420,6 +3474,91 @@
                 if (radio) radio.checked = true;
             }
 
+            function getReviewControlValue(input) {
+                if (!input) return '';
+                if ('value' in input) return String(input.value || '').trim();
+                return String(input.textContent || '').trim();
+            }
+
+            function setReviewControlValue(input, value) {
+                if (!input || input === document.activeElement) return;
+                const nextValue = String(value || '');
+                if ('value' in input) {
+                    input.value = nextValue;
+                } else {
+                    input.textContent = nextValue || '-';
+                }
+            }
+
+            function cloneOptions(target, sourceId) {
+                const source = document.getElementById(sourceId);
+                if (source && source.tagName === 'SELECT') {
+                    target.innerHTML = source.innerHTML;
+                }
+            }
+
+            function buildSummaryInput(id, target, options = {}) {
+                const original = document.getElementById(id);
+                if (!original || original.classList.contains('review-sync')) return;
+
+                const control = document.createElement(options.type === 'select' ? 'select' : 'input');
+                control.id = id;
+                control.className = `${original.className || ''} summary-edit-control review-sync`.trim();
+                control.dataset.syncTarget = target;
+
+                if (options.type === 'select') {
+                    cloneOptions(control, options.optionsFrom || target);
+                } else {
+                    control.type = options.type || 'text';
+                    if (options.maxLength) control.maxLength = options.maxLength;
+                    if (options.inputMode) control.inputMode = options.inputMode;
+                    if (options.placeholder) control.placeholder = options.placeholder;
+                    if (options.list) control.setAttribute('list', options.list);
+                    if (options.dir) control.dir = options.dir;
+                }
+
+                if (options.textAlign) control.style.textAlign = options.textAlign;
+                original.replaceWith(control);
+            }
+
+            function upgradeModernSummaryEditors() {
+                const reviewSection = document.getElementById('ocrReviewSection');
+                if (reviewSection) reviewSection.hidden = true;
+
+                const nameHost = document.getElementById('summaryNameModern');
+                if (nameHost && !nameHost.dataset.editableReady) {
+                    nameHost.dataset.editableReady = 'true';
+                    nameHost.classList.add('summary-name-fields');
+                    nameHost.innerHTML = '';
+
+                    [
+                        ['summaryNomModern', 'nom'],
+                        ['summaryPrenomModern', 'prenom']
+                    ].forEach(([id, target]) => {
+                        const input = document.createElement('input');
+                        input.id = id;
+                        input.type = 'text';
+                        input.className = 'summary-edit-control review-sync';
+                        input.dataset.syncTarget = target;
+                        input.autocomplete = 'off';
+                        nameHost.appendChild(input);
+                    });
+                }
+
+                buildSummaryInput('summaryNinModern', 'nin', { maxLength: 18, inputMode: 'numeric', dir: 'ltr', textAlign: 'center' });
+                buildSummaryInput('summaryGenreModern', 'genre', { type: 'select', optionsFrom: 'reviewGenre' });
+                buildSummaryInput('summaryNaissanceModern', 'naissance', { type: 'date', dir: 'ltr' });
+                buildSummaryInput('summaryLieuNaissanceModern', 'lieuNaissance', { list: 'birthPlacesList' });
+                buildSummaryInput('summaryNationaliteModern', 'nationalite', { list: 'nationalitesList' });
+                buildSummaryInput('summaryProfessionModern', 'profession', { type: 'select', optionsFrom: 'profession' });
+                buildSummaryInput('summaryEmailModern', 'email', { type: 'email', placeholder: 'your@email.com', dir: 'ltr', textAlign: 'left' });
+                buildSummaryInput('summaryTelephoneModern', 'telephone', { type: 'tel', inputMode: 'tel', dir: 'ltr' });
+                buildSummaryInput('summaryWhatsappModern', 'whatsapp', { type: 'tel', inputMode: 'tel', dir: 'ltr' });
+                buildSummaryInput('summaryAdresseModern', 'adresse');
+                buildSummaryInput('summaryVilleModern', 'ville', { list: 'bejaiaCommunesList' });
+                buildSummaryInput('summaryCodePostalModern', 'codePostal', { maxLength: 5, inputMode: 'numeric', dir: 'ltr' });
+            }
+
             function findCommuneInText(text) {
                 const normalizedText = normalizeValue(text);
                 if (!normalizedText) return '';
@@ -3429,13 +3568,22 @@
             function syncReviewFieldToSource(input) {
                 const target = input.dataset.syncTarget;
                 if (!target) return;
+                const value = getReviewControlValue(input);
 
                 if (target === 'genre') {
-                    setGenreValue(input.value);
+                    setGenreValue(value);
                 } else {
                     const source = document.getElementById(target);
                     if (source) {
-                        source.value = input.value;
+                        source.value = value;
+                        if (source.tagName === 'SELECT' && source.value !== value) {
+                            const normalizedValue = normalizeValue(value);
+                            const match = Array.from(source.options).find(option =>
+                                normalizeValue(option.value) === normalizedValue ||
+                                normalizeValue(option.textContent) === normalizedValue
+                            );
+                            if (match) source.value = match.value;
+                        }
                         source.dispatchEvent(new Event('input', { bubbles: true }));
                     }
                 }
@@ -3451,9 +3599,9 @@
                     const target = input.dataset.syncTarget;
                     if (!target) return;
                     if (target === 'genre') {
-                        input.value = document.querySelector('input[name="genre"]:checked')?.value || '';
+                        setReviewControlValue(input, document.querySelector('input[name="genre"]:checked')?.value || '');
                     } else {
-                        input.value = document.getElementById(target)?.value || '';
+                        setReviewControlValue(input, document.getElementById(target)?.value || '');
                     }
                 });
                 updateModernSummary();
@@ -3622,11 +3770,14 @@
             document.getElementById('autoCniUpload')?.addEventListener('change', (e) => handleAutoDocumentUpload(e, 'front'));
             document.getElementById('autoCniBackUpload')?.addEventListener('change', (e) => handleAutoDocumentUpload(e, 'back'));
 
+            upgradeModernSummaryEditors();
+
             document.querySelectorAll('.review-sync').forEach(input => {
                 input.addEventListener('input', () => {
-                    if (['reviewTelephone', 'reviewWhatsapp'].includes(input.id)) input.value = formatPhoneInput(input.value);
-                    if (input.id === 'reviewNin') input.value = getDigits(input.value).slice(0, 18);
-                    if (input.id === 'reviewCodePostal') input.value = getDigits(input.value).slice(0, 5);
+                    const target = input.dataset.syncTarget;
+                    if (target === 'telephone' || target === 'whatsapp') input.value = formatPhoneInput(input.value);
+                    if (target === 'nin') input.value = getDigits(input.value).slice(0, 18);
+                    if (target === 'codePostal') input.value = getDigits(input.value).slice(0, 5);
                     syncReviewFieldToSource(input);
                 });
             });
@@ -3664,7 +3815,6 @@
 
                     applyOcrFields(result.fields || {});
                     status.textContent = result.message || 'تم استخراج المعلومات. تحقق منها في آخر خطوة.';
-                    document.getElementById('ocrReviewStatus').textContent = `تمت القراءة بواسطة ${result.model || 'Qwen-VL'} - يرجى التحقق من الحقول وإضافة البريد والهاتف.`;
                     goToStep(5);
                     showNotification('تم استخراج المعلومات. أكمل البريد الإلكتروني والهاتف ثم تحقق من البيانات.', 'success');
                 } catch (error) {
@@ -3875,12 +4025,17 @@
             function updateModernSummary() {
                 const nom = document.getElementById('nom').value;
                 const prenom = document.getElementById('prenom').value;
+                const summaryNameModern = document.getElementById('summaryNameModern');
 
-                if (nom && prenom) {
+                if (summaryNameModern?.querySelector('.review-sync')) {
+                    setReviewControlValue(document.getElementById('summaryNomModern'), nom);
+                    setReviewControlValue(document.getElementById('summaryPrenomModern'), prenom);
+                    if (nom && prenom) photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
+                } else if (nom && prenom) {
                     photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
-                    document.getElementById('summaryNameModern').textContent = `${nom.toUpperCase()} ${prenom}`;
+                    summaryNameModern.textContent = `${nom.toUpperCase()} ${prenom}`;
                 } else {
-                    document.getElementById('summaryNameModern').textContent = '-';
+                    summaryNameModern.textContent = '-';
                 }
 
                 const summaryPhotoImgModern = document.getElementById('summaryPhotoImgModern');
@@ -3896,31 +4051,37 @@
                 }
 
                 const fields = {
-                    'summaryNinModern': 'nin',
-                    'summaryGenreModern': getGenreText,
-                    'summaryNaissanceModern': 'naissance',
-                    'summaryLieuNaissanceModern': 'lieuNaissance',
-                    'summaryNationaliteModern': 'nationalite',
-                    'summaryProfessionModern': 'profession',
-                    'summaryEmailModern': 'email',
-                    'summaryTelephoneModern': 'telephone',
-                    'summaryWhatsappModern': 'whatsapp',
-                    'summaryAdresseModern': 'adresse',
-                    'summaryVilleModern': 'ville',
-                    'summaryCodePostalModern': 'codePostal'
+                    'summaryNinModern': { target: 'nin' },
+                    'summaryGenreModern': {
+                        target: 'genre',
+                        value: () => document.querySelector('input[name="genre"]:checked')?.value || '',
+                        display: getGenreText
+                    },
+                    'summaryNaissanceModern': { target: 'naissance' },
+                    'summaryLieuNaissanceModern': { target: 'lieuNaissance' },
+                    'summaryNationaliteModern': { target: 'nationalite' },
+                    'summaryProfessionModern': { target: 'profession' },
+                    'summaryEmailModern': { target: 'email' },
+                    'summaryTelephoneModern': { target: 'telephone' },
+                    'summaryWhatsappModern': { target: 'whatsapp' },
+                    'summaryAdresseModern': { target: 'adresse' },
+                    'summaryVilleModern': { target: 'ville' },
+                    'summaryCodePostalModern': { target: 'codePostal' }
                 };
 
-                for (const [summaryId, source] of Object.entries(fields)) {
+                for (const [summaryId, config] of Object.entries(fields)) {
                     const summaryElement = document.getElementById(summaryId);
-                    if (typeof source === 'function') {
-                        summaryElement.textContent = source() || '-';
+                    const sourceElement = document.getElementById(config.target);
+                    const value = config.value ? config.value() : (sourceElement?.value || '');
+
+                    if (summaryElement?.classList.contains('review-sync')) {
+                        setReviewControlValue(summaryElement, value);
+                    } else if (config.display) {
+                        summaryElement.textContent = config.display() || '-';
+                    } else if (sourceElement && sourceElement.tagName === 'SELECT') {
+                        summaryElement.textContent = sourceElement.value ? sourceElement.options[sourceElement.selectedIndex].text : '-';
                     } else {
-                        const element = document.getElementById(source);
-                        if (element && element.tagName === 'SELECT') {
-                            summaryElement.textContent = element.value ? element.options[element.selectedIndex].text : '-';
-                        } else {
-                            summaryElement.textContent = element ? element.value || '-' : '-';
-                        }
+                        summaryElement.textContent = value || '-';
                     }
                 }
 
