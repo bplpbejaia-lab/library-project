@@ -46,6 +46,7 @@ const OUTSIDE_BEJAIA_VALUES = new Set([
 
 const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const CNI_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
+const OCR_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const SIGNED_ENGAGEMENT_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png']);
 const MIME_EXTENSIONS = {
     'image/jpeg': 'jpg',
@@ -182,6 +183,205 @@ function saveBase64Image(dataUrl, folder, filename, options = {}) {
 
     fs.writeFileSync(fullPath, parsed.buffer);
     return relPath;
+}
+
+const hfOcrTokenCooldowns = new Map();
+
+function splitEnvList(value) {
+    return String(value || '')
+        .split(/[\s,;]+/)
+        .map(item => item.trim())
+        .filter(Boolean);
+}
+
+function getHfOcrTokens() {
+    return [
+        ...splitEnvList(process.env.HF_OCR_TOKENS),
+        ...splitEnvList(process.env.HUGGINGFACE_OCR_TOKENS),
+        ...splitEnvList(process.env.HF_TOKEN)
+    ].filter((token, index, list) => list.indexOf(token) === index);
+}
+
+function getHfOcrModels() {
+    const configured = splitEnvList(process.env.HF_OCR_MODELS);
+    return configured.length ? configured : [
+        'Qwen/Qwen3-VL-235B-A22B-Instruct:novita',
+        'Qwen/Qwen2.5-VL-72B-Instruct:ovhcloud'
+    ];
+}
+
+function isTokenCoolingDown(token) {
+    return (hfOcrTokenCooldowns.get(token) || 0) > Date.now();
+}
+
+function coolDownToken(token) {
+    hfOcrTokenCooldowns.set(token, Date.now() + 5 * 60 * 1000);
+}
+
+function isHfTokenLimitError(status, bodyText) {
+    const text = String(bodyText || '').toLowerCase();
+    return [401, 403, 408, 409, 429, 500, 502, 503, 504].includes(status)
+        || /rate|quota|limit|limited|expired|unauthorized|forbidden|temporar|overloaded|provider|capacity/.test(text);
+}
+
+function validateOcrDataUrl(dataUrl, label) {
+    const parsed = parseDataUrl(dataUrl);
+    if (!parsed) return `${label} invalide. Utilisez une image JPG, PNG ou WEBP.`;
+    const detectedMime = sniffMime(parsed.buffer);
+    if (!OCR_MIME_TYPES.has(parsed.mime) || !OCR_MIME_TYPES.has(detectedMime) || parsed.mime !== detectedMime) {
+        return `${label} invalide. Formats acceptés: JPG, PNG ou WEBP.`;
+    }
+    if (parsed.buffer.length === 0 || parsed.buffer.length > 10 * 1024 * 1024) {
+        return `${label} vide ou supérieur à 10MB.`;
+    }
+    return '';
+}
+
+function extractJsonFromModelText(text) {
+    const raw = cleanString(text);
+    if (!raw) return {};
+
+    const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    const candidate = fenced ? fenced[1] : raw;
+    const firstBrace = candidate.indexOf('{');
+    const lastBrace = candidate.lastIndexOf('}');
+    const jsonText = firstBrace >= 0 && lastBrace > firstBrace
+        ? candidate.slice(firstBrace, lastBrace + 1)
+        : candidate;
+
+    try {
+        return JSON.parse(jsonText);
+    } catch {
+        return { raw_text: raw };
+    }
+}
+
+function normalizeOcrDate(value) {
+    const raw = cleanString(value);
+    if (!raw) return '';
+
+    const iso = raw.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+    if (iso) return `${iso[1]}-${iso[2].padStart(2, '0')}-${iso[3].padStart(2, '0')}`;
+
+    const local = raw.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/);
+    if (local) {
+        const year = local[3].length === 2 ? `19${local[3]}` : local[3];
+        return `${year}-${local[2].padStart(2, '0')}-${local[1].padStart(2, '0')}`;
+    }
+
+    return raw;
+}
+
+function normalizeOcrGender(value) {
+    const raw = normalizeText(value);
+    if (!raw) return '';
+    if (['m', 'male', 'masculin', 'homme', 'ذكر', 'دكر'].some(item => raw.includes(normalizeText(item)))) return 'masculin';
+    if (['f', 'female', 'feminin', 'féminin', 'femme', 'أنثى', 'انثى'].some(item => raw.includes(normalizeText(item)))) return 'feminin';
+    return cleanString(value);
+}
+
+function firstPresent(source, keys) {
+    for (const key of keys) {
+        const value = source?.[key];
+        if (Array.isArray(value) && value.length) return cleanString(value[0]);
+        if (cleanString(value)) return cleanString(value);
+    }
+    return '';
+}
+
+function normalizeOcrPayload(data, rawText = '') {
+    const normalized = {
+        documentType: firstPresent(data, ['document_type', 'documentType', 'type_document', 'type']),
+        nom: firstPresent(data, ['last_name_ar', 'nom_ar', 'lastNameAr', 'family_name_ar']),
+        prenom: firstPresent(data, ['first_name_ar', 'prenom_ar', 'firstNameAr', 'given_name_ar']),
+        nomLatin: firstPresent(data, ['last_name', 'last_name_latin', 'nom_latin', 'nomLatin', 'surname', 'family_name']),
+        prenomLatin: firstPresent(data, ['first_name', 'first_name_latin', 'prenom_latin', 'prenomLatin', 'given_name']),
+        genre: normalizeOcrGender(firstPresent(data, ['sex', 'gender', 'genre'])),
+        naissance: normalizeOcrDate(firstPresent(data, ['date_of_birth', 'birth_date', 'date_naissance', 'naissance'])),
+        lieuNaissance: firstPresent(data, ['place_of_birth', 'birth_place', 'lieu_naissance', 'lieuNaissance']),
+        nationalite: firstPresent(data, ['nationality', 'nationalite']),
+        nin: digitsOnly(firstPresent(data, ['national_id', 'nin', 'identity_number', 'id_number', 'personal_number'])).slice(0, 18),
+        adresse: firstPresent(data, ['address', 'adresse']),
+        ville: firstPresent(data, ['city', 'commune', 'ville', 'municipality']),
+        codePostal: digitsOnly(firstPresent(data, ['postal_code', 'code_postal', 'codePostal'])).slice(0, 5),
+        issueDate: normalizeOcrDate(firstPresent(data, ['issue_date', 'date_delivrance'])),
+        expiryDate: normalizeOcrDate(firstPresent(data, ['expiry_date', 'expiration_date', 'date_expiration'])),
+        documentNumber: firstPresent(data, ['document_number', 'license_number', 'card_number']),
+        rawText: firstPresent(data, ['raw_text', 'rawText', 'text']) || rawText,
+        confidence: firstPresent(data, ['confidence', 'score']),
+        notes: firstPresent(data, ['notes', 'warning', 'warnings'])
+    };
+
+    if (!normalized.nom && normalized.nomLatin && /[\u0600-\u06FF]/.test(normalized.nomLatin)) {
+        normalized.nom = normalized.nomLatin;
+        normalized.nomLatin = '';
+    }
+    if (!normalized.prenom && normalized.prenomLatin && /[\u0600-\u06FF]/.test(normalized.prenomLatin)) {
+        normalized.prenom = normalized.prenomLatin;
+        normalized.prenomLatin = '';
+    }
+    if (!normalized.nationalite && /الجزائر|alger/i.test(normalized.rawText)) {
+        normalized.nationalite = 'جزائرية';
+    }
+
+    return normalized;
+}
+
+async function callHfOcrModel({ model, token, frontImage, backImage }) {
+    const prompt = `Extract the readable fields from these Algerian identity document images (front and back, or driving licence if that is what is shown).
+Return strict JSON only. Do not wrap it in markdown.
+Keys: document_type, first_name, last_name, first_name_ar, last_name_ar, date_of_birth, place_of_birth, nationality, national_id, document_number, sex, address, city, postal_code, issue_date, expiry_date, raw_text, confidence, notes.
+Rules:
+- Dates must be YYYY-MM-DD when possible.
+- sex must be "masculin" or "feminin" when possible.
+- Use empty strings for fields that are not visible.
+- Never invent email or telephone; those are not on the card.
+- If the image is blurry, cropped, dark, or unreadable, put that in notes and lower confidence.`;
+
+    const content = [
+        { type: 'text', text: prompt },
+        { type: 'image_url', image_url: { url: frontImage } }
+    ];
+    if (backImage) content.push({ type: 'image_url', image_url: { url: backImage } });
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90 * 1000);
+    try {
+        const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model,
+                messages: [{ role: 'user', content }],
+                max_tokens: 1200,
+                temperature: 0
+            })
+        });
+
+        const bodyText = await response.text();
+        if (!response.ok) {
+            const error = new Error(bodyText || `HF OCR failed with status ${response.status}`);
+            error.status = response.status;
+            error.bodyText = bodyText;
+            throw error;
+        }
+
+        const body = JSON.parse(bodyText);
+        const text = body?.choices?.[0]?.message?.content || '';
+        const json = extractJsonFromModelText(text);
+        return {
+            model,
+            providerModel: body?.model || model,
+            text,
+            data: normalizeOcrPayload(json, text)
+        };
+    } finally {
+        clearTimeout(timeout);
+    }
 }
 
 const pool = new Pool({
@@ -540,6 +740,81 @@ export async function checkNin(fastify, opts) {
         } catch (error) {
             fastify.log.error(error);
             reply.status(500).send({ error: 'Erreur lors de la vérification du NIN' });
+        }
+    });
+}
+
+export async function scanRegistrationCard(fastify, opts) {
+    fastify.post('/api/auth/ocr-registration-card', async (request, reply) => {
+        try {
+            const { frontImage, backImage } = request.body || {};
+            const validationErrors = [
+                validateOcrDataUrl(frontImage, 'Image recto'),
+                backImage ? validateOcrDataUrl(backImage, 'Image verso') : ''
+            ].filter(Boolean);
+
+            if (validationErrors.length) {
+                return reply.status(400).send({ error: validationErrors.join(' ') });
+            }
+
+            const tokens = getHfOcrTokens();
+            if (!tokens.length) {
+                return reply.status(500).send({
+                    error: 'OCR IA non configuré. Ajoutez HF_OCR_TOKENS sur le serveur.'
+                });
+            }
+
+            const models = getHfOcrModels();
+            const attempts = [];
+
+            for (const model of models) {
+                for (let tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+                    const token = tokens[tokenIndex];
+                    if (isTokenCoolingDown(token)) continue;
+
+                    try {
+                        const result = await callHfOcrModel({ model, token, frontImage, backImage });
+                        const hasUsefulData = result.data.nin || result.data.nom || result.data.prenom
+                            || result.data.nomLatin || result.data.prenomLatin || result.data.rawText;
+
+                        if (!hasUsefulData) {
+                            attempts.push({ model, tokenIndex, error: 'empty_ocr_result' });
+                            continue;
+                        }
+
+                        return reply.send({
+                            success: true,
+                            beta: true,
+                            model: result.providerModel || result.model,
+                            fields: result.data,
+                            needsManualReview: true,
+                            message: 'OCR terminé. Vérifiez les informations détectées puis complétez email et téléphone.'
+                        });
+                    } catch (error) {
+                        const bodyText = error.bodyText || error.message || '';
+                        attempts.push({
+                            model,
+                            tokenIndex,
+                            status: error.status || null,
+                            error: cleanString(bodyText).slice(0, 240)
+                        });
+
+                        if (!error.status || isHfTokenLimitError(error.status, bodyText)) {
+                            coolDownToken(token);
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            fastify.log.warn({ attempts }, 'HF OCR attempts exhausted');
+            return reply.status(502).send({
+                error: 'Le service OCR IA est temporairement indisponible. Réessayez avec des photos plus claires ou continuez le formulaire manuel.',
+                attempts: attempts.map(item => ({ model: item.model, status: item.status || null }))
+            });
+        } catch (error) {
+            fastify.log.error(error);
+            reply.status(500).send({ error: 'Erreur OCR: ' + error.message });
         }
     });
 }
@@ -2145,6 +2420,7 @@ export default async function routes(fastify) {
     await exportEngagementPdfAr(fastify);
     await exportEngagementPdfFr(fastify);
     await checkNin(fastify);
+    await scanRegistrationCard(fastify);
     await registerStep1(fastify);
     await createOrder(fastify);
     await verifyEmail(fastify);

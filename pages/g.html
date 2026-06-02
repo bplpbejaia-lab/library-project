@@ -360,6 +360,169 @@
 
         .form-section.active {
             display: block;
+            opacity: 1;
+            transform: none;
+        }
+
+        .scan-beta-card {
+            border: 1.5px solid #bbf7d0;
+            border-radius: 18px;
+            background: #f7fdf9;
+            padding: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 28px rgba(22, 101, 52, 0.08);
+        }
+
+        .scan-beta-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .scan-beta-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: #14532d;
+            font-size: 1.02rem;
+        }
+
+        .scan-beta-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            padding: 2px 9px;
+            border-radius: 999px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .scan-beta-note {
+            color: #475569;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin-top: 6px;
+        }
+
+        .scan-face-grid,
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .scan-face-card {
+            background: white;
+            border: 1.5px solid #dbeafe;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .scan-face-preview {
+            min-height: 150px;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #64748b;
+            margin: 10px 0 12px;
+        }
+
+        .scan-face-preview img {
+            display: none;
+            width: 100%;
+            height: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            background: white;
+        }
+
+        .scan-face-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .scan-beta-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .scan-status {
+            min-height: 24px;
+            color: #475569;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        .manual-registration-flow {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .manual-registration-flow.active {
+            display: block;
+        }
+
+        .review-edit-section {
+            border: 1.5px solid #dbeafe;
+            border-radius: 18px;
+            background: #f8fbff;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .review-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            color: #14532d;
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .review-contact-band {
+            background: white;
+            border: 1.5px solid #bbf7d0;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        @media (min-width: 720px) {
+            .scan-beta-card {
+                padding: 22px;
+            }
+
+            .scan-face-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .review-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .scan-beta-actions {
+                flex-direction: row-reverse;
+                justify-content: space-between;
+                align-items: center;
+            }
         }
 
         @keyframes fadeIn {
@@ -2063,6 +2226,68 @@
                     </div>
                 </div>
 
+                <div class="scan-beta-card" id="ocrBetaCard">
+                    <div class="scan-beta-head">
+                        <span class="scan-beta-badge">BETA</span>
+                        <div>
+                            <div class="scan-beta-title">
+                                <span class="material-symbols-outlined">document_scanner</span>
+                                التسجيل التلقائي بالذكاء الاصطناعي
+                            </div>
+                            <div class="scan-beta-note">
+                                ضع بطاقة الهوية recto/verso أمام الكاميرا بشكل واضح ومضاء. إذا استعملت رخصة سياقة أو صورة غير واضحة قد تحتاج إلى تصحيح بعض الحقول في آخر خطوة.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scan-face-grid">
+                        <div class="scan-face-card">
+                            <strong>الوجه الأمامي</strong>
+                            <div class="scan-face-preview" id="autoCniPreview">
+                                <span class="material-symbols-outlined text-[34px]">badge</span>
+                                <img id="autoCniPreviewImg" alt="Recto">
+                            </div>
+                            <div class="scan-face-actions">
+                                <button class="btn btn-scan" id="autoScanCniBtn" type="button">
+                                    <span class="material-symbols-outlined">photo_camera</span> مسح
+                                </button>
+                                <button class="btn btn-secondary" id="autoUploadCniBtn" type="button">
+                                    <span class="material-symbols-outlined">upload</span> رفع
+                                </button>
+                            </div>
+                            <input type="file" id="autoCniUpload" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" style="display: none;">
+                        </div>
+
+                        <div class="scan-face-card">
+                            <strong>الوجه الخلفي</strong>
+                            <div class="scan-face-preview" id="autoCniBackPreview">
+                                <span class="material-symbols-outlined text-[34px]">badge</span>
+                                <img id="autoCniBackPreviewImg" alt="Verso">
+                            </div>
+                            <div class="scan-face-actions">
+                                <button class="btn btn-scan" id="autoScanCniBackBtn" type="button">
+                                    <span class="material-symbols-outlined">photo_camera</span> مسح
+                                </button>
+                                <button class="btn btn-secondary" id="autoUploadCniBackBtn" type="button">
+                                    <span class="material-symbols-outlined">upload</span> رفع
+                                </button>
+                            </div>
+                            <input type="file" id="autoCniBackUpload" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="scan-beta-actions">
+                        <button class="btn btn-primary" id="runOcrRegistrationBtn" type="button">
+                            <span class="material-symbols-outlined">auto_awesome</span> استخراج المعلومات والانتقال للتحقق
+                        </button>
+                        <button class="btn btn-secondary" id="manualRegistrationBtn" type="button">
+                            <span class="material-symbols-outlined">edit</span> ملء الاستمارة يدوياً
+                        </button>
+                    </div>
+                    <div class="scan-status" id="ocrBetaStatus"></div>
+                </div>
+
+                <div class="manual-registration-flow" id="manualRegistrationFlow">
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label required">اللقب بالعربية <span
@@ -2229,6 +2454,7 @@
                         <span class="material-symbols-outlined">arrow_back</span> التالي
                     </button>
                     <div></div>
+                </div>
                 </div>
             </div>
 
@@ -2523,6 +2749,107 @@
                         <h2 class="section-title">الملخص والتحقق</h2>
                         <p class="section-description">تحقق من معلوماتك وأنشئ بيانات اعتمادك</p>
                     </div>
+                </div>
+
+                <div class="review-edit-section" id="ocrReviewSection">
+                    <div class="review-section-title">
+                        <span>تحقق من البيانات المستخرجة</span>
+                        <span class="material-symbols-outlined">fact_check</span>
+                    </div>
+
+                    <div class="review-contact-band">
+                        <div class="review-grid">
+                            <div class="form-group">
+                                <label class="form-label required">البريد الإلكتروني</label>
+                                <input type="email" class="form-input review-sync" id="reviewEmail" data-sync-target="email" placeholder="your@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">الهاتف</label>
+                                <input type="tel" class="form-input review-sync" id="reviewTelephone" data-sync-target="telephone" placeholder="06 00 00 00 00" dir="ltr" style="text-align:right;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">واتساب</label>
+                                <input type="tel" class="form-input review-sync" id="reviewWhatsapp" data-sync-target="whatsapp" placeholder="06 00 00 00 00" dir="ltr" style="text-align:right;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نفس رقم الهاتف</label>
+                                <button class="btn btn-secondary" type="button" id="reviewSameAsPhoneBtn">
+                                    <span class="material-symbols-outlined">sync</span> نسخ رقم الهاتف
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-grid">
+                        <div class="form-group">
+                            <label class="form-label required">اللقب بالعربية</label>
+                            <input type="text" class="form-input review-sync" id="reviewNom" data-sync-target="nom">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">الاسم بالعربية</label>
+                            <input type="text" class="form-input review-sync" id="reviewPrenom" data-sync-target="prenom">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">اللقب باللاتينية</label>
+                            <input type="text" class="form-input review-sync" id="reviewNomLatin" data-sync-target="nomLatin" dir="ltr" style="text-align:left !important;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الاسم باللاتينية</label>
+                            <input type="text" class="form-input review-sync" id="reviewPrenomLatin" data-sync-target="prenomLatin" dir="ltr" style="text-align:left !important;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">الجنس</label>
+                            <select class="form-select review-sync" id="reviewGenre" data-sync-target="genre">
+                                <option value="">اختر الجنس</option>
+                                <option value="masculin">ذكر</option>
+                                <option value="feminin">أنثى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">تاريخ الميلاد</label>
+                            <input type="date" class="form-input review-sync" id="reviewNaissance" data-sync-target="naissance" dir="ltr" style="text-align:right;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">مكان الميلاد</label>
+                            <input type="text" class="form-input review-sync" id="reviewLieuNaissance" data-sync-target="lieuNaissance" list="birthPlacesList">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">الجنسية</label>
+                            <input type="text" class="form-input review-sync" id="reviewNationalite" data-sync-target="nationalite" list="nationalitesList">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">رقم التعريف الوطني</label>
+                            <input type="text" class="form-input review-sync" id="reviewNin" data-sync-target="nin" maxlength="18" dir="ltr" style="text-align:right;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">المهنة</label>
+                            <select class="form-select review-sync" id="reviewProfession" data-sync-target="profession">
+                                <option value="">اختر مهنتك</option>
+                                <option value="eleve">تلميذ</option>
+                                <option value="etudiant">طالب</option>
+                                <option value="enseignant">معلم</option>
+                                <option value="commercant">تاجر</option>
+                                <option value="fonctionnaire">موظف حكومي</option>
+                                <option value="cadre">إطار</option>
+                                <option value="chercheur">باحث</option>
+                                <option value="retraite">متقاعد</option>
+                                <option value="autre">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">العنوان</label>
+                            <input type="text" class="form-input review-sync" id="reviewAdresse" data-sync-target="adresse">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">المدينة</label>
+                            <input type="text" class="form-input review-sync" id="reviewVille" data-sync-target="ville" list="bejaiaCommunesList">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الرمز البريدي</label>
+                            <input type="text" class="form-input review-sync" id="reviewCodePostal" data-sync-target="codePostal" maxlength="5" dir="ltr" style="text-align:right;">
+                        </div>
+                    </div>
+                    <div class="scan-status" id="ocrReviewStatus"></div>
                 </div>
 
                 <div class="modern-summary-section">
@@ -2839,6 +3166,7 @@
             let scannerStream = null;
             let currentScanner = null;
             let captured = false;
+            let ocrBetaMode = false;
 
             const latinToArabicKeyboardMap = {
                 q: 'ض', w: 'ص', e: 'ث', r: 'ق', t: 'ف', y: 'غ', u: 'ع', i: 'ه', o: 'خ', p: 'ح',
@@ -2929,7 +3257,11 @@
             }
 
             function showFieldError(fieldId, message) {
-                const field = document.getElementById(fieldId);
+                let field = document.getElementById(fieldId);
+                const reviewField = document.querySelector(`.review-sync[data-sync-target="${fieldId}"]`);
+                if (reviewField && (!field || field.offsetParent === null || currentStep === 5)) {
+                    field = reviewField;
+                }
                 if (!field) return;
                 field.classList.add('field-invalid');
                 const group = field.closest('.form-group') || field.parentElement;
@@ -3058,6 +3390,114 @@
             populateNationalities();
             document.addEventListener('i18nChanged', populateNationalities);
 
+            function setFormValue(id, value) {
+                const input = document.getElementById(id);
+                if (!input || value === undefined || value === null || value === '') return;
+                input.value = String(value).trim();
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            function setGenreValue(value) {
+                const normalized = normalizeValue(value);
+                const genreValue = normalized.includes('fem') || normalized.includes('أنث') || normalized.includes('انث')
+                    ? 'feminin'
+                    : (normalized ? 'masculin' : '');
+                if (!genreValue) return;
+                const radio = document.querySelector(`input[name="genre"][value="${genreValue}"]`);
+                if (radio) radio.checked = true;
+            }
+
+            function findCommuneInText(text) {
+                const normalizedText = normalizeValue(text);
+                if (!normalizedText) return '';
+                return getBejaiaCommunes().find(commune => normalizedText.includes(normalizeValue(commune))) || '';
+            }
+
+            function syncReviewFieldToSource(input) {
+                const target = input.dataset.syncTarget;
+                if (!target) return;
+
+                if (target === 'genre') {
+                    setGenreValue(input.value);
+                } else {
+                    const source = document.getElementById(target);
+                    if (source) {
+                        source.value = input.value;
+                        source.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+                updateModernSummary();
+            }
+
+            function syncReviewToSource() {
+                document.querySelectorAll('.review-sync').forEach(input => syncReviewFieldToSource(input));
+            }
+
+            function populateReviewFieldsFromSource() {
+                document.querySelectorAll('.review-sync').forEach(input => {
+                    const target = input.dataset.syncTarget;
+                    if (!target) return;
+                    if (target === 'genre') {
+                        input.value = document.querySelector('input[name="genre"]:checked')?.value || '';
+                    } else {
+                        input.value = document.getElementById(target)?.value || '';
+                    }
+                });
+                updateModernSummary();
+            }
+
+            function applyOcrFields(fields = {}) {
+                ocrBetaMode = true;
+                setFormValue('nom', fields.nom || fields.nomLatin);
+                setFormValue('prenom', fields.prenom || fields.prenomLatin);
+                setFormValue('nomLatin', fields.nomLatin);
+                setFormValue('prenomLatin', fields.prenomLatin);
+                setGenreValue(fields.genre);
+                setFormValue('naissance', fields.naissance);
+                const birthPlace = fields.lieuNaissance || '';
+                setFormValue('lieuNaissance', birthPlace && !isBejaiaCommune(birthPlace) ? outsideBejaiaBirthPlace : birthPlace);
+                setFormValue('nationalite', fields.nationalite || 'جزائرية');
+                setFormValue('nin', fields.nin);
+                setFormValue('adresse', fields.adresse);
+                setFormValue('ville', fields.ville || findCommuneInText(`${fields.adresse || ''} ${fields.rawText || ''}`));
+                setFormValue('codePostal', fields.codePostal);
+                populateReviewFieldsFromSource();
+            }
+
+            function setAutoDocumentPreview(type, dataUrl, fileName = '') {
+                const isFront = type === 'front';
+                const preview = document.getElementById(isFront ? 'autoCniPreview' : 'autoCniBackPreview');
+                const img = document.getElementById(isFront ? 'autoCniPreviewImg' : 'autoCniBackPreviewImg');
+                const icon = preview?.querySelector('.material-symbols-outlined');
+                if (img) {
+                    img.src = dataUrl;
+                    img.style.display = 'block';
+                }
+                if (icon) icon.style.display = 'none';
+                setDocumentPreview(isFront ? 'cni' : 'cniBack', dataUrl, fileName);
+            }
+
+            function handleAutoDocumentUpload(event, type) {
+                const file = event.target.files[0];
+                if (!file) return;
+                if (file.size > maxUploadBytes) {
+                    showNotification('حجم الصورة يجب ألا يتجاوز 5MB.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                if (!validPhotoTypes.includes(file.type)) {
+                    showNotification('صيغة الصورة غير مقبولة. الصيغ المقبولة: JPG, PNG, WEBP.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    setAutoDocumentPreview(type, e.target.result, file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+
             const steps = document.querySelectorAll('.step');
             steps.forEach(s => {
                 s.style.cursor = 'pointer';
@@ -3121,7 +3561,7 @@
             document.getElementById('prevToStep1').addEventListener('click', () => goToStep(1));
             document.getElementById('prevToStep2').addEventListener('click', () => goToStep(2));
             document.getElementById('prevToStep3').addEventListener('click', () => goToStep(3));
-            document.getElementById('prevToStep4').addEventListener('click', () => goToStep(4));
+            document.getElementById('prevToStep4').addEventListener('click', () => goToStep(ocrBetaMode ? 1 : 4));
 
             const cniUpload = document.getElementById('cniUpload');
             const cniBackUpload = document.getElementById('cniBackUpload');
@@ -3143,6 +3583,80 @@
             });
             document.getElementById('scanCniBackBtn').addEventListener('click', () => openScanner('cniBack'));
             cniBackUpload.addEventListener('change', (e) => handleDocumentUpload(e, 'cniBack'));
+
+            document.getElementById('manualRegistrationBtn')?.addEventListener('click', () => {
+                document.getElementById('manualRegistrationFlow')?.classList.add('active');
+                showNotification('يمكنك الآن ملء الاستمارة يدوياً.', 'info');
+            });
+
+            document.getElementById('autoUploadCniBtn')?.addEventListener('click', () => {
+                const input = document.getElementById('autoCniUpload');
+                input.value = '';
+                input.click();
+            });
+            document.getElementById('autoUploadCniBackBtn')?.addEventListener('click', () => {
+                const input = document.getElementById('autoCniBackUpload');
+                input.value = '';
+                input.click();
+            });
+            document.getElementById('autoScanCniBtn')?.addEventListener('click', () => openScanner('autoCni'));
+            document.getElementById('autoScanCniBackBtn')?.addEventListener('click', () => openScanner('autoCniBack'));
+            document.getElementById('autoCniUpload')?.addEventListener('change', (e) => handleAutoDocumentUpload(e, 'front'));
+            document.getElementById('autoCniBackUpload')?.addEventListener('change', (e) => handleAutoDocumentUpload(e, 'back'));
+
+            document.querySelectorAll('.review-sync').forEach(input => {
+                input.addEventListener('input', () => {
+                    if (['reviewTelephone', 'reviewWhatsapp'].includes(input.id)) input.value = formatPhoneInput(input.value);
+                    if (input.id === 'reviewNin') input.value = getDigits(input.value).slice(0, 18);
+                    if (input.id === 'reviewCodePostal') input.value = getDigits(input.value).slice(0, 5);
+                    syncReviewFieldToSource(input);
+                });
+            });
+
+            document.getElementById('reviewSameAsPhoneBtn')?.addEventListener('click', () => {
+                const phone = document.getElementById('reviewTelephone').value;
+                const whatsapp = document.getElementById('reviewWhatsapp');
+                whatsapp.value = phone;
+                syncReviewFieldToSource(whatsapp);
+            });
+
+            document.getElementById('runOcrRegistrationBtn')?.addEventListener('click', async function () {
+                const status = document.getElementById('ocrBetaStatus');
+                if (!cniDataUrl || !cniBackDataUrl) {
+                    status.textContent = 'يرجى مسح أو رفع الوجهين قبل تشغيل الذكاء الاصطناعي.';
+                    showNotification('يرجى توفير الوجه الأمامي والخلفي للبطاقة.', 'error');
+                    return;
+                }
+
+                const originalHtml = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<span class="material-symbols-outlined">progress_activity</span> جاري استخراج المعلومات...';
+                status.textContent = 'يتم تحليل الصور. تأكد أن البطاقة واضحة ومرئية بالكامل.';
+
+                try {
+                    const response = await fetch('/api/auth/ocr-registration-card', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ frontImage: cniDataUrl, backImage: cniBackDataUrl })
+                    });
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok || result.error) {
+                        throw new Error(result.error || 'تعذر استخراج المعلومات من البطاقة.');
+                    }
+
+                    applyOcrFields(result.fields || {});
+                    status.textContent = result.message || 'تم استخراج المعلومات. تحقق منها في آخر خطوة.';
+                    document.getElementById('ocrReviewStatus').textContent = `تمت القراءة بواسطة ${result.model || 'Qwen-VL'} - يرجى التحقق من الحقول وإضافة البريد والهاتف.`;
+                    goToStep(5);
+                    showNotification('تم استخراج المعلومات. أكمل البريد الإلكتروني والهاتف ثم تحقق من البيانات.', 'success');
+                } catch (error) {
+                    status.textContent = error.message;
+                    showNotification(error.message, 'error');
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = originalHtml;
+                }
+            });
 
             function setDocumentPreview(type, dataUrl, fileName = '') {
                 const isFront = type === 'cni';
@@ -3251,7 +3765,7 @@
                 });
 
                 if (currentStep === 5) {
-                    updateModernSummary();
+                    populateReviewFieldsFromSource();
                 }
             }
 
@@ -3283,6 +3797,7 @@
                 }
 
                 if (step === 2) {
+                    if (ocrBetaMode) return errors;
                     if (!photoDataUrl) errors.push({ field: 'uploadOption', message: 'صورة الهوية مطلوبة للتسجيل.' });
                 }
 
@@ -3326,6 +3841,7 @@
             }
 
             function validateAllSteps() {
+                if (currentStep === 5 || ocrBetaMode) syncReviewToSource();
                 const errors = [];
                 for (let step = 1; step <= 5; step++) {
                     errors.push(...validateStep(step));
@@ -3334,6 +3850,7 @@
             }
 
             function validateCurrentStep() {
+                if (currentStep === 5 || ocrBetaMode) syncReviewToSource();
                 return showValidationErrors(validateStep(currentStep));
             }
 
@@ -3660,6 +4177,10 @@
                     setDocumentPreview('cni', scannedDataUrl, 'scan-cni.png');
                 } else if (currentScanner === 'cniBack') {
                     setDocumentPreview('cniBack', scannedDataUrl, 'scan-cni-verso.png');
+                } else if (currentScanner === 'autoCni') {
+                    setAutoDocumentPreview('front', scannedDataUrl, 'scan-cni-recto.png');
+                } else if (currentScanner === 'autoCniBack') {
+                    setAutoDocumentPreview('back', scannedDataUrl, 'scan-cni-verso.png');
                 }
 
                 captured = true;
