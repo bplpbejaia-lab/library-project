@@ -235,6 +235,62 @@
         }
     }
 
+    // Global support for Enter key login & Escape modal dismiss
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const loginOverlay = document.getElementById('loginOverlay');
+            if (loginOverlay && loginOverlay.classList.contains('active')) {
+                if (typeof window.handleLogin === 'function') {
+                    window.handleLogin();
+                }
+            }
+        }
+    });
+
+    // Global support for Forgot Password link
+    window.handleForgotPassword = async function() {
+        const lang = localStorage.getItem('lang') || 'ar';
+        let promptMsg = 'الرجاء إدخال البريد الإلكتروني الخاص بك لاستعادة كلمة المرور:';
+        if (lang === 'fr') promptMsg = 'Veuillez saisir votre adresse e-mail pour réinitialiser votre mot de passe :';
+        else if (lang === 'en') promptMsg = 'Please enter your email address to reset your password:';
+        
+        const email = prompt(promptMsg);
+        if (!email) return;
+        
+        try {
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim() })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                let successMsg = 'تم إرسال كلمة مرور مؤقتة إلى بريدك الإلكتروني بنجاح. يرجى مراجعة علبة الوارد.';
+                if (lang === 'fr') successMsg = 'Un mot de passe temporaire a été envoyé avec succès à votre e-mail.';
+                else if (lang === 'en') successMsg = 'A temporary password has been successfully sent to your email.';
+                alert(successMsg);
+            } else {
+                alert(data.error || (lang === 'fr' ? 'Erreur' : 'خطأ في إرسال البريد'));
+            }
+        } catch (err) {
+            console.error(err);
+            alert(lang === 'fr' ? 'Erreur de connexion' : 'خطأ في الاتصال بالخادم');
+        }
+    };
+
+    // Bind event to forgot links programmatically
+    function bindForgotLinks() {
+        document.querySelectorAll('.forgot-link').forEach(el => {
+            el.removeAttribute('href');
+            el.style.cursor = 'pointer';
+            el.setAttribute('onclick', 'handleForgotPassword()');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', bindForgotLinks);
+    if (document.readyState !== 'loading') bindForgotLinks();
+    setInterval(bindForgotLinks, 1000);
+
     init();
 
     // Re-check on resize (in case user resizes window)

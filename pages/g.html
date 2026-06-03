@@ -3236,16 +3236,18 @@
             let ocrBetaMode = false;
 
             const latinToArabicKeyboardMap = {
-                q: 'ض', w: 'ص', e: 'ث', r: 'ق', t: 'ف', y: 'غ', u: 'ع', i: 'ه', o: 'خ', p: 'ح',
-                a: 'ش', s: 'س', d: 'ي', f: 'ب', g: 'ل', h: 'ا', j: 'ت', k: 'ن', l: 'م',
-                z: 'ئ', x: 'ء', c: 'ؤ', v: 'ر', b: 'لا', n: 'ى', m: 'ة',
-                '[': 'ج', ']': 'د', ';': 'ك', "'": 'ط', ',': 'و', '.': 'ز', '/': 'ظ', '`': 'ذ'
+                a: 'ض', z: 'ص', e: 'ث', r: 'ق', t: 'ف', y: 'غ', u: 'ع', i: 'ه', o: 'خ', p: 'ح',
+                q: 'ش', s: 'س', d: 'ي', f: 'ب', g: 'ل', h: 'ا', j: 'ت', k: 'ن', l: 'م',
+                w: 'ئ', x: 'ء', c: 'ؤ', v: 'ر', b: 'لا', n: 'ى',
+                '^': 'ج', '[': 'ج', '$': 'د', ']': 'د', 'm': 'ك', ';': 'ك', 'ù': 'ط', "'": 'ط', '*': 'ذ', '`': 'ذ',
+                ',': 'ة', ';': 'و', ':': 'ز', '!': 'ظ', '/': 'ظ'
             };
             const arabicToLatinKeyboardMap = {
-                'ض': 'q', 'ص': 'w', 'ث': 'e', 'ق': 'r', 'ف': 't', 'غ': 'y', 'ع': 'u', 'ه': 'i', 'خ': 'o', 'ح': 'p',
-                'ش': 'a', 'س': 's', 'ي': 'd', 'ب': 'f', 'ل': 'g', 'ا': 'h', 'أ': 'h', 'إ': 'h', 'آ': 'h',
-                'ت': 'j', 'ن': 'k', 'م': 'l', 'ج': '[', 'د': ']', 'ك': ';', 'ط': "'", 'ئ': 'z', 'ء': 'x', 'ؤ': 'c',
-                'ر': 'v', 'ى': 'n', 'ة': 'm', 'و': ',', 'ز': '.', 'ظ': '/', 'ذ': '`'
+                'ض': 'a', 'ص': 'z', 'ث': 'e', 'ق': 'r', 'ف': 't', 'غ': 'y', 'ع': 'u', 'ه': 'i', 'خ': 'o', 'ح': 'p',
+                'ج': 'a', 'د': 'z', // Fallbacks
+                'ش': 'q', 'س': 's', 'ي': 'd', 'ب': 'f', 'ل': 'g', 'ا': 'h', 'أ': 'h', 'إ': 'h', 'آ': 'h',
+                'ت': 'j', 'ن': 'k', 'م': 'l', 'ك': 'm', 'ط': 'ù', 'ذ': '*',
+                'ئ': 'w', 'ء': 'x', 'ؤ': 'c', 'ر': 'v', 'ى': 'n', 'ة': ',', 'و': ';', 'ز': ':', 'ظ': '!'
             };
             const arabicToLatinSequenceMap = {
                 'لا': 'b', 'لأ': 'b', 'لإ': 'b', 'لآ': 'b'
@@ -3616,7 +3618,7 @@
                 setGenreValue(fields.genre);
                 setFormValue('naissance', fields.naissance);
                 const birthPlace = fields.lieuNaissance || '';
-                setFormValue('lieuNaissance', birthPlace && !isBejaiaCommune(birthPlace) ? outsideBejaiaBirthPlace : birthPlace);
+                setFormValue('lieuNaissance', birthPlace);
                 setFormValue('nationalite', fields.nationalite || 'جزائرية');
                 setFormValue('nin', fields.nin);
                 setFormValue('adresse', fields.adresse);

@@ -19,7 +19,8 @@
     <div id="documentViewer" class="viewer-modal" onclick="closeDocumentViewer()">
         <div class="viewer-content" onclick="event.stopPropagation()">
             <span class="viewer-close material-symbols-outlined" onclick="closeDocumentViewer()">close</span>
-            <img id="viewerImage" src="" alt="Document">
+            <img id="viewerImage" src="" alt="Document" style="display:none; max-width:100%; max-height:80vh; border-radius:8px;">
+            <iframe id="viewerPdf" src="" style="display:none; width:100%; height:100%; border:none; border-radius:8px;"></iframe>
         </div>
     </div>
 
@@ -829,8 +830,8 @@
                     <span class="material-symbols-outlined text-2xl font-black">check</span>
                 </div>
                 <div class="text-center">
-                    <p class="text-[9px] text-emerald-500 font-black uppercase tracking-[0.2em] mb-1">Step 01</p>
-                    <p class="text-xs font-black text-emerald-600">المعلومات</p>
+                    <p class="text-[9px] text-emerald-500 font-black uppercase tracking-[0.2em] mb-1" data-i18n="profile-step-num-1">Step 01</p>
+                    <p class="text-xs font-black text-emerald-600" data-i18n="profile-step-1">المعلومات</p>
                 </div>
             </div>
 
@@ -843,8 +844,8 @@
                     <span class="material-symbols-outlined text-2xl">mail</span>
                 </div>
                 <div class="text-center">
-                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Step 02</p>
-                    <p class="text-xs font-black text-slate-800">البريد</p>
+                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1" data-i18n="profile-step-num-2">Step 02</p>
+                    <p class="text-xs font-black text-slate-800" data-i18n="profile-step-2">البريد</p>
                 </div>
             </div>
 
@@ -857,8 +858,8 @@
                     <span class="material-symbols-outlined text-2xl">upload_file</span>
                 </div>
                 <div class="text-center">
-                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Step 03</p>
-                    <p class="text-xs font-black text-slate-800">الوثائق</p>
+                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1" data-i18n="profile-step-num-3">Step 03</p>
+                    <p class="text-xs font-black text-slate-800" data-i18n="profile-step-3">الوثائق</p>
                 </div>
             </div>
 
@@ -871,8 +872,8 @@
                     <span class="material-symbols-outlined text-2xl">verified</span>
                 </div>
                 <div class="text-center">
-                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">Final Status</p>
-                    <p id="final-status-text" class="text-xs font-black text-slate-400">قيد المراجعة</p>
+                    <p class="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1" data-i18n="profile-step-num-4">Final Status</p>
+                    <p id="final-status-text" class="text-xs font-black text-slate-400" data-i18n="profile-step-4">قيد المراجعة</p>
                 </div>
             </div>
         </div>
@@ -933,7 +934,7 @@
                     class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-3">
                     <span class="material-symbols-outlined">lock</span>
                 </div>
-                <p class="font-bold text-slate-700 text-sm">تغيير السر</p>
+                <p class="font-bold text-slate-700 text-sm" data-i18n="profile-action-pass">تغيير كلمة السر</p>
             </div>
             <div class="quick-action" onclick="window.location.href='/pages/books-catalog.html'">
                 <div
@@ -1082,6 +1083,14 @@
                             </div>
                             <span id="photoStatus" class="doc-pill missing">...</span>
                         </div>
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-700" data-i18n="profile-doc-engagement">التعهد الموقع</span>
+                                <button class="btn-view-doc mt-1" id="viewUserEngagement" style="display:none"
+                                    onclick="viewDocument('engagement')">عرض</button>
+                            </div>
+                            <span id="engagementStatus" class="doc-pill missing">...</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1177,52 +1186,59 @@
         </div>
     </div>
 
-    <!-- Hidden PDF Template for Receipt -->
+    <!-- Hidden PDF Template for Receipt: 80mm Ticket Style -->
     <div id="registrationFormPrint"
-        style="display:none; width:210mm; padding:15mm; background:white; font-family:'Noto Sans Arabic','Arial',sans-serif; color:#000; direction:rtl;">
-        <table style="width:100%; border-bottom:2px solid #000; padding-bottom:8px; margin-bottom:5px;" cellpadding="0"
-            cellspacing="0">
-            <tr>
-                <td style="width:90px; text-align:center; vertical-align:top;">
-                    <img src="/logo.jpg" style="width:70px; height:auto; margin-bottom:5px;"
-                        onerror="this.src='../images/c.PNG'">
-                    <p style="font-size:7pt; margin:0; font-weight:bold;">BPLPB</p>
-                </td>
-                <td style="text-align:center; vertical-align:top; font-weight:bold; line-height:1.5; font-size:10pt;">
-                    <p style="margin:0; font-size:11pt;">الجمهورية الجزائرية الديمقراطية الشعبية</p>
-                    <p style="margin:0; font-family:Arial; font-size:9pt;">République Algérienne Démocratique et
-                        Populaire</p>
-                    <p style="margin:0; font-size:11pt;">وزارة الثقافة و الفنون</p>
-                    <p style="margin:0; font-size:10pt;">المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</p>
-                </td>
-                <td style="width:90px; text-align:center; vertical-align:top;">
-                    <img src="/minsitere.png" style="width:75px; height:auto;" onerror="this.src='../images/c.PNG'">
-                </td>
-            </tr>
-        </table>
-        <div style="text-align:center; margin:20px 0;">
-            <h2 style="font-size:18pt; font-weight:bold; color:#8B0000; text-decoration:underline;">بطاقة التسجيل
-                والتزام القارئ</h2>
+        style="display:none; width:80mm; padding:5mm; background:white; font-family:'Cairo', 'Noto Sans Arabic', sans-serif; color:#000; direction:rtl; box-sizing:border-box;">
+        <div style="text-align:center; border-bottom:1px dashed #ccc; padding-bottom:8px; margin-bottom:10px;">
+            <img src="/logo.jpg" style="width:45px; height:auto; margin-bottom:5px;" onerror="this.src='../logo.jpg'">
+            <h3 style="font-size:9pt; margin:2px 0; font-weight:bold; color:#1b3d20;">المكتبة الرئيسية للمطالعة العمومية بجاية</h3>
+            <p style="font-size:7pt; margin:0; color:#555;">Bibliothèque Principale de Béjaïa</p>
         </div>
-        <div style="margin:0 40px;">
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">اللقب
-                    :</span><span id="p-nom"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">الاسم
-                    :</span><span id="p-prenom"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">اللقب
-                    (Latin) :</span><span id="p-nom-la"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">الاسم
-                    (Latin) :</span><span id="p-prenom-la"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">تاريخ
-                    الميلاد :</span><span id="p-dob"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">المهنة
-                    :</span><span id="p-job"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">رقم الهاتف
-                    :</span><span id="p-phone" dir="ltr" style="display: inline-block;"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">NIN
-                    :</span><span id="p-nin"></span></div>
-            <div style="display:flex; margin-bottom:12px;"><span style="font-weight:bold; min-width:140px;">العنوان
-                    :</span><span id="p-address"></span></div>
+        
+        <div style="text-align:center; margin-bottom:12px;">
+            <h4 style="font-size:10pt; font-weight:900; margin:0; background:#f0fdf4; color:#166534; padding:4px; border-radius:6px; display:inline-block; border:1px solid #bbf7d0;">وصل التسجيل / Reçu</h4>
+        </div>
+        
+        <div style="font-size:8.5pt; line-height:1.6; margin-bottom:12px; border-bottom:1px dashed #ccc; padding-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="font-weight:bold; color:#555;">الاسم واللقب:</span>
+                <span id="p-fullname" style="font-weight:bold;"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="font-weight:bold; color:#555;">تاريخ الميلاد:</span>
+                <span id="p-dob"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="font-weight:bold; color:#555;">رقم الهاتف:</span>
+                <span id="p-phone" dir="ltr"></span>
+            </div>
+        </div>
+        
+        <!-- Login Credentials Box -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px; margin-bottom:12px; font-size:8.5pt; line-height:1.6;">
+            <div style="font-weight:bold; color:#0f172a; text-align:center; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:6px;">
+                معلومات الحساب / Identifiants
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="color:#475569;">رقم القارئ:</span>
+                <span id="p-lecteur-id" style="font-family:monospace; font-weight:bold; color:#2E7D32;"></span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:#475569;">اسم المستخدم:</span>
+                <span id="p-username" style="font-family:monospace; font-weight:bold; color:#0f172a;"></span>
+            </div>
+        </div>
+        
+        <div style="text-align:center; font-size:7.5pt; color:#666; margin-bottom:10px;">
+            <div>تاريخ التسجيل: <span id="p-reg-date" style="font-weight:bold;"></span></div>
+            <div style="margin-top:2px;">صالح إلى غاية: <span id="p-exp-date" style="font-weight:bold;"></span></div>
+        </div>
+
+        <div style="text-align:center; border-top:1px dashed #ccc; padding-top:8px;">
+            <div style="display:inline-block; background:white; padding:4px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:6px;">
+                <div id="p-qr-code" style="width:70px; height:70px; display:flex; align-items:center; justify-content:center;"></div>
+            </div>
+            <p style="font-size:7pt; margin:0; color:#2E7D32; font-weight:bold;">مرحباً بك في المكتبة الرئيسية للمطالعة العمومية!</p>
         </div>
     </div>
 
@@ -1394,6 +1410,20 @@
             return raw;
         }
 
+        function formatDateInArabic(dateVal) {
+            if (!dateVal) return '';
+            const date = new Date(dateVal);
+            if (isNaN(date.getTime())) return '';
+            const day = date.getDate();
+            const monthIndex = date.getMonth();
+            const year = date.getFullYear();
+            const monthName = [
+                'جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان',
+                'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+            ][monthIndex];
+            return `${day} ${monthName} ${year}`;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const storedUser = JSON.parse(localStorage.getItem('libraryUser'));
             if (!storedUser || !storedUser.lecteurId) {
@@ -1495,18 +1525,29 @@
                 safeSetText('profileAddress', user.adresse);
 
                 // Update document status pills
+                const activeLang = localStorage.getItem("lang") || "ar";
+                const uploadedMap = { ar: 'تم الرفع', fr: 'Téléchargé', en: 'Uploaded', kab: 'Yuli' };
+                const missingMap = { ar: 'غير متوفر', fr: 'Manquant', en: 'Missing', kab: 'Ur yuli ara' };
+
                 const cniStatus = document.getElementById('cniStatus');
                 if (cniStatus) {
                     const hasCni = !!(user.cniFront || user.cniBack || user.cni);
                     cniStatus.className = hasCni ? 'doc-pill uploaded' : 'doc-pill missing';
-                    cniStatus.textContent = hasCni ? 'تم الرفع' : 'غير متوفر';
+                    cniStatus.textContent = hasCni ? uploadedMap[activeLang] : missingMap[activeLang];
                 }
 
                 const photoStatus = document.getElementById('photoStatus');
                 if (photoStatus) {
                     const hasPhoto = !!user.photo;
                     photoStatus.className = hasPhoto ? 'doc-pill uploaded' : 'doc-pill missing';
-                    photoStatus.textContent = hasPhoto ? 'تم الرفع' : 'غير متوفر';
+                    photoStatus.textContent = hasPhoto ? uploadedMap[activeLang] : missingMap[activeLang];
+                }
+
+                const engagementStatus = document.getElementById('engagementStatus');
+                if (engagementStatus) {
+                    const hasEng = !!(user.docEngagement || user.LEC_DOC_ENGAGEMENT);
+                    engagementStatus.className = hasEng ? 'doc-pill uploaded' : 'doc-pill missing';
+                    engagementStatus.textContent = hasEng ? uploadedMap[activeLang] : missingMap[activeLang];
                 }
             } catch (err) {
                 console.error("Error in populateProfileData:", err);
@@ -1611,30 +1652,51 @@
             `;
 
             // Document visibility toggles
-            if (user.cniFront) document.getElementById('viewCniFront').style.display = 'inline-block';
-            if (user.cniBack) document.getElementById('viewCniBack').style.display = 'inline-block';
-            if (user.photo) document.getElementById('viewUserPhoto').style.display = 'inline-block';
-            // NOTE: Verso card removed - profile shows recto only
+            document.getElementById('viewCniFront').style.display = user.cniFront ? 'inline-block' : 'none';
+            document.getElementById('viewCniBack').style.display = user.cniBack ? 'inline-block' : 'none';
+            document.getElementById('viewUserPhoto').style.display = user.photo ? 'inline-block' : 'none';
+            const hasEng = !!(user.docEngagement || user.LEC_DOC_ENGAGEMENT);
+            document.getElementById('viewUserEngagement').style.display = hasEng ? 'inline-block' : 'none';
         }
 
         function viewDocument(type) {
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             const viewer = document.getElementById('documentViewer');
             const img = document.getElementById('viewerImage');
+            const pdf = document.getElementById('viewerPdf');
+            const content = document.querySelector('.viewer-content');
 
             let src = '';
             if (type === 'cniFront') src = user.cniFront;
             else if (type === 'cniBack') src = user.cniBack;
             else if (type === 'photo') src = user.photo;
+            else if (type === 'engagement') src = user.docEngagement || user.LEC_DOC_ENGAGEMENT;
 
             if (src) {
-                img.src = src;
+                const isPdf = src.toLowerCase().endsWith('.pdf') || src.startsWith('data:application/pdf');
+                if (isPdf) {
+                    content.style.width = '80vw';
+                    content.style.maxWidth = '850px';
+                    content.style.height = '85vh';
+                    img.style.display = 'none';
+                    pdf.src = src;
+                    pdf.style.display = 'block';
+                } else {
+                    content.style.width = '';
+                    content.style.maxWidth = '90vw';
+                    content.style.height = '';
+                    pdf.style.display = 'none';
+                    img.src = src;
+                    img.style.display = 'block';
+                }
                 viewer.classList.add('active');
             }
         }
 
         function closeDocumentViewer() {
             document.getElementById('documentViewer').classList.remove('active');
+            document.getElementById('viewerImage').src = '';
+            document.getElementById('viewerPdf').src = '';
         }
 
         function renderRfidCard(targetId, user) {
@@ -1771,7 +1833,7 @@
                             localStorage.setItem('libraryUser', JSON.stringify(user));
                             setTimeout(() => {
                                 closeUploadEngagement();
-                                alert('تم رفع الفيشة الموقّعة بنجاح!');
+                                alert('تم رفع التعهد بنجاح!');
                             }, 400);
                         } else {
                             const d = await res.json();
@@ -1860,37 +1922,36 @@
         function printRegistrationForm() {
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             if (!user) return;
-            document.getElementById('p-nom').textContent = user.nom || '';
-            document.getElementById('p-prenom').textContent = user.prenom || '';
-            document.getElementById('p-nom-la').textContent = user.nomLatin || '';
-            document.getElementById('p-prenom-la').textContent = user.prenomLatin || '';
-            document.getElementById('p-dob').textContent = user.naissance || '';
             
-            // Map and translate profession
-            let translatedProf = user.profession || '';
-            const activeLang = localStorage.getItem("lang") || "ar";
-            const profKey = String(translatedProf).toLowerCase().trim();
-            const professionMap = {
-                'eleve': { ar: 'تلميذ', fr: 'Élève', en: 'Pupil', kab: 'Élève' },
-                'etudiant': { ar: 'طالب', fr: 'Étudiant', en: 'Student', kab: 'Étudiant' },
-                'enseignant': { ar: 'معلم', fr: 'Enseignant', en: 'Teacher', kab: 'Enseignant' },
-                'commercant': { ar: 'تاجر', fr: 'Commerçant', en: 'Merchant', kab: 'Commerçant' },
-                'fonctionnaire': { ar: 'موظف حكومي', fr: 'Fonctionnaire', en: 'Public Servant', kab: 'Fonctionnaire' },
-                'cadre': { ar: 'إطار', fr: 'Cadre', en: 'Executive', kab: 'Cadre' },
-                'chercheur': { ar: 'باحث', fr: 'Chercheur', en: 'Researcher', kab: 'Chercheur' },
-                'retraite': { ar: 'متقاعد', fr: 'Retraité', en: 'Retired', kab: 'Retraité' },
-                'autre': { ar: 'أخرى', fr: 'Autre', en: 'Other', kab: 'Autre' }
-            };
-            if (professionMap[profKey]) {
-                translatedProf = professionMap[profKey][activeLang] || professionMap[profKey]['ar'];
-            }
-            document.getElementById('p-job').textContent = translatedProf;
+            const fullName = ((user.nom || '') + ' ' + (user.prenom || '')).trim().toUpperCase();
+            document.getElementById('p-fullname').textContent = fullName;
+            document.getElementById('p-dob').textContent = user.naissance ? formatDateForDisplay(user.naissance) : '';
             document.getElementById('p-phone').textContent = formatPhoneNumber(user.telephone);
-            document.getElementById('p-nin').textContent = user.nin || '';
-            document.getElementById('p-address').textContent = user.adresse || '';
+            
+            document.getElementById('p-lecteur-id').textContent = user.lecteurId || user.libraryNumber || '';
+            document.getElementById('p-username').textContent = user.email || '';
+            
+            const regDate = user.date_adhesion || user.CREATE_DATE || new Date();
+            document.getElementById('p-reg-date').textContent = formatDateInArabic(regDate);
+            
+            const expDate = user.date_expiration || user.LEC_DATE_EXPIRATION;
+            document.getElementById('p-exp-date').textContent = expDate ? formatDateInArabic(expDate) : 'غير محدد';
+            
+            const qrBox = document.getElementById('p-qr-code');
+            if (qrBox) {
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(user.lecteurId || '')}`;
+                qrBox.innerHTML = `<img src="${qrUrl}" style="width:70px; height:70px;">`;
+            }
+            
             const el = document.getElementById('registrationFormPrint');
             el.style.display = 'block';
-            html2pdf().set({ margin: [0, 0], filename: 'Recu.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(el).save().then(() => el.style.display = 'none');
+            html2pdf().set({ 
+                margin: [0, 0], 
+                filename: 'Recu.pdf', 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 3 }, 
+                jsPDF: { unit: 'mm', format: [80, 160] } 
+            }).from(el).save().then(() => el.style.display = 'none');
         }
 
         async function printEngagementForm(lang) {

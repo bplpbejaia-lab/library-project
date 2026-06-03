@@ -121,6 +121,10 @@ const i18n = {
 
             // Profile Page
             "profile-hero-active": "عضو نشط",
+            "profile-step-num-1": "الخطوة 01",
+            "profile-step-num-2": "الخطوة 02",
+            "profile-step-num-3": "الخطوة 03",
+            "profile-step-num-4": "الحالة النهائية",
             "profile-step-1": "المعلومات",
             "profile-step-2": "البريد",
             "profile-step-3": "الوثائق",
@@ -134,10 +138,14 @@ const i18n = {
             "profile-action-commit-ar": "تعهد (AR)",
             "profile-action-commit-fr": "Engagement (FR)",
             "profile-action-rfid": "بطاقة القارئ (RFID)",
-            "profile-action-pass": "تغيير السر",
+            "profile-action-pass": "تغيير كلمة السر",
             "profile-action-search": "بحث الكتب",
             "profile-action-logout": "خروج",
             "profile-action-upload-eng": "رفع التعهد الموقّع",
+            "profile-doc-engagement": "التعهد الموقع",
+            "profile-btn-recto": "الوجه",
+            "profile-btn-verso": "الظهر",
+            "profile-btn-view": "عرض",
             "profile-upload-title": "رفع استمارة التسجيل الموقّعة",
             "profile-upload-desc": "قم برفع نسخة مسح ضوئي (PDF أو صورة) من فيشة التعهد بعد توقيعها",
             "profile-upload-dropzone": "انقر لاختيار ملف",
@@ -588,6 +596,10 @@ const i18n = {
 
             // Profile Page
             "profile-hero-active": "Membre Actif",
+            "profile-step-num-1": "Étape 01",
+            "profile-step-num-2": "Étape 02",
+            "profile-step-num-3": "Étape 03",
+            "profile-step-num-4": "Statut Final",
             "profile-step-1": "Infos",
             "profile-step-2": "E-mail",
             "profile-step-3": "Documents",
@@ -605,6 +617,10 @@ const i18n = {
             "profile-action-search": "Recherche",
             "profile-action-logout": "Quitter",
             "profile-action-upload-eng": "Déposer l'engagement signé",
+            "profile-doc-engagement": "Engagement signé",
+            "profile-btn-recto": "Recto",
+            "profile-btn-verso": "Verso",
+            "profile-btn-view": "Voir",
             "profile-upload-title": "Déposer la fiche signée",
             "profile-upload-desc": "Téléversez une copie numérisée (PDF ou image) de votre fiche d'engagement après signature",
             "profile-upload-dropzone": "Cliquez pour choisir un fichier",
@@ -1055,6 +1071,10 @@ const i18n = {
 
             // Profile Page
             "profile-hero-active": "Active Member",
+            "profile-step-num-1": "Step 01",
+            "profile-step-num-2": "Step 02",
+            "profile-step-num-3": "Step 03",
+            "profile-step-num-4": "Final Status",
             "profile-step-1": "Info",
             "profile-step-2": "Email",
             "profile-step-3": "Documents",
@@ -1072,6 +1092,10 @@ const i18n = {
             "profile-action-search": "Search Books",
             "profile-action-logout": "Logout",
             "profile-action-upload-eng": "Upload signed commitment",
+            "profile-doc-engagement": "Signed Commitment",
+            "profile-btn-recto": "Recto",
+            "profile-btn-verso": "Verso",
+            "profile-btn-view": "View",
             "profile-upload-title": "Upload signed form",
             "profile-upload-desc": "Upload a scanned copy (PDF or image) of your signed commitment form",
             "profile-upload-dropzone": "Click to choose a file",
@@ -1510,6 +1534,10 @@ const i18n = {
 
             // Profile Page
             "profile-hero-active": "Amaslad Urmid",
+            "profile-step-num-1": "Tazwirt 01",
+            "profile-step-num-2": "Tazwirt 02",
+            "profile-step-num-3": "Tazwirt 03",
+            "profile-step-num-4": "Taddada Taneggarut",
             "profile-step-1": "Talɣut",
             "profile-step-2": "E-mail",
             "profile-step-3": "Isemlan",
@@ -1527,6 +1555,10 @@ const i18n = {
             "profile-action-search": "Nadi adlis",
             "profile-action-logout": "Ffeɣ",
             "profile-action-upload-eng": "Sali tafuyt yettwazamlen",
+            "profile-doc-engagement": "Tugna n ucali yeplan",
+            "profile-btn-recto": "Agama",
+            "profile-btn-verso": "Afris",
+            "profile-btn-view": "Wali",
             "profile-upload-title": "Sali tafuyt yettwazamlen",
             "profile-upload-desc": "Sali tafilt (PDF neɣ tugna) n tkerḍa n uεahad seld azamel",
             "profile-upload-dropzone": "Sit akken ad tferneḍ afaylu",
@@ -1899,9 +1931,16 @@ const i18n = {
             const elHeroActive = document.querySelector(".profile-hero span.text-xs");
             if (elHeroActive) elHeroActive.textContent = dict["profile-hero-active"];
 
+            // Step labels (المعلومات, البريد, etc.)
             const stepTexts = [dict["profile-step-1"], dict["profile-step-2"], dict["profile-step-3"], dict["profile-step-4"]];
             document.querySelectorAll(".glass-bubble + div p.text-xs").forEach((el, idx) => {
                 if (stepTexts[idx]) el.textContent = stepTexts[idx];
+            });
+
+            // Step numbers (Step 01, Step 02, Step 03, Final Status)
+            const stepNumTexts = [dict["profile-step-num-1"], dict["profile-step-num-2"], dict["profile-step-num-3"], dict["profile-step-num-4"]];
+            document.querySelectorAll(".glass-bubble + div p:first-child").forEach((el, idx) => {
+                if (stepNumTexts[idx]) el.textContent = stepNumTexts[idx];
             });
 
             const alertTitle = document.querySelector("#emailVerifyAlert h4");
@@ -1916,8 +1955,9 @@ const i18n = {
                 { text: "وصل التسجيل", key: "profile-action-receipt" },
                 { text: "تعهد (AR)", key: "profile-action-commit-ar" },
                 { text: "Engagement (FR)", key: "profile-action-commit-fr" },
-                { text: "بطاقة القارئ (RFID)", key: "profile-action-rfid" },
+                { text: "رفع التعهد الموقّع", key: "profile-action-upload-eng" },
                 { text: "تغيير السر", key: "profile-action-pass" },
+                { text: "تغيير كلمة السر", key: "profile-action-pass" },
                 { text: "بحث الكتب", key: "profile-action-search" },
                 { text: "خروج", key: "profile-action-logout" }
             ];
@@ -1930,9 +1970,10 @@ const i18n = {
             const cardHeadings = [
                 { text: "المعلومات الشخصية", key: "profile-card-personal" },
                 { text: "التواصل والعنوان", key: "profile-card-contact" },
-                { text: "حالة الملف والوثائق المرفوعة", key: "profile-doc-status-title" }
+                { text: "حالة الملف والوثائق المرفوعة", key: "profile-doc-status-title" },
+                { text: "حالة الملف", key: "profile-doc-status-title" }
             ];
-            document.querySelectorAll(".profile-card h2").forEach(el => {
+            document.querySelectorAll(".profile-card h2, .profile-card h3").forEach(el => {
                 const match = cardHeadings.find(ch => el.textContent.trim().includes(ch.text));
                 if (match) {
                     const pill = el.querySelector("span");
@@ -1940,7 +1981,7 @@ const i18n = {
                 }
             });
 
-            // Labels
+            // Labels & document names
             const labelMap = {
                 "الاسم واللقب": "profile-label-fullname",
                 "Nom et Prénom": "profile-label-fullname-la",
@@ -1951,9 +1992,11 @@ const i18n = {
                 "رقم الهاتف": "profile-label-phone",
                 "العنوان": "profile-label-address",
                 "بطاقة التعريف الوطنية": "profile-doc-cni",
-                "الصورة الشخصية": "profile-doc-photo"
+                "بطاقة الهوية": "profile-doc-cni",
+                "الصورة الشخصية": "profile-doc-photo",
+                "التعهد الموقع": "profile-doc-engagement"
             };
-            document.querySelectorAll(".profile-card p.text-slate-400, .profile-card p.text-xs").forEach(el => {
+            document.querySelectorAll(".profile-card p.text-slate-400, .profile-card p.text-xs, .profile-card span.text-sm").forEach(el => {
                 const txt = el.textContent.trim();
                 for (const [arTxt, key] of Object.entries(labelMap)) {
                     if (txt.includes(arTxt)) {
@@ -1963,10 +2006,24 @@ const i18n = {
                 }
             });
 
+            // Document status view buttons
+            const btnRecto = document.getElementById("viewCniFront");
+            if (btnRecto) btnRecto.textContent = dict["profile-btn-recto"] || "الوجه";
+            const btnVerso = document.getElementById("viewCniBack");
+            if (btnVerso) btnVerso.textContent = dict["profile-btn-verso"] || "الظهر";
+            const btnPhoto = document.getElementById("viewUserPhoto");
+            if (btnPhoto) btnPhoto.textContent = dict["profile-btn-view"] || "عرض";
+            const btnEng = document.getElementById("viewUserEngagement");
+            if (btnEng) btnEng.textContent = dict["profile-btn-view"] || "عرض";
+
             // Document status pills
             document.querySelectorAll(".doc-pill").forEach(el => {
-                if (el.textContent.trim().includes("تم الرفع")) el.textContent = dict["profile-doc-uploaded"];
-                if (el.textContent.trim().includes("غير متوفر")) el.textContent = dict["profile-doc-missing"];
+                if (el.textContent.trim().includes("تم الرفع") || el.textContent.trim().includes("Uploaded") || el.textContent.trim().includes("Téléchargé") || el.textContent.trim().includes("Yuli")) {
+                    el.textContent = dict["profile-doc-uploaded"];
+                }
+                if (el.textContent.trim().includes("غير متوفر") || el.textContent.trim().includes("Missing") || el.textContent.trim().includes("Manquant") || el.textContent.trim().includes("Ur yuli ara")) {
+                    el.textContent = dict["profile-doc-missing"];
+                }
             });
         }
 

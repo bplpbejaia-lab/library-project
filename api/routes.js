@@ -458,10 +458,57 @@ async function sendVerificationEmail(email, token, lecteurId) {
     return transporter.sendMail(mailOptions);
 }
 
-
-
-
-
+async function sendForgotPasswordEmail(email, tempPassword, username, fullName) {
+    const mailOptions = {
+        from: '"Bibliothèque de Béjaïa" <bplpbejaia@gmail.com>',
+        to: email,
+        subject: 'إعادة تعيين كلمة المرور - Réinitialisation du mot de passe 🔑',
+        html: `
+            <div style="background-color: #f4f6f4; padding: 40px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; direction: ltr; text-align: left;">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(46, 125, 50, 0.05); border: 1px solid #e8ebe8;">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background: linear-gradient(135deg, #1b3d20 0%, #2E7D32 100%); padding: 40px 20px;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">Bibliothèque de Béjaïa</h1>
+                            <p style="color: #a5d6a7; margin: 5px 0 0 0; font-size: 14px;">Espace de Lecture Publique</p>
+                        </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px; font-family: sans-serif;">
+                            <h2 style="color: #1b2e1b; font-size: 18px; font-weight: 700; margin-top: 0; margin-bottom: 16px;">Bonjour / مرحبا بك ${fullName},</h2>
+                            <p style="color: #4a5c4a; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                                Vous avez demandé la réinitialisation de votre mot de passe pour votre compte Bibliothèque de Béjaïa.<br>
+                                لقد طلبت إعادة تعيين كلمة المرور الخاصة بحسابك في مكتبة بجاية.
+                            </p>
+                            <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #166534; font-weight: bold;">Identifiants temporaires / بيانات الدخول المؤقتة :</p>
+                                <p style="margin: 5px 0; font-size: 14px; color: #1e293b;"><strong>Identifiant / اسم المستخدم :</strong> ${username}</p>
+                                <p style="margin: 5px 0; font-size: 14px; color: #1e293b;"><strong>Mot de passe temporaire / كلمة المرور المؤقتة :</strong> <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:16px; font-family:monospace; font-weight:bold;">${tempPassword}</code></p>
+                            </div>
+                            <p style="color: #4a5c4a; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                                Pour des raisons de sécurité, nous vous conseillons vivement de modifier ce mot de passe dès votre première connexion depuis votre espace profil.<br>
+                                لدواعي الأمن، ننصحك بشدة بتغيير كلمة المرور هذه فور تسجيل الدخول من صفحة ملفك الشخصي.
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="background-color: #f9faf9; padding: 30px; border-top: 1px solid #e8ece8; text-align: center;">
+                            <p style="color: #8c9c8c; font-size: 12px; margin: 0;">
+                                Ceci est un message automatique de la Bibliothèque de Béjaïa. Merci de ne pas y répondre directement.
+                            </p>
+                            <p style="color: #b0c0b0; font-size: 11px; margin: 8px 0 0 0;">
+                                &copy; ${new Date().getFullYear()} Bibliothèque Principale n La Lecture Publique de Béjaïa
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        `
+    };
+    return transporter.sendMail(mailOptions);
+}
 const verificationCodes = new Map();
 const uploadedDocuments = new Map();
 
@@ -536,8 +583,8 @@ function validateRegistrationPayload(body) {
     }
 
     const birthPlace = cleanString(body.lieuNaissance);
-    if (birthPlace && !isBejaiaCommune(birthPlace) && !isOutsideBejaiaChoice(birthPlace)) {
-        errors.push('مكان الميلاد يجب أن يكون بلدية من بجاية أو خيار مولود خارج بجاية');
+    if (birthPlace && (!/[\p{L}\u0600-\u06FF]/u.test(birthPlace) || hasDigits(birthPlace))) {
+        errors.push('مكان الميلاد غير صالح');
     }
 
     const city = cleanString(body.ville);
@@ -2034,6 +2081,78 @@ export async function changePassword(fastify, opts) {
     });
 }
 
+export async function forgotPassword(fastify, opts) {
+    fastify.post('/api/auth/forgot-password', async (request, reply) => {
+        try {
+            const { email } = request.body;
+            if (!email) {
+                return reply.status(400).send({ error: 'Adresse e-mail requise' });
+            }
+
+            const cleanEmail = String(email).trim().toLowerCase();
+
+            // 1. Check LECTEUR table
+            const lectorResult = await pool.query(
+                `SELECT * FROM "LECTEUR" WHERE LOWER("LEC_EMAIL") = $1`,
+                [cleanEmail]
+            );
+
+            if (lectorResult.rows.length > 0) {
+                const reader = lectorResult.rows[0];
+                const tempPassword = Math.random().toString(36).substring(2, 10);
+                const hashed = hashPassword(tempPassword);
+
+                await pool.query(
+                    `UPDATE "LECTEUR" SET "LEC_PASSWORD" = $1 WHERE LOWER("LEC_EMAIL") = $2`,
+                    [hashed, cleanEmail]
+                );
+
+                const fullName = `${reader.LEC_NOM || ''} ${reader.LEC_PRENOM || ''}`.trim() || reader.LEC_NOM_LA || 'Lecteur';
+                const username = reader.LEC_EMAIL || reader.LEC_ID;
+
+                await sendForgotPasswordEmail(cleanEmail, tempPassword, username, fullName);
+                return reply.send({ success: true });
+            }
+
+            // 2. Check UTILISATEUR table
+            try {
+                const adminResult = await pool.query(
+                    `SELECT * FROM "UTILISATEUR" WHERE LOWER("UTL_EMAIL") = $1`,
+                    [cleanEmail]
+                );
+
+                if (adminResult.rows.length > 0) {
+                    const admin = adminResult.rows[0];
+                    const tempPassword = Math.random().toString(36).substring(2, 10);
+                    // Encrypt with XOR 23 for admin/staff
+                    const encryptedPwd = Array.from(tempPassword).map(c => String.fromCharCode(c.charCodeAt(0) ^ 23)).join('');
+
+                    await pool.query(
+                        `UPDATE "UTILISATEUR" SET "UTL_PASSWORD" = $1 WHERE LOWER("UTL_EMAIL") = $2`,
+                        [encryptedPwd, cleanEmail]
+                    );
+
+                    const fullName = `${admin.UTL_NOM || ''} ${admin.UTL_PRENOM || ''}`.trim() || 'Admin';
+                    const username = admin.UTL_LOGIN || admin.UTL_EMAIL;
+
+                    await sendForgotPasswordEmail(cleanEmail, tempPassword, username, fullName);
+                    return reply.send({ success: true });
+                }
+            } catch (adminErr) {
+                console.log('Skipped checking UTILISATEUR during forgot password:', adminErr.message);
+            }
+
+            return reply.status(404).send({
+                error: 'Aucun utilisateur trouvé avec cette adresse e-mail. / لم يتم العثور على أي مستخدم بهذا البريد الإلكتروني.'
+            });
+
+        } catch (error) {
+            fastify.log.error(error);
+            reply.status(500).send({ error: 'Une erreur est survenue lors de la réinitialisation du mot de passe.' });
+        }
+    });
+}
+
 export async function changeEmail(fastify, opts) {
     fastify.post('/api/auth/change-email', async (request, reply) => {
         try {
@@ -2435,6 +2554,7 @@ export default async function routes(fastify) {
     await updateReader(fastify);
     await updateProfilePhoto(fastify);
     await changePassword(fastify);
+    await forgotPassword(fastify);
     await changeEmail(fastify);
     await createAcquisitionRequest(fastify);
     await uploadSignedEngagement(fastify);
