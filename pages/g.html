@@ -3586,6 +3586,7 @@
                 } else {
                     const source = document.getElementById(target);
                     if (source) {
+                        if (!value && source.value) return;
                         source.value = value;
                         if (source.tagName === 'SELECT' && source.value !== value) {
                             const normalizedValue = normalizeValue(value);
@@ -3969,8 +3970,8 @@
                     if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: 'يرجى اختيار الجنس.' });
                     if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
                     if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
-                    if (!lieuNaissance || !hasLetters(lieuNaissance) || hasDigits(lieuNaissance)) {
-                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب ولا يجب أن يحتوي على أرقام.' });
+                    if (!lieuNaissance || !hasLetters(lieuNaissance)) {
+                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب.' });
                     }
                     if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.' });
                 }

@@ -632,7 +632,7 @@ function validateRegistrationPayload(body) {
     }
 
     const birthPlace = cleanString(body.lieuNaissance);
-    if (birthPlace && (!/[\p{L}\u0600-\u06FF]/u.test(birthPlace) || hasDigits(birthPlace))) {
+    if (birthPlace && !/[\p{L}\u0600-\u06FF]/u.test(birthPlace)) {
         errors.push('مكان الميلاد غير صالح');
     }
 
@@ -2127,7 +2127,7 @@ export async function changePassword(fastify, opts) {
     });
 }
 
-export async function forgotPassword(fastify, opts) {
+LINSCRIexport async function forgotPassword(fastify, opts) {
     fastify.post('/api/auth/forgot-password', async (request, reply) => {
         try {
             const { email } = request.body;
