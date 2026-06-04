@@ -2403,7 +2403,7 @@
                         <label class="form-label required">الجنسية <span
                                 class="material-symbols-outlined text-[18px] mr-2">flag</span></label>
                         <input type="text" class="form-input" id="nationalite" list="nationalitesList"
-                            value="جزائرية" placeholder="اكتب أو اختر الجنسية" required onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value==='') this.value=this.getAttribute('data-val') || 'جزائرية';">
+                            value="جزائرية" placeholder="اكتب أو اختر الجنسية" required>
                         <datalist id="nationalitesList"></datalist>
                     </div>
 
@@ -3448,7 +3448,15 @@
                 if (shouldResetDefault) input.value = defaultValue;
             }
 
+            document.getElementById('nationalite')?.addEventListener('focus', (event) => {
+                event.target.setAttribute('data-prev-val', event.target.value);
+                event.target.value = '';
+            });
+
             document.getElementById('nationalite')?.addEventListener('blur', (event) => {
+                if (!event.target.value.trim()) {
+                    event.target.value = event.target.getAttribute('data-prev-val') || defaultNationalityForLang(getRegistrationLang());
+                }
                 if (getRegistrationLang() === 'ar') {
                     event.target.value = toArabicNationality(event.target.value);
                 }
@@ -4826,21 +4834,33 @@
         </div>
 
         <script>
-            function handleLogin() {
+            async function handleLogin() {
                 const username = document.getElementById('loginUsername').value.trim();
                 const password = document.getElementById('loginPassword').value;
                 if (!username || !password) {
                     showNotification('يرجى إدخال رمز القارئ أو البريد الإلكتروني وكلمة المرور', 'error');
                     return;
                 }
-                const users = JSON.parse(localStorage.getItem('libraryUsers') || '[]');
-                const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
-                if (user) {
-                    localStorage.setItem('libraryUser', JSON.stringify(user));
-                    document.getElementById('loginOverlay').classList.remove('active');
-                    window.location.reload();
-                } else {
-                    showNotification('رمز القارئ أو كلمة المرور غير صحيحة', 'error');
+                try {
+                    const res = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.error) {
+                        showNotification(data.error || 'رمز القارئ أو كلمة المرور غير صحيحة', 'error');
+                        return;
+                    }
+                    localStorage.setItem('libraryUser', JSON.stringify(data.user));
+                    if (data.isAdmin && data.adminUrl) {
+                        window.location.href = data.adminUrl;
+                    } else {
+                        document.getElementById('loginOverlay').classList.remove('active');
+                        window.location.href = '/pages/profile.html';
+                    }
+                } catch (err) {
+                    showNotification('خطأ في الاتصال بالخادم', 'error');
                 }
             }
 

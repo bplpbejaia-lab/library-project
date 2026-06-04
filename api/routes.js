@@ -33,7 +33,17 @@ const BEJAIA_COMMUNES = [
     'Tamridjet', 'Taourirt Ighil', 'Taskriout', 'Tazmalt', 'Tibane', 'Tichy', 'Tifra',
     'Timezrit', 'Tinabdher', "Tizi N'Berber", 'Toudja'
 ];
-const COMMUNE_LOOKUP = new Set(BEJAIA_COMMUNES.map(normalizeText));
+const BEJAIA_COMMUNES_AR = [
+    'أدكار', 'بني معوش', 'أيت مليكش', 'أيت رزين', 'أيت إسماعيل', 'أقبو', 'أكفادو',
+    'أمالو', 'أميزور', 'أوقاس', 'برباشة', 'بجاية', 'بني جليل', 'بني كسيلة',
+    'بودجليل', 'بوحمزة', 'بوخليفة', 'شلاطة', 'شميني', 'درقينة', 'ذراع القايد',
+    'القصر', 'فناية الماثن', 'فرعون', 'إغيل علي', 'إغرم', 'كنديرة', 'خراطة',
+    'لفلاي', 'مسيسنة', 'ملبو', 'وادي غير', 'أوزلاقن', 'صدوق', 'سمعون',
+    'سيدي عيش', 'سيدي عياد', 'سوق الاثنين', 'سوق أوفلة', 'تالة حمزة', 'تامقرة',
+    'تامريجت', 'تاوريرت إيغيل', 'تاسكريوت', 'تازمالت', 'تيبان', 'تيشي', 'تيفرة',
+    'تيمزريت', 'تينبذر', 'تيزي نبربر', 'تودجة'
+];
+const COMMUNE_LOOKUP = new Set([...BEJAIA_COMMUNES, ...BEJAIA_COMMUNES_AR].map(normalizeText));
 const OUTSIDE_BEJAIA_VALUES = new Set([
     normalizeText('Né(e) hors Béjaïa'),
     normalizeText('Ne hors Bejaia'),
@@ -133,7 +143,8 @@ function isValidTextValue(value) {
 }
 
 function isBejaiaCommune(value) {
-    return COMMUNE_LOOKUP.has(normalizeText(value));
+    const clean = cleanString(value);
+    return COMMUNE_LOOKUP.has(normalizeText(clean)) || isValidTextValue(clean);
 }
 
 function isOutsideBejaiaChoice(value) {
@@ -334,6 +345,8 @@ Keys: document_type, first_name, last_name, first_name_ar, last_name_ar, date_of
 Rules:
 - Dates must be YYYY-MM-DD when possible.
 - sex must be "masculin" or "feminin" when possible.
+- place_of_birth is the birth place printed on the document; it can be any city/country and must not be limited to Bejaia communes.
+- city is the current address/residence city only when visible in the address.
 - Use empty strings for fields that are not visible.
 - Never invent email or telephone; those are not on the card.
 - If the image is blurry, cropped, dark, or unreadable, put that in notes and lower confidence.`;
@@ -548,6 +561,23 @@ function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+function passwordMatches(inputPassword, storedPassword) {
+    const stored = cleanString(storedPassword);
+    const input = String(inputPassword || '');
+    const candidates = [input, input.trim()].filter((value, index, list) => value && list.indexOf(value) === index);
+    return candidates.some(candidate => {
+        const hashed = hashPassword(candidate);
+        const encryptedLegacy = Array.from(candidate).map(c => String.fromCharCode(c.charCodeAt(0) ^ 23)).join('');
+        return stored === hashed || stored === candidate || stored === encryptedLegacy;
+    });
+}
+
+function generateTemporaryPassword(length = 10) {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    const bytes = crypto.randomBytes(length);
+    return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
+}
+
 function validateRegistrationPayload(body) {
     const errors = [];
     const requiredTextFields = [
@@ -681,10 +711,8 @@ export async function login(fastify, opts) {
                 );
                 if (adminResult.rows.length > 0) {
                     const admin = adminResult.rows[0];
-                    // Check password: try legacy XOR 23, SHA256 hash match, then plain text match
                     const storedPwd = (admin.UTL_PASSWORD || '').trim();
-                    const encryptedInputPwd = Array.from(password).map(c => String.fromCharCode(c.charCodeAt(0) ^ 23)).join('');
-                    if (storedPwd === encryptedInputPwd || storedPwd === hashedPassword || storedPwd === password) {
+                    if (passwordMatches(password, storedPwd)) {
                         console.log('Admin login successful for:', username);
                         return reply.send({
                             user: {
@@ -717,8 +745,7 @@ export async function login(fastify, opts) {
 
             const user = result.rows[0];
 
-            // Using trim() to avoid padding issues if any, although unlikely for varchar
-            if (user.LEC_PASSWORD.trim() !== hashedPassword.trim()) {
+            if (!passwordMatches(password, user.LEC_PASSWORD)) {
                 console.log('Hash mismatch!');
                 return reply.status(401).send({ error: 'Identifiant ou mot de passe incorrect' });
             }
@@ -2099,7 +2126,7 @@ export async function forgotPassword(fastify, opts) {
 
             if (lectorResult.rows.length > 0) {
                 const reader = lectorResult.rows[0];
-                const tempPassword = Math.random().toString(36).substring(2, 10);
+                const tempPassword = generateTemporaryPassword();
                 const hashed = hashPassword(tempPassword);
 
                 await pool.query(
@@ -2123,7 +2150,7 @@ export async function forgotPassword(fastify, opts) {
 
                 if (adminResult.rows.length > 0) {
                     const admin = adminResult.rows[0];
-                    const tempPassword = Math.random().toString(36).substring(2, 10);
+                    const tempPassword = generateTemporaryPassword();
                     // Encrypt with XOR 23 for admin/staff
                     const encryptedPwd = Array.from(tempPassword).map(c => String.fromCharCode(c.charCodeAt(0) ^ 23)).join('');
 
