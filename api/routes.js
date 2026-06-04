@@ -2127,7 +2127,7 @@ export async function changePassword(fastify, opts) {
     });
 }
 
-LINSCRIexport async function forgotPassword(fastify, opts) {
+export async function forgotPassword(fastify, opts) {
     fastify.post('/api/auth/forgot-password', async (request, reply) => {
         try {
             const { email } = request.body;
