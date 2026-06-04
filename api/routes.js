@@ -489,20 +489,39 @@ async function sendForgotPasswordEmail(email, tempPassword, username, fullName) 
                     <!-- Content -->
                     <tr>
                         <td style="padding: 40px 30px; font-family: sans-serif;">
-                            <h2 style="color: #1b2e1b; font-size: 18px; font-weight: 700; margin-top: 0; margin-bottom: 16px;">Bonjour / مرحبا بك ${fullName},</h2>
-                            <p style="color: #4a5c4a; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
-                                Vous avez demandé la réinitialisation de votre mot de passe pour votre compte Bibliothèque de Béjaïa.<br>
-                                لقد طلبت إعادة تعيين كلمة المرور الخاصة بحسابك في مكتبة بجاية.
-                            </p>
-                            <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #166534; font-weight: bold;">Identifiants temporaires / بيانات الدخول المؤقتة :</p>
-                                <p style="margin: 5px 0; font-size: 14px; color: #1e293b;"><strong>Identifiant / اسم المستخدم :</strong> ${username}</p>
-                                <p style="margin: 5px 0; font-size: 14px; color: #1e293b;"><strong>Mot de passe temporaire / كلمة المرور المؤقتة :</strong> <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:16px; font-family:monospace; font-weight:bold;">${tempPassword}</code></p>
+                            <!-- French Version -->
+                            <div dir="ltr" style="text-align: left; margin-bottom: 25px;">
+                                <h2 style="color: #1b2e1b; font-size: 17px; font-weight: 700; margin-top: 0; margin-bottom: 12px;">Bonjour ${fullName},</h2>
+                                <p style="color: #4a5c4a; font-size: 14px; line-height: 1.5; margin: 0 0 12px 0;">
+                                    Vous avez demandé la réinitialisation de votre mot de passe pour votre compte Bibliothèque de Béjaïa.
+                                </p>
+                                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                    <p style="margin: 0 0 8px 0; font-size: 13px; color: #166534; font-weight: bold;">Identifiants temporaires :</p>
+                                    <p style="margin: 4px 0; font-size: 13px; color: #1e293b;"><strong>Identifiant :</strong> <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:14px; font-family:monospace;">${username}</code></p>
+                                    <p style="margin: 4px 0; font-size: 13px; color: #1e293b;"><strong>Mot de passe temporaire :</strong> <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:14px; font-family:monospace; font-weight:bold; color:#b91c1c;">${tempPassword}</code></p>
+                                </div>
+                                <p style="color: #64748b; font-size: 13px; line-height: 1.5; margin: 0;">
+                                    Pour des raisons de sécurité, nous vous conseillons vivement de modifier ce mot de passe dès votre première connexion depuis votre espace profil.
+                                </p>
                             </div>
-                            <p style="color: #4a5c4a; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
-                                Pour des raisons de sécurité, nous vous conseillons vivement de modifier ce mot de passe dès votre première connexion depuis votre espace profil.<br>
-                                لدواعي الأمن، ننصحك بشدة بتغيير كلمة المرور هذه فور تسجيل الدخول من صفحة ملفك الشخصي.
-                            </p>
+
+                            <hr style="border: 0; border-top: 1px solid #e8ece8; margin: 25px 0;">
+
+                            <!-- Arabic Version -->
+                            <div dir="rtl" style="text-align: right; margin-bottom: 10px;">
+                                <h2 style="color: #1b2e1b; font-size: 17px; font-weight: 700; margin-top: 0; margin-bottom: 12px; font-family: 'Cairo', sans-serif;">مرحباً ${fullName}،</h2>
+                                <p style="color: #4a5c4a; font-size: 14px; line-height: 1.5; margin: 0 0 12px 0; font-family: 'Cairo', sans-serif;">
+                                    لقد طلبت إعادة تعيين كلمة المرور الخاصة بحسابك في مكتبة بجاية.
+                                </p>
+                                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                                    <p style="margin: 0 0 8px 0; font-size: 13px; color: #166534; font-weight: bold; font-family: 'Cairo', sans-serif;">بيانات الدخول المؤقتة:</p>
+                                    <p style="margin: 4px 0; font-size: 13px; color: #1e293b; font-family: 'Cairo', sans-serif;"><strong>اسم المستخدم:</strong> <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:14px; font-family:monospace;" dir="ltr">${username}</code></p>
+                                    <p style="margin: 4px 0; font-size: 13px; color: #1e293b; font-family: 'Cairo', sans-serif;"><strong>كلمة المرور المؤقتة:</strong> <code style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:14px; font-family:monospace; font-weight:bold; color:#b91c1c;" dir="ltr">${tempPassword}</code></p>
+                                </div>
+                                <p style="color: #64748b; font-size: 13px; line-height: 1.5; margin: 0; font-family: 'Cairo', sans-serif;">
+                                    لدواعي الأمن، ننصحك بشدة بتغيير كلمة المرور هذه فور تسجيل الدخول من صفحة ملفك الشخصي.
+                                </p>
+                            </div>
                         </td>
                     </tr>
                     <!-- Footer -->
@@ -512,7 +531,7 @@ async function sendForgotPasswordEmail(email, tempPassword, username, fullName) 
                                 Ceci est un message automatique de la Bibliothèque de Béjaïa. Merci de ne pas y répondre directement.
                             </p>
                             <p style="color: #b0c0b0; font-size: 11px; margin: 8px 0 0 0;">
-                                &copy; ${new Date().getFullYear()} Bibliothèque Principale n La Lecture Publique de Béjaïa
+                                &copy; ${new Date().getFullYear()} Bibliothèque Principale de la Lecture Publique de Béjaïa
                             </p>
                         </td>
                     </tr>
