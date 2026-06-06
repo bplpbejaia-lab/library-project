@@ -88,20 +88,6 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip()
         return cleaned
 
-    def has_arabic(s):
-        return bool(re.search(r'[\u0600-\u06FF]', str(s or "")))
-
-    def has_latin(s):
-        return bool(re.search(r'[A-Za-z\u00C0-\u024F]', str(s or "")))
-
-    def arabic_only(s):
-        value = sanitize_value(s)
-        return value if has_arabic(value) else ""
-
-    def latin_only(s):
-        value = sanitize_value(s)
-        return value if has_latin(value) and not has_arabic(value) else ""
-
     def format_phone(value):
         raw = sanitize_value(str(value or ""))
         if not raw:
@@ -116,19 +102,19 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
             return " ".join([digits[:3], digits[3:5], digits[5:7], digits[7:9]])
         return " ".join(digits[i:i+2] for i in range(0, len(digits), 2))
 
-    nom_ar = arabic_only(user_data.get("nomAr", ""))
+    nom_ar = user_data.get("nomAr", "")
     if not is_valid_arabic(nom_ar):
-        nom_ar = arabic_only(user_data.get("nom", ""))
+        nom_ar = user_data.get("nom", "")
     if not is_valid_arabic(nom_ar):
-        nom_ar = ""
+        nom_ar = user_data.get("nomLatin", "Lecteur")
 
-    prenom_ar = arabic_only(user_data.get("prenomAr", ""))
+    prenom_ar = user_data.get("prenomAr", "")
     if not is_valid_arabic(prenom_ar):
-        prenom_ar = arabic_only(user_data.get("prenom", ""))
+        prenom_ar = user_data.get("prenom", "")
     if not is_valid_arabic(prenom_ar):
-        prenom_ar = ""
-    nom_lat = latin_only(user_data.get("nomLatin", "")) or latin_only(user_data.get("nom", ""))
-    prenom_lat = latin_only(user_data.get("prenomLatin", "")) or latin_only(user_data.get("prenom", ""))
+        prenom_ar = user_data.get("prenomLatin", "")
+    nom_lat = user_data.get("nomLatin", user_data.get("nom", ""))
+    prenom_lat = user_data.get("prenomLatin", user_data.get("prenom", ""))
     lecteur_id = (
         user_data.get("lecteurId")
         or user_data.get("LEC_ID")
@@ -177,15 +163,8 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
 
     def insert_dark_htmlbox(rect, html):
         page.insert_htmlbox(rect, html, css=css)
-
-    def clear_value_area(rect):
-        page.draw_rect(
-            fitz.Rect(rect.x0 - 1.0, rect.y0 - 1.0, rect.x1 + 1.0, rect.y1 + 1.0),
-            color=None,
-            fill=(1, 1, 1),
-            width=0,
-            overlay=True
-        )
+        page.insert_htmlbox(fitz.Rect(rect.x0 + 0.16, rect.y0, rect.x1 + 0.16, rect.y1), html, css=css)
+        page.insert_htmlbox(fitz.Rect(rect.x0, rect.y0 + 0.10, rect.x1, rect.y1 + 0.10), html, css=css)
 
     fields = [
         # Nom Arabe (اللقب)
@@ -204,10 +183,10 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         (fitz.Rect(443.40, 260.40, 485.64, 277.44), genre, True, "center", fitz.Rect(443.40, 260.40, 487.32, 277.44)),
         
         # Date et lieu de naissance - occupying the full combined middle box
-        (fitz.Rect(150.00, 260.40, 360.00, 277.44), dob_text, False, "center"),
+        (fitz.Rect(162.84, 260.40, 364.32, 277.44), dob_text, False, "center"),
         
         # Profession (المهنة)
-        (fitz.Rect(18.84, 260.40, 118.00, 277.44), profession, True, "center"),
+        (fitz.Rect(18.84, 260.40, 137.88, 277.44), profession, True, "center"),
         
         # Date inscription (تاريخ التسجيل)
         (fitz.Rect(324.00, 282.96, 480.72, 300.00), date_reg, False, "center"),
@@ -238,9 +217,12 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         rect, value, is_arabic, align_class = item[0], item[1], item[2], item[3]
         repair_rect = item[4] if len(item) > 4 else None
         if repair_rect:
-            clear_value_area(repair_rect)
+            page.draw_rect(repair_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+            page.draw_rect(rect, color=(0.90,0.90,0.90), fill=None, width=0.35, overlay=True)
         else:
-            clear_value_area(rect)
+            # Clear the area (width=0 prevents white stroke from bleeding over original borders)
+            clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
+            page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
 
         if not value:
             print(f"Cleared empty field at {rect}")
@@ -327,11 +309,9 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
                         img = bg
                     else:
                         img = img.convert('RGB')
-
-                    img.thumbnail((360, 430), Image.LANCZOS)
                     
                     out_io = io.BytesIO()
-                    img.save(out_io, format='JPEG', quality=78, optimize=True)
+                    img.save(out_io, format='JPEG', quality=95)
                     img_bytes = out_io.getvalue()
                     print("Converted photo to JPEG using Pillow (WebP compatibility fixed)")
                 except Exception as pillow_err:
@@ -363,7 +343,7 @@ def modify_pdf_ar(user_data, input_pdf, output_pdf):
         except Exception as e:
             print(f"Error drawing empty photo placeholder: {e}")
 
-    doc.save(output_pdf, garbage=4, clean=True, deflate=True, deflate_images=True, deflate_fonts=True)
+    doc.save(output_pdf, deflate=True)
     doc.close()
 
 if __name__ == "__main__":
