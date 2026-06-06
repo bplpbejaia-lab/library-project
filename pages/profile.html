@@ -1765,13 +1765,12 @@
                 const target = document.getElementById(targetId);
                 if (!target) return;
 
-                const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : `https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff`;
                 const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || new Date();
                 const regDateStr = formatDateForDisplay(regDate);
 
                 target.innerHTML = `
-                    <div class="rfid-card-new front" style="display:block !important;">
-                        <img src="/public/images/rfid_bg.png" class="recto-bg-books" style="opacity: 0.15;">
+                    <div class="rfid-card-new front">
+                        <img src="/admin/public/images/rfid_bg.png" class="recto-bg-books" style="opacity: 0.15;">
                         
                         <div class="recto-header">
                             <p>الجمهورية الجزائرية الديمقراطية الشعبية</p>
@@ -1789,7 +1788,7 @@
                         </div>
 
                         <div class="recto-photo-box">
-                            <img src="${userPhoto}" onerror="this.src='https://ui-avatars.com/api/?name=${r.LEC_PRENOM}+${r.LEC_NOM}&background=2E7D32&color=fff'">
+                            ${r.LEC_PHOTO ? `<img src="${r.LEC_PHOTO}">` : '<i class="fas fa-user" style="font-size:40px; color:#ccc; margin-top:30px;"></i>'}
                         </div>
 
                         <div class="recto-names-area">
@@ -1799,6 +1798,7 @@
 
                         <div class="recto-qr-box">
                             <img src="${qrUrl}">
+                            <div class="recto-id-number">${r.LEC_RFID || r.LEC_ID}</div>
                         </div>
                         <div class="recto-date-footer">تاريخ التسجيل: ${regDateStr}</div>
                     </div>
