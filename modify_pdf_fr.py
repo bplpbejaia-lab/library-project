@@ -80,6 +80,20 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip()
         return cleaned
 
+    def has_arabic(s):
+        return bool(re.search(r'[\u0600-\u06FF]', str(s or "")))
+
+    def has_latin(s):
+        return bool(re.search(r'[A-Za-z\u00C0-\u024F]', str(s or "")))
+
+    def arabic_only(s):
+        value = sanitize_value(s)
+        return value if has_arabic(value) else ""
+
+    def latin_only(s):
+        value = sanitize_value(s)
+        return value if has_latin(value) and not has_arabic(value) else ""
+
     def format_phone(value):
         raw = sanitize_value(str(value or ""))
         if not raw:
@@ -99,14 +113,14 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         if not s: return False
         return not all(c == '?' or c.isspace() for c in s)
 
-    nom_ar = user_data.get("nomAr", "")
-    prenom_ar = user_data.get("prenomAr", "")
-    nom_lat = user_data.get("nomLatin", user_data.get("nom", "Lecteur"))
-    prenom_lat = user_data.get("prenomLatin", user_data.get("prenom", ""))
+    nom_ar = arabic_only(user_data.get("nomAr", ""))
+    prenom_ar = arabic_only(user_data.get("prenomAr", ""))
+    nom_lat = latin_only(user_data.get("nomLatin", "")) or latin_only(user_data.get("nom", "")) or "Lecteur"
+    prenom_lat = latin_only(user_data.get("prenomLatin", "")) or latin_only(user_data.get("prenom", ""))
 
     # Fallbacks for Arabic
-    if not is_valid_text(nom_ar): nom_ar = user_data.get("nom", "")
-    if not is_valid_text(prenom_ar): prenom_ar = user_data.get("prenom", "")
+    if not is_valid_text(nom_ar): nom_ar = arabic_only(user_data.get("nom", ""))
+    if not is_valid_text(prenom_ar): prenom_ar = arabic_only(user_data.get("prenom", ""))
     
     lecteur_id = (
         user_data.get("lecteurId")
@@ -155,8 +169,15 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
 
     def insert_dark_htmlbox(rect, html):
         page.insert_htmlbox(rect, html, css=css)
-        page.insert_htmlbox(fitz.Rect(rect.x0 + 0.16, rect.y0, rect.x1 + 0.16, rect.y1), html, css=css)
-        page.insert_htmlbox(fitz.Rect(rect.x0, rect.y0 + 0.10, rect.x1, rect.y1 + 0.10), html, css=css)
+
+    def clear_value_area(rect):
+        page.draw_rect(
+            fitz.Rect(rect.x0 - 1.0, rect.y0 - 1.0, rect.x1 + 1.0, rect.y1 + 1.0),
+            color=None,
+            fill=(1, 1, 1),
+            width=0,
+            overlay=True
+        )
 
     # Field coordinates for ggfr.pdf (Latin positions)
     # Format: (rect, value, is_arabic, align_class)
@@ -210,12 +231,9 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         repair_rect = item[4] if len(item) > 4 and isinstance(item[4], fitz.Rect) else None
             
         if repair_rect:
-            page.draw_rect(repair_rect, color=None, fill=(1,1,1), width=0, overlay=True)
-            page.draw_rect(rect, color=(0.90,0.90,0.90), fill=None, width=0.35, overlay=True)
+            clear_value_area(repair_rect)
         else:
-            # Clear the area (width=0 prevents white stroke from bleeding over original borders)
-            clear_rect = fitz.Rect(rect.x0 + 1.2, rect.y0 + 1.2, rect.x1 - 1.2, rect.y1 - 1.2)
-            page.draw_rect(clear_rect, color=None, fill=(1,1,1), width=0, overlay=True)
+            clear_value_area(rect)
 
         if not value:
             continue
@@ -307,9 +325,11 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
                         img = bg
                     else:
                         img = img.convert('RGB')
+
+                    img.thumbnail((360, 430), Image.LANCZOS)
                     
                     out_io = io.BytesIO()
-                    img.save(out_io, format='JPEG', quality=95)
+                    img.save(out_io, format='JPEG', quality=78, optimize=True)
                     img_bytes = out_io.getvalue()
                     print("Converted photo to JPEG using Pillow (WebP compatibility fixed)")
                 except Exception as pillow_err:
@@ -342,7 +362,7 @@ def modify_pdf_fr(user_data, input_pdf, output_pdf):
         except Exception as e:
             print(f"Error drawing empty photo placeholder (FR): {e}")
 
-    doc.save(output_pdf, deflate=True)
+    doc.save(output_pdf, garbage=4, clean=True, deflate=True, deflate_images=True, deflate_fonts=True)
     doc.close()
 
 if __name__ == "__main__":

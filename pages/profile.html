@@ -1425,18 +1425,42 @@
             return raw;
         }
 
+        function getDateParts(value) {
+            if (!value) return null;
+            const raw = String(value);
+            const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (match) return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return null;
+            return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+        }
+
         function formatDateInArabic(dateVal) {
-            if (!dateVal) return '';
-            const date = new Date(dateVal);
-            if (isNaN(date.getTime())) return '';
-            const day = date.getDate();
-            const monthIndex = date.getMonth();
-            const year = date.getFullYear();
+            const parts = getDateParts(dateVal);
+            if (!parts) return '';
             const monthName = [
                 'جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان',
                 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-            ][monthIndex];
-            return `${day} ${monthName} ${year}`;
+            ][parts.month - 1];
+            return `${parts.day} ${monthName} ${parts.year}`;
+        }
+
+        function hasArabic(value) {
+            return /[\u0600-\u06FF]/.test(String(value || ''));
+        }
+
+        function hasLatin(value) {
+            return /[A-Za-z\u00C0-\u024F]/.test(String(value || ''));
+        }
+
+        function cleanArabicName(value) {
+            const clean = String(value || '').trim().replace(/\s+/g, ' ');
+            return clean && hasArabic(clean) ? clean : '';
+        }
+
+        function cleanLatinName(value) {
+            const clean = String(value || '').trim().replace(/\s+/g, ' ');
+            return clean && hasLatin(clean) && !hasArabic(clean) ? clean : '';
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1476,10 +1500,15 @@
                         }
 
                         // Populate Nav Avatar safely
+                        const navNomAr = cleanArabicName(data.user.nomAr || data.user.nom);
+                        const navPrenomAr = cleanArabicName(data.user.prenomAr || data.user.prenom);
+                        const navNomLatin = cleanLatinName(data.user.nomLatin);
+                        const navPrenomLatin = cleanLatinName(data.user.prenomLatin);
+                        const navDisplayFullName = `${navPrenomAr || navPrenomLatin || data.user.prenom || ''} ${navNomAr || navNomLatin || data.user.nom || ''}`.trim();
                         const navAvatar = document.getElementById('nav-avatar');
-                        if (navAvatar) navAvatar.src = data.user.photo || `https://ui-avatars.com/api/?name=${data.user.prenom}+${data.user.nom}&background=2E7D32&color=fff`;
+                        if (navAvatar) navAvatar.src = data.user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(navDisplayFullName)}&background=2E7D32&color=fff`;
                         const navDisplayName = document.getElementById('nav-display-name');
-                        if (navDisplayName) navDisplayName.textContent = (data.user.prenom || '') + ' ' + (data.user.nom || '');
+                        if (navDisplayName) navDisplayName.textContent = navDisplayFullName;
                         const navDisplayEmail = document.getElementById('nav-display-email');
                         if (navDisplayEmail) navDisplayEmail.textContent = data.user.email;
                     }
@@ -1503,16 +1532,22 @@
                     const el = document.getElementById(id);
                     if (el) el.textContent = text || '...';
                 };
+                const nomAr = cleanArabicName(user.nomAr || user.nom);
+                const prenomAr = cleanArabicName(user.prenomAr || user.prenom);
+                const nomLatin = cleanLatinName(user.nomLatin);
+                const prenomLatin = cleanLatinName(user.prenomLatin);
+                const displayNom = nomAr || nomLatin || user.nom || '';
+                const displayPrenom = prenomAr || prenomLatin || user.prenom || '';
 
-                safeSetText('heroName', (user.prenom || '') + ' ' + (user.nom || ''));
+                safeSetText('heroName', (displayPrenom + ' ' + displayNom).trim());
                 safeSetText('heroEmail', user.email);
                 safeSetText('heroCardNumber', user.lecteurId || 'BJA-XXXX');
 
                 const avatar = document.getElementById('heroAvatarImg');
-                if (avatar) avatar.src = user.photo || `https://ui-avatars.com/api/?name=${user.prenom}+${user.nom}&background=2E7D32&color=fff`;
+                if (avatar) avatar.src = user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent((displayPrenom + ' ' + displayNom).trim())}&background=2E7D32&color=fff`;
 
-                safeSetText('profileFullName', (user.nom || '').toUpperCase() + ' ' + (user.prenom || ''));
-                safeSetText('profileNomLatin', (user.nomLatin || '') + ' ' + (user.prenomLatin || ''));
+                safeSetText('profileFullName', ((nomAr || nomLatin || '') + ' ' + (prenomAr || prenomLatin || '')).trim().toUpperCase());
+                safeSetText('profileNomLatin', (nomLatin + ' ' + prenomLatin).trim());
                 safeSetText('profileBirthdate', user.naissance ? formatDateForDisplay(user.naissance) : '...');
                 
                 // Map and translate profession
@@ -1717,10 +1752,10 @@
             try {
                 if (!user) return;
                 const r = {
-                    LEC_NOM: user.nomLatin || user.nom || '',
-                    LEC_PRENOM: user.prenomLatin || user.prenom || '',
-                    LEC_NOM_AR: user.nom || '',
-                    LEC_PRENOM_AR: user.prenom || '',
+                    LEC_NOM: cleanLatinName(user.nomLatin || user.nom),
+                    LEC_PRENOM: cleanLatinName(user.prenomLatin || user.prenom),
+                    LEC_NOM_AR: cleanArabicName(user.nomAr || user.nom),
+                    LEC_PRENOM_AR: cleanArabicName(user.prenomAr || user.prenom),
                     LEC_PHOTO: user.photo,
                     LEC_ID: user.lecteurId || user.libraryNumber || 'BJA-READER',
                     LEC_RFID: user.rfid || user.LEC_RFID,
@@ -1950,9 +1985,11 @@
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             if (!user) return;
             
-            const nomAr = user.nomAr || user.nom || '';
-            const prenomAr = user.prenomAr || user.prenom || '';
-            const fullName = (prenomAr + ' ' + nomAr).trim().toUpperCase();
+            const nomAr = cleanArabicName(user.nomAr || user.nom);
+            const prenomAr = cleanArabicName(user.prenomAr || user.prenom);
+            const nomLatin = cleanLatinName(user.nomLatin || user.nom);
+            const prenomLatin = cleanLatinName(user.prenomLatin || user.prenom);
+            const fullName = ((prenomAr || prenomLatin) + ' ' + (nomAr || nomLatin)).trim().toUpperCase();
             document.getElementById('p-fullname').textContent = fullName;
             document.getElementById('p-dob').textContent = user.naissance || user.dateNaissance ? formatDateForDisplay(user.naissance || user.dateNaissance) : '';
             document.getElementById('p-phone').textContent = formatPhoneNumber(user.telephone);

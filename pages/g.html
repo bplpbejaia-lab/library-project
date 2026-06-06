@@ -380,8 +380,17 @@
 
         .auto-registration-entry {
             display: flex;
-            justify-content: flex-end;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
             margin-bottom: 18px;
+        }
+
+        .auto-registration-entry .btn.active-choice {
+            color: white;
+            border-color: transparent;
+            background: linear-gradient(135deg, #16a34a, #2563eb);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.22);
         }
 
         .scan-beta-head {
@@ -481,7 +490,43 @@
         }
 
         .manual-registration-flow {
+            display: none;
             margin-top: 20px;
+        }
+
+        .manual-registration-flow.active {
+            display: block;
+        }
+
+        .colorful-loader {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #22c55e;
+            border-right-color: #3b82f6;
+            border-bottom-color: #f59e0b;
+            border-left-color: #ec4899;
+            display: inline-block;
+            animation: colorful-spin 0.75s linear infinite;
+        }
+
+        .scan-status.loading {
+            color: #14532d;
+            font-weight: 800;
+            background: linear-gradient(90deg, #16a34a, #2563eb, #f59e0b, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: colorful-hue 1.4s linear infinite;
+        }
+
+        @keyframes colorful-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes colorful-hue {
+            to { filter: hue-rotate(360deg); }
         }
 
         .review-edit-section {
@@ -2313,6 +2358,9 @@
                 </div>
 
                 <div class="auto-registration-entry">
+                    <button class="btn btn-primary" id="showManualRegistrationBtn" type="button">
+                        <span class="material-symbols-outlined">edit_note</span> inscription manuelle
+                    </button>
                     <button class="btn btn-secondary" id="showAutoRegistrationBtn" type="button">
                         <span class="material-symbols-outlined">document_scanner</span> inscription automatique
                         <span class="scan-beta-badge">BETA</span>
@@ -3339,6 +3387,30 @@
                 return (document.getElementById(id)?.value || '').trim();
             }
 
+            function hasArabic(value) {
+                return /[\u0600-\u06FF]/.test(String(value || ''));
+            }
+
+            function hasLatin(value) {
+                return /[A-Za-z\u00C0-\u024F]/.test(String(value || ''));
+            }
+
+            function isLikelyAbbreviatedLatinName(value) {
+                const words = String(value || '').trim().split(/\s+/).filter(Boolean);
+                return words.length > 0 && words.every(word => /^[A-Z]{3,8}$/.test(word) && !/[AEIOUY]/.test(word));
+            }
+
+            function cleanLatinName(value) {
+                const clean = String(value || '').trim().replace(/\s+/g, ' ');
+                if (!clean || hasArabic(clean) || !hasLatin(clean) || isLikelyAbbreviatedLatinName(clean)) return '';
+                return clean;
+            }
+
+            function cleanArabicName(value) {
+                const clean = String(value || '').trim().replace(/\s+/g, ' ');
+                return clean && hasArabic(clean) ? clean : '';
+            }
+
             function getBejaiaCommunes() {
                 return Array.from(document.querySelectorAll('#bejaiaCommunesList option')).map(option => option.value);
             }
@@ -3686,10 +3758,10 @@
 
             function applyOcrFields(fields = {}) {
                 ocrBetaMode = true;
-                setFormValue('nom', fields.nom || fields.nomLatin);
-                setFormValue('prenom', fields.prenom || fields.prenomLatin);
-                setFormValue('nomLatin', fields.nomLatin);
-                setFormValue('prenomLatin', fields.prenomLatin);
+                setFormValue('nom', cleanArabicName(fields.nom));
+                setFormValue('prenom', cleanArabicName(fields.prenom));
+                setFormValue('nomLatin', cleanLatinName(fields.nomLatin));
+                setFormValue('prenomLatin', cleanLatinName(fields.prenomLatin));
                 setGenreValue(fields.genre);
                 setFormValue('naissance', fields.naissance);
                 const birthPlace = fields.lieuNaissance || '';
@@ -3822,15 +3894,26 @@
             document.getElementById('scanCniBackBtn').addEventListener('click', () => openScanner('cniBack'));
             cniBackUpload.addEventListener('change', (e) => handleDocumentUpload(e, 'cniBack'));
 
-            document.getElementById('showAutoRegistrationBtn')?.addEventListener('click', () => {
-                const card = document.getElementById('ocrBetaCard');
-                card?.classList.add('active');
-                card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
+            function chooseRegistrationMode(mode) {
+                const manualFlow = document.getElementById('manualRegistrationFlow');
+                const ocrCard = document.getElementById('ocrBetaCard');
+                const manualChoice = document.getElementById('showManualRegistrationBtn');
+                const autoChoice = document.getElementById('showAutoRegistrationBtn');
 
-            document.getElementById('manualRegistrationBtn')?.addEventListener('click', () => {
-                document.getElementById('ocrBetaCard')?.classList.remove('active');
-            });
+                manualFlow?.classList.toggle('active', mode === 'manual');
+                ocrCard?.classList.toggle('active', mode === 'auto');
+                manualChoice?.classList.toggle('active-choice', mode === 'manual');
+                autoChoice?.classList.toggle('active-choice', mode === 'auto');
+                if (mode === 'manual') ocrBetaMode = false;
+
+                const target = mode === 'auto' ? ocrCard : manualFlow;
+                target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            document.getElementById('showManualRegistrationBtn')?.addEventListener('click', () => chooseRegistrationMode('manual'));
+            document.getElementById('showAutoRegistrationBtn')?.addEventListener('click', () => chooseRegistrationMode('auto'));
+
+            document.getElementById('manualRegistrationBtn')?.addEventListener('click', () => chooseRegistrationMode('manual'));
 
             document.getElementById('autoUploadCniBtn')?.addEventListener('click', () => {
                 const input = document.getElementById('autoCniUpload');
@@ -3881,7 +3964,8 @@
 
                 const originalHtml = this.innerHTML;
                 this.disabled = true;
-                this.innerHTML = '<span class="material-symbols-outlined">progress_activity</span> جاري استخراج المعلومات...';
+                this.innerHTML = '<span class="colorful-loader" aria-hidden="true"></span> جاري استخراج المعلومات...';
+                status.classList.add('loading');
                 status.textContent = 'يتم تحليل الصور. تأكد أن البطاقة واضحة ومرئية بالكامل.';
 
                 try {
@@ -3905,6 +3989,7 @@
                 } finally {
                     this.disabled = false;
                     this.innerHTML = originalHtml;
+                    status.classList.remove('loading');
                 }
             });
 
@@ -4037,6 +4122,8 @@
                     if (prenom && hasDigits(prenom)) errors.push({ field: 'prenom', message: 'الاسم بالعربية لا يجب أن يحتوي على أرقام.' });
                     if (nomLatin && hasDigits(nomLatin)) errors.push({ field: 'nomLatin', message: 'اللقب باللاتينية لا يجب أن يحتوي على أرقام.' });
                     if (prenomLatin && hasDigits(prenomLatin)) errors.push({ field: 'prenomLatin', message: 'الاسم باللاتينية لا يجب أن يحتوي على أرقام.' });
+                    if (nomLatin && hasArabic(nomLatin)) errors.push({ field: 'nomLatin', message: 'Le nom latin ne doit pas contenir de caractères arabes.' });
+                    if (prenomLatin && hasArabic(prenomLatin)) errors.push({ field: 'prenomLatin', message: 'Le prénom latin ne doit pas contenir de caractères arabes.' });
                     if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: 'يرجى اختيار الجنس.' });
                     if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
                     if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
@@ -4471,10 +4558,10 @@
                 this.disabled = true;
 
                 const formData = {
-                    nom: getInputValue('nomLatin') || null,
-                    prenom: getInputValue('prenomLatin') || null,
-                    nomAr: getInputValue('nom'),
-                    prenomAr: getInputValue('prenom'),
+                    nom: cleanLatinName(getInputValue('nomLatin')) || null,
+                    prenom: cleanLatinName(getInputValue('prenomLatin')) || null,
+                    nomAr: cleanArabicName(getInputValue('nom')),
+                    prenomAr: cleanArabicName(getInputValue('prenom')),
                     genre: document.querySelector('input[name="genre"]:checked')?.value || null,
                     dateNaissance: getInputValue('naissance'),
                     lieuNaissance: getInputValue('lieuNaissance') || null,

@@ -80,6 +80,48 @@ function cleanString(value) {
     return ['null', 'undefined'].includes(cleaned.toLowerCase()) ? '' : cleaned;
 }
 
+function hasArabic(value) {
+    return /[\u0600-\u06FF]/.test(cleanString(value));
+}
+
+function hasLatin(value) {
+    return /[A-Za-z\u00C0-\u024F]/.test(cleanString(value));
+}
+
+function isLikelyAbbreviatedLatinName(value) {
+    const words = cleanString(value).split(/\s+/).filter(Boolean);
+    if (!words.length) return false;
+    return words.every(word => /^[A-Z]{3,8}$/.test(word) && !/[AEIOUY]/.test(word));
+}
+
+function cleanLatinName(value) {
+    const clean = cleanString(value);
+    if (!clean || hasArabic(clean) || !hasLatin(clean) || isLikelyAbbreviatedLatinName(clean)) return '';
+    return clean;
+}
+
+function cleanArabicName(value) {
+    const clean = cleanString(value);
+    if (!clean || !hasArabic(clean)) return '';
+    return clean;
+}
+
+function normalizePersonNames({ nom, prenom, nomAr, prenomAr }) {
+    const normalized = {
+        nomLatin: cleanLatinName(nom),
+        prenomLatin: cleanLatinName(prenom),
+        nomAr: cleanArabicName(nomAr),
+        prenomAr: cleanArabicName(prenomAr)
+    };
+
+    if (!normalized.nomAr && hasArabic(nom)) normalized.nomAr = cleanArabicName(nom);
+    if (!normalized.prenomAr && hasArabic(prenom)) normalized.prenomAr = cleanArabicName(prenom);
+    if (!normalized.nomLatin && hasLatin(nomAr)) normalized.nomLatin = cleanLatinName(nomAr);
+    if (!normalized.prenomLatin && hasLatin(prenomAr)) normalized.prenomLatin = cleanLatinName(prenomAr);
+
+    return normalized;
+}
+
 function normalizeArabicNationality(value) {
     const clean = cleanString(value);
     if (!/[\u0600-\u06FF]/.test(clean)) return clean;
@@ -124,9 +166,9 @@ function isValidDateOnly(value) {
 function dateOnly(value) {
     if (!value) return '';
     if (value instanceof Date) {
-        const year = value.getUTCFullYear();
-        const month = String(value.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(value.getUTCDate()).padStart(2, '0');
+        const year = value.getFullYear();
+        const month = String(value.getMonth() + 1).padStart(2, '0');
+        const day = String(value.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
     const raw = String(value);
@@ -301,12 +343,16 @@ function firstPresent(source, keys) {
 }
 
 function normalizeOcrPayload(data, rawText = '') {
+    const rawNomAr = firstPresent(data, ['last_name_ar', 'nom_ar', 'lastNameAr', 'family_name_ar']);
+    const rawPrenomAr = firstPresent(data, ['first_name_ar', 'prenom_ar', 'firstNameAr', 'given_name_ar']);
+    const rawNomLatin = firstPresent(data, ['last_name', 'last_name_latin', 'nom_latin', 'nomLatin', 'surname', 'family_name']);
+    const rawPrenomLatin = firstPresent(data, ['first_name', 'first_name_latin', 'prenom_latin', 'prenomLatin', 'given_name']);
     const normalized = {
         documentType: firstPresent(data, ['document_type', 'documentType', 'type_document', 'type']),
-        nom: firstPresent(data, ['last_name_ar', 'nom_ar', 'lastNameAr', 'family_name_ar']),
-        prenom: firstPresent(data, ['first_name_ar', 'prenom_ar', 'firstNameAr', 'given_name_ar']),
-        nomLatin: firstPresent(data, ['last_name', 'last_name_latin', 'nom_latin', 'nomLatin', 'surname', 'family_name']),
-        prenomLatin: firstPresent(data, ['first_name', 'first_name_latin', 'prenom_latin', 'prenomLatin', 'given_name']),
+        nom: cleanArabicName(rawNomAr) || cleanArabicName(rawNomLatin),
+        prenom: cleanArabicName(rawPrenomAr) || cleanArabicName(rawPrenomLatin),
+        nomLatin: cleanLatinName(rawNomLatin) || cleanLatinName(rawNomAr),
+        prenomLatin: cleanLatinName(rawPrenomLatin) || cleanLatinName(rawPrenomAr),
         genre: normalizeOcrGender(firstPresent(data, ['sex', 'gender', 'genre'])),
         naissance: normalizeOcrDate(firstPresent(data, ['date_of_birth', 'birth_date', 'date_naissance', 'naissance'])),
         lieuNaissance: firstPresent(data, ['place_of_birth', 'birth_place', 'lieu_naissance', 'lieuNaissance']),
@@ -323,14 +369,6 @@ function normalizeOcrPayload(data, rawText = '') {
         notes: firstPresent(data, ['notes', 'warning', 'warnings'])
     };
 
-    if (!normalized.nom && normalized.nomLatin && /[\u0600-\u06FF]/.test(normalized.nomLatin)) {
-        normalized.nom = normalized.nomLatin;
-        normalized.nomLatin = '';
-    }
-    if (!normalized.prenom && normalized.prenomLatin && /[\u0600-\u06FF]/.test(normalized.prenomLatin)) {
-        normalized.prenom = normalized.prenomLatin;
-        normalized.prenomLatin = '';
-    }
     if (!normalized.nationalite && /الجزائر|alger/i.test(normalized.rawText)) {
         normalized.nationalite = 'جزائرية';
     }
@@ -345,6 +383,9 @@ Keys: document_type, first_name, last_name, first_name_ar, last_name_ar, date_of
 Rules:
 - Dates must be YYYY-MM-DD when possible.
 - sex must be "masculin" or "feminin" when possible.
+- Arabic names must go only in first_name_ar and last_name_ar. Latin names must go only in first_name and last_name.
+- Do not copy Latin names into Arabic fields, and do not copy Arabic names into Latin fields.
+- Prefer the full printed name. Do not use MRZ-style or consonant-only abbreviations such as "MHMD" when a full name is visible; use empty strings instead.
 - place_of_birth is the birth place printed on the document; it can be any city/country and must not be limited to Bejaia communes.
 - city is the current address/residence city only when visible in the address.
 - Use empty strings for fields that are not visible.
@@ -674,13 +715,19 @@ function validateRegistrationPayload(body) {
 
 function mapLecteurRow(user, includePrivateDates = false) {
     const isInvalid = (s) => !s || String(s).trim().split('').every(c => c === '?');
+    const nomAr = isInvalid(user.LEC_NOM_AR) ? '' : cleanArabicName(user.LEC_NOM_AR);
+    const prenomAr = isInvalid(user.LEC_PRENOM_AR) ? '' : cleanArabicName(user.LEC_PRENOM_AR);
+    const nomLatin = cleanLatinName(user.LEC_NOM);
+    const prenomLatin = cleanLatinName(user.LEC_PRENOM);
     const mapped = {
         lecteurId: user.LEC_ID,
         username: user.LEC_ID,
-        nom: isInvalid(user.LEC_NOM_AR) ? user.LEC_NOM : user.LEC_NOM_AR,
-        prenom: isInvalid(user.LEC_PRENOM_AR) ? user.LEC_PRENOM : user.LEC_PRENOM_AR,
-        nomLatin: user.LEC_NOM,
-        prenomLatin: user.LEC_PRENOM,
+        nom: nomAr || nomLatin,
+        prenom: prenomAr || prenomLatin,
+        nomAr,
+        prenomAr,
+        nomLatin,
+        prenomLatin,
         email: user.LEC_EMAIL,
         telephone: user.LEC_TEL,
         adresse: user.LEC_ADRESSE,
@@ -933,10 +980,11 @@ export async function registerStep1(fastify, opts) {
             const normalizedWhatsapp = cleanString(whatsapp) ? digitsOnly(whatsapp) : null;
             const normalizedNin = digitsOnly(nin);
             const normalizedPostalCode = cleanString(codePostal) ? digitsOnly(codePostal) : null;
-            const cleanNom = cleanString(nom) || null;
-            const cleanPrenom = cleanString(prenom) || null;
-            const cleanNomAr = cleanString(nomAr);
-            const cleanPrenomAr = cleanString(prenomAr);
+            const cleanNames = normalizePersonNames({ nom, prenom, nomAr, prenomAr });
+            const cleanNom = cleanNames.nomLatin || null;
+            const cleanPrenom = cleanNames.prenomLatin || null;
+            const cleanNomAr = cleanNames.nomAr;
+            const cleanPrenomAr = cleanNames.prenomAr;
             const cleanAdresse = cleanString(adresse);
             const cleanProfession = cleanString(profession) || null;
             const cleanGenre = cleanString(genre);
@@ -1037,7 +1085,7 @@ export async function registerStep1(fastify, opts) {
                          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'EXTERNE', $9, $10, 'PENDING', NOW(), $11)
                          ON CONFLICT DO NOTHING`,
                         [
-                            cleanNomAr || cleanNom, cleanPrenomAr || cleanPrenom, normalizedEmail, normalizedPhone, normalizedNin,
+                            cleanNom, cleanPrenom, normalizedEmail, normalizedPhone, normalizedNin,
                             categorie || null, dateNaissance || null, cleanAdresse,
                             cniFrontPath, cniBackPath, lecteurId
                         ]
@@ -1576,10 +1624,12 @@ export async function exportEngagementPdfAr(fastify, opts) {
                     const dbUser = dbResult.rows[0];
                     userData.lecteurId = dbUser.LEC_ID || userData.lecteurId;
                     userData.photo = dbUser.LEC_PHOTO || userData.photo;
-                    userData.nom = dbUser.LEC_NOM_AR || userData.nom;
-                    userData.prenom = dbUser.LEC_PRENOM_AR || userData.prenom;
-                    userData.nomLatin = dbUser.LEC_NOM || userData.nomLatin;
-                    userData.prenomLatin = dbUser.LEC_PRENOM || userData.prenomLatin;
+                    userData.nomAr = cleanArabicName(dbUser.LEC_NOM_AR) || userData.nomAr;
+                    userData.prenomAr = cleanArabicName(dbUser.LEC_PRENOM_AR) || userData.prenomAr;
+                    userData.nom = userData.nomAr || userData.nom;
+                    userData.prenom = userData.prenomAr || userData.prenom;
+                    userData.nomLatin = cleanLatinName(dbUser.LEC_NOM) || userData.nomLatin;
+                    userData.prenomLatin = cleanLatinName(dbUser.LEC_PRENOM) || userData.prenomLatin;
                     userData.genre = dbUser.LEC_GENRE || dbUser.LEC_SEXE || userData.genre;
                     userData.adresse = dbUser.LEC_ADRESSE || userData.adresse;
                     userData.telephone = dbUser.LEC_TEL || dbUser.LEC_TELEPHONE || userData.telephone;
@@ -1748,10 +1798,12 @@ export async function exportEngagementPdfFr(fastify, opts) {
                     const dbUser = dbResult.rows[0];
                     userData.lecteurId = dbUser.LEC_ID || userData.lecteurId;
                     userData.photo = dbUser.LEC_PHOTO || userData.photo;
-                    userData.nom = dbUser.LEC_NOM_AR || userData.nom;
-                    userData.prenom = dbUser.LEC_PRENOM_AR || userData.prenom;
-                    userData.nomLatin = dbUser.LEC_NOM || userData.nomLatin;
-                    userData.prenomLatin = dbUser.LEC_PRENOM || userData.prenomLatin;
+                    userData.nomAr = cleanArabicName(dbUser.LEC_NOM_AR) || userData.nomAr;
+                    userData.prenomAr = cleanArabicName(dbUser.LEC_PRENOM_AR) || userData.prenomAr;
+                    userData.nom = userData.nomAr || userData.nom;
+                    userData.prenom = userData.prenomAr || userData.prenom;
+                    userData.nomLatin = cleanLatinName(dbUser.LEC_NOM) || userData.nomLatin;
+                    userData.prenomLatin = cleanLatinName(dbUser.LEC_PRENOM) || userData.prenomLatin;
                     userData.genre = dbUser.LEC_GENRE || dbUser.LEC_SEXE || userData.genre;
                     userData.adresse = dbUser.LEC_ADRESSE || userData.adresse;
                     userData.telephone = dbUser.LEC_TEL || dbUser.LEC_TELEPHONE || userData.telephone;
@@ -2324,10 +2376,11 @@ export async function updateReader(fastify, opts) {
             const params = [];
             let idx = 1;
 
-            if (nom) { fields.push(`"LEC_NOM" = $${idx++}`); params.push(nom); }
-            if (prenom) { fields.push(`"LEC_PRENOM" = $${idx++}`); params.push(prenom); }
-            if (nomAr) { fields.push(`"LEC_NOM_AR" = $${idx++}`); params.push(nomAr); }
-            if (prenomAr) { fields.push(`"LEC_PRENOM_AR" = $${idx++}`); params.push(prenomAr); }
+            const cleanNames = normalizePersonNames({ nom, prenom, nomAr, prenomAr });
+            if (nom !== undefined && cleanNames.nomLatin) { fields.push(`"LEC_NOM" = $${idx++}`); params.push(cleanNames.nomLatin); }
+            if (prenom !== undefined && cleanNames.prenomLatin) { fields.push(`"LEC_PRENOM" = $${idx++}`); params.push(cleanNames.prenomLatin); }
+            if (nomAr !== undefined && cleanNames.nomAr) { fields.push(`"LEC_NOM_AR" = $${idx++}`); params.push(cleanNames.nomAr); }
+            if (prenomAr !== undefined && cleanNames.prenomAr) { fields.push(`"LEC_PRENOM_AR" = $${idx++}`); params.push(cleanNames.prenomAr); }
             if (email) { fields.push(`"LEC_EMAIL" = $${idx++}`); params.push(email); }
             if (telephone) { fields.push(`"LEC_TEL" = $${idx++}`); params.push(telephone); }
             if (adresse) { fields.push(`"LEC_ADRESSE" = $${idx++}`); params.push(adresse); }
