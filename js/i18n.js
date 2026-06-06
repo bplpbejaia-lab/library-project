@@ -323,7 +323,7 @@ const i18n = {
             "director-wishes-p1": "حفظ الله وطننا الجزائر",
             "director-wishes-p2": "المجد والخلود لشهدائنا الأبرار",
             "director-sig-title": "مدير المكتبة الرئيسية للمطالعة العمومية لبجاية",
-            "director-sig-name": "رحمه الله - السيد حموش مهني",
+            "director-sig-name": "السيد حموش مهني - رحمه الله",
 
             // Goals Page (Specifics)
             "goals-badge": "قيمنا ورسالتنا",
@@ -798,7 +798,7 @@ const i18n = {
             "director-wishes-p1": "Que Dieu protège notre patrie, l'Algérie.",
             "director-wishes-p2": "Gloire et éternité à nos valeureux martyrs.",
             "director-sig-title": "Directeur de la Bibliothèque Principale de Béjaïa",
-            "director-sig-name": "Paix à son âme - M. Hammouche Mehani",
+            "director-sig-name": "M. Hammouche Mehani - Paix à son âme",
 
             // Goals Page (Specifics)
             "goals-badge": "Nos Valeurs & Mission",
@@ -1273,7 +1273,7 @@ const i18n = {
             "director-wishes-p1": "May Allah protect our nation, Algeria.",
             "director-wishes-p2": "Glory and eternity to our honorable martyrs.",
             "director-sig-title": "Director of the Main Public Reading Library of Bejaia",
-            "director-sig-name": "May he rest in peace - Mr. Hammouche Mehani",
+            "director-sig-name": "Mr. Hammouche Mehani - May he rest in peace",
 
             // Goals Page (Specifics)
             "goals-badge": "Our Values & Mission",
@@ -1729,7 +1729,7 @@ const i18n = {
             // Director Word Page (Specifics)
             "director-bismillah": "S yisem n Yakuc, Anegbay, Amezwar",
             "director-sig-title": "Anemhal n Temkarḍit n Bgayet",
-            "director-sig-name": "Paix à son âme - M. Hammouche Mehani",
+            "director-sig-name": "M. Hammouche Mehani - Paix à son âme",
 
             // Goals Page (Specifics)
             "goals-badge": "Iswan & Tisura-nneɣ",
