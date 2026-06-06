@@ -1290,7 +1290,7 @@
             const r = await res.json();
             const names = getReaderNameParts(r);
             const rfidCode = r.LEC_RFID || `RFID-${String(r.LEC_ID).padStart(6, '0')}`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.LEC_ID}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(r.LEC_RFID || r.LEC_ID)}`;
             const today = new Date();
             const dateStr = today.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
