@@ -1761,7 +1761,7 @@
                     LEC_RFID: user.rfid || user.LEC_RFID,
                     LEC_STATUT: user.statut !== undefined ? user.statut : (user.LEC_STATUT !== undefined ? user.LEC_STATUT : 0)
                 };
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${r.LEC_ID}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(r.LEC_RFID || r.LEC_ID)}`;
                 const target = document.getElementById(targetId);
                 if (!target) return;
 
