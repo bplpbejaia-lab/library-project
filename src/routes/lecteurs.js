@@ -212,6 +212,29 @@ async function lecteursRoutes(fastify) {
         }
     });
 
+    // Bulk delete readers
+    fastify.post('/bulk-delete', async (request, reply) => {
+        const { ids } = request.body || {};
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return reply.status(400).send({ error: 'No IDs provided' });
+        }
+
+        const cleanIds = ids.map(id => String(id || '').trim()).filter(Boolean);
+        if (!cleanIds.length) {
+            return reply.status(400).send({ error: 'No valid IDs provided' });
+        }
+
+        try {
+            const result = await db.query(
+                'DELETE FROM "LECTEUR" WHERE "LEC_ID" = ANY($1::text[]) RETURNING "LEC_ID"',
+                [cleanIds]
+            );
+            return { deletedCount: result.rows.length, deletedIds: result.rows.map(row => row.LEC_ID) };
+        } catch (err) {
+            reply.status(500).send({ error: err.message });
+        }
+    });
+
     // Delete reader
     fastify.delete('/:id', async (request, reply) => {
         const { id } = request.params;

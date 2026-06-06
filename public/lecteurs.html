@@ -477,6 +477,10 @@
                         onclick="bulkRenew()">
                         <i class="fas fa-sync"></i> Renouveler la sélection (<span id="selectedCount">0</span>)
                     </button>
+                    <button class="btn btn-danger" id="bulkDeleteBtn" style="display:none; background:#c62828; color:white"
+                        onclick="bulkDeleteReaders()">
+                        <i class="fas fa-trash"></i> Supprimer la sélection (<span id="selectedDeleteCount">0</span>)
+                    </button>
                     <select class="filter-dropdown" id="filterCategory" onchange="filterReaders()">
                         <option value="">Toutes les Catégories</option>
                         <option value="1">Étudiant</option>
@@ -826,6 +830,7 @@
 
                 const isExpired = r.LEC_DATE_EXPIRATION && new Date(r.LEC_DATE_EXPIRATION) < new Date();
                 const expiryBadge = isExpired ? '<span class="badge" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; margin-right:5px">Expiré</span>' : '';
+                const readerName = `${r.LEC_NOM || ''} ${r.LEC_PRENOM || ''}`.trim() || r.LEC_ID;
 
                 return `
                 <tr>
@@ -850,7 +855,7 @@
                             ${statusNum === 1 ? `<button class="action-btn" style="background:#1565c0;color:white" onclick='showRfidCard("${r.LEC_ID}")' title="Tirer carte RFID"><i class="fas fa-id-card"></i></button>` : ''}
                             ${statusNum === 0 ? `<button class="action-btn" style="background:#2e7d32;color:white" onclick='validateReader("${r.LEC_ID}")' title="Valider"><i class="fas fa-check"></i></button>` : ''}
                             <button class="action-btn edit" onclick='editReader(${JSON.stringify(r).replace(/'/g, "&apos;")})' title="Modifier rapide"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete" onclick="deleteReader('${r.LEC_ID}')" title="Supprimer"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn delete" onclick='deleteReader(${JSON.stringify(r.LEC_ID)}, ${JSON.stringify(readerName)})' title="Supprimer"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -897,13 +902,18 @@
         function updateSelection() {
             const selected = document.querySelectorAll('.reader-checkbox:checked');
             const btn = document.getElementById('bulkRenewBtn');
+            const deleteBtn = document.getElementById('bulkDeleteBtn');
             const countSpan = document.getElementById('selectedCount');
+            const deleteCountSpan = document.getElementById('selectedDeleteCount');
 
             countSpan.textContent = selected.length;
+            deleteCountSpan.textContent = selected.length;
             if (selected.length > 0) {
                 btn.style.display = 'inline-flex';
+                deleteBtn.style.display = 'inline-flex';
             } else {
                 btn.style.display = 'none';
+                deleteBtn.style.display = 'none';
             }
         }
 
@@ -926,6 +936,39 @@
                 } else {
                     const err = await res.json();
                     alert('Erreur: ' + (err.error || 'Échec du renouvellement'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Erreur réseau');
+            }
+        }
+
+        async function bulkDeleteReaders() {
+            const selected = Array.from(document.querySelectorAll('.reader-checkbox:checked')).map(cb => cb.value);
+            if (!selected.length) return;
+
+            const selectedNames = selected.map(id => {
+                const reader = allReaders.find(r => r.LEC_ID === id);
+                return reader ? `${reader.LEC_NOM || ''} ${reader.LEC_PRENOM || ''}`.trim() || id : id;
+            });
+            const preview = selectedNames.slice(0, 8).join('\n- ');
+            const extra = selectedNames.length > 8 ? `\n... et ${selectedNames.length - 8} autre(s)` : '';
+            if (!confirm(`Supprimer définitivement ${selected.length} lecteur(s) ?\n\n- ${preview}${extra}\n\nCette action est irréversible.`)) return;
+
+            try {
+                const res = await fetch('/admin/api/admin/lecteurs/bulk-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: selected })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    alert(`${result.deletedCount || selected.length} lecteur(s) supprimé(s).`);
+                    resetAndLoad();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('Erreur: ' + (err.error || 'Échec de la suppression'));
                 }
             } catch (e) {
                 console.error(e);
@@ -1336,10 +1379,17 @@
             if (spacer) spacer.style.display = 'block';
         }
 
-        async function deleteReader(id) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce lecteur ?')) return;
-            await fetch(`/api/admin/lecteurs/${id}`, { method: 'DELETE' });
-            resetAndLoad();
+        async function deleteReader(id, name = '') {
+            const reader = allReaders.find(r => r.LEC_ID === id);
+            const readerName = name || (reader ? `${reader.LEC_NOM || ''} ${reader.LEC_PRENOM || ''}`.trim() : '') || id;
+            if (!confirm(`Supprimer définitivement le lecteur "${readerName}" ?\n\nCette action est irréversible.`)) return;
+            const res = await fetch(`/admin/api/admin/lecteurs/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            if (res.ok) {
+                resetAndLoad();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert('Erreur: ' + (err.error || 'Échec de la suppression'));
+            }
         }
 
         function exportData() {
