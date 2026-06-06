@@ -2359,10 +2359,12 @@
 
                 <div class="auto-registration-entry">
                     <button class="btn btn-primary" id="showManualRegistrationBtn" type="button">
-                        <span class="material-symbols-outlined">edit_note</span> inscription manuelle
+                        <span class="material-symbols-outlined">edit_note</span>
+                        <span class="registration-mode-label" id="manualRegistrationLabel">inscription manuelle</span>
                     </button>
                     <button class="btn btn-secondary" id="showAutoRegistrationBtn" type="button">
-                        <span class="material-symbols-outlined">document_scanner</span> inscription automatique
+                        <span class="material-symbols-outlined">document_scanner</span>
+                        <span class="registration-mode-label" id="autoRegistrationLabel">inscription automatique</span>
                         <span class="scan-beta-badge">BETA</span>
                     </button>
                 </div>
@@ -2373,7 +2375,7 @@
                         <div>
                             <div class="scan-beta-title">
                                 <span class="material-symbols-outlined">document_scanner</span>
-                                inscription automatique
+                                <span id="autoRegistrationCardTitle">inscription automatique</span>
                             </div>
                             <div class="scan-beta-note">
                                 ضع بطاقة الهوية recto/verso أمام الكاميرا بشكل واضح ومضاء. إذا استعملت رخصة سياقة أو صورة غير واضحة قد تحتاج إلى تصحيح بعض الحقول في آخر خطوة.
@@ -3189,7 +3191,7 @@
                     </div>
 
                     <div class="credentials-minimalist">
-                        <div class="cred-field">
+                        <div class="cred-field" hidden>
                             <div class="cred-info">
                                 <div class="cred-title">رمز القارئ</div>
                                 <div class="cred-subtitle">يتم توليده تلقائياً حسب ترتيب السنة</div>

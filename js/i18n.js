@@ -205,6 +205,8 @@ const i18n = {
             "g-step4-desc": "حمل المستندات اللازمة لتسجيلك",
             "g-step5-title": "الملخص والتحقق",
             "g-step5-desc": "تحقق من معلوماتك وأنشئ بيانات اعتمادك",
+            "g-mode-manual": "التسجيل اليدوي",
+            "g-mode-auto": "التسجيل التلقائي",
             "g-label-nom": "اللقب بالعربية",
             "g-placeholder-nom": "اللقب بالعربية",
             "g-label-prenom": "الاسم بالعربية",
@@ -301,7 +303,7 @@ const i18n = {
             "g-cred-username-placeholder": "سيظهر بعد التسجيل",
             "g-cred-username-hint": "يمكنك تسجيل الدخول لاحقاً برمز القارئ أو البريد الإلكتروني",
             "g-cred-password-title": "كلمة المرور",
-            "g-cred-password-sub": "اختر أي كلمة مرور",
+            "g-cred-password-sub": "أنت من يختار كلمة المرور الخاصة بك",
             "g-cred-password-placeholder": "كلمة المرور",
             "g-cred-confirm-title": "تأكيد كلمة المرور",
             "g-cred-confirm-sub": "كرر كلمة المرور",
@@ -680,6 +682,8 @@ const i18n = {
             "g-step4-desc": "Téléversez les documents nécessaires pour votre inscription",
             "g-step5-title": "Résumé & Validation",
             "g-step5-desc": "Vérifiez vos informations et créez vos identifiants de connexion",
+            "g-mode-manual": "Inscription manuelle",
+            "g-mode-auto": "Inscription automatique",
             "g-label-nom": "Nom en arabe",
             "g-placeholder-nom": "Nom en arabe",
             "g-label-prenom": "Prénom en arabe",
@@ -776,7 +780,7 @@ const i18n = {
             "g-cred-username-placeholder": "Affiché après l'inscription",
             "g-cred-username-hint": "Vous pourrez vous connecter avec ce code lecteur ou votre e-mail",
             "g-cred-password-title": "Mot de Passe",
-            "g-cred-password-sub": "Choisissez votre mot de passe",
+            "g-cred-password-sub": "C'est vous qui choisissez votre mot de passe",
             "g-cred-password-placeholder": "Mot de passe",
             "g-cred-confirm-title": "Confirmer le Mot de Passe",
             "g-cred-confirm-sub": "Saisissez à nouveau votre mot de passe",
@@ -1155,6 +1159,8 @@ const i18n = {
             "g-step4-desc": "Upload the documents required for registration",
             "g-step5-title": "Summary & Verification",
             "g-step5-desc": "Verify your information and create your credentials",
+            "g-mode-manual": "Manual registration",
+            "g-mode-auto": "Automatic registration",
             "g-label-nom": "Last name in Arabic",
             "g-placeholder-nom": "Last name in Arabic",
             "g-label-prenom": "First name in Arabic",
@@ -1251,7 +1257,7 @@ const i18n = {
             "g-cred-username-placeholder": "Shown after registration",
             "g-cred-username-hint": "You can log in later with this reader code or your email",
             "g-cred-password-title": "Password",
-            "g-cred-password-sub": "Choose your password",
+            "g-cred-password-sub": "You choose your own password",
             "g-cred-password-placeholder": "Password",
             "g-cred-confirm-title": "Confirm Password",
             "g-cred-confirm-sub": "Repeat your password",
@@ -1618,6 +1624,8 @@ const i18n = {
             "g-step4-desc": "Sers isemlanin imeskarayen n teggezt inek",
             "g-step5-title": "Agzul & Tiggezt",
             "g-step5-desc": "Senqed isalan inek ar zdat n usali n uyan",
+            "g-mode-manual": "Ajerred s ufus",
+            "g-mode-auto": "Ajerred awurman",
             "g-label-nom": "Nom en arabe",
             "g-placeholder-nom": "Nom en arabe",
             "g-label-prenom": "Prénom en arabe",
@@ -1714,7 +1722,7 @@ const i18n = {
             "g-cred-username-placeholder": "Ad iban ticki tekfaḍ",
             "g-cred-username-hint": "Tzemreḍ ad tkecmeḍ s code lecteur neɣ e-mail",
             "g-cred-password-title": "Awal n Uɛaddi",
-            "g-cred-password-sub": "Fren awal n uɛaddi inek",
+            "g-cred-password-sub": "D kečč ara yefren awal n uɛaddi inek",
             "g-cred-password-placeholder": "Awal n uɛaddi",
             "g-cred-confirm-title": "Sentem Awal n Uɛaddi",
             "g-cred-confirm-sub": "Kcem daɣen awal n uɛaddi inek",
@@ -2097,6 +2105,13 @@ const i18n = {
                 }
             });
 
+            const manualRegistrationLabel = document.getElementById("manualRegistrationLabel");
+            if (manualRegistrationLabel) manualRegistrationLabel.textContent = dict["g-mode-manual"];
+            const autoRegistrationLabel = document.getElementById("autoRegistrationLabel");
+            if (autoRegistrationLabel) autoRegistrationLabel.textContent = dict["g-mode-auto"];
+            const autoRegistrationCardTitle = document.getElementById("autoRegistrationCardTitle");
+            if (autoRegistrationCardTitle) autoRegistrationCardTitle.textContent = dict["g-mode-auto"];
+
             // Translate Inputs & Placeholders & Labels inside Step 1
             const step1 = document.getElementById("step1");
             if (step1) {
@@ -2415,9 +2430,8 @@ const i18n = {
                 }
 
                 // Credentials Minimalist Section
-                const credFields = step5.querySelectorAll(".credentials-minimalist .cred-field");
+                const credFields = step5.querySelectorAll(".credentials-minimalist .cred-field:not([hidden])");
                 const credInfos = [
-                    { title: "g-cred-username-title", sub: "g-cred-username-sub", placeholder: "g-cred-username-placeholder", icon: "badge", id: "username" },
                     { title: "g-cred-password-title", sub: "g-cred-password-sub", placeholder: "g-cred-password-placeholder", icon: "lock", id: "password" },
                     { title: "g-cred-confirm-title", sub: "g-cred-confirm-sub", placeholder: "g-cred-confirm-placeholder", icon: "lock_reset", id: "confirmPassword" }
                 ];
@@ -2430,10 +2444,6 @@ const i18n = {
                         if (subEl) subEl.textContent = dict[info.sub];
                         const input = document.getElementById(info.id);
                         if (input) input.placeholder = dict[info.placeholder];
-                        if (info.id === "username") {
-                            const hintEl = field.querySelector(".cred-hint");
-                            if (hintEl) hintEl.innerHTML = `<span class="material-symbols-outlined">info</span> ` + dict["g-cred-username-hint"];
-                        }
                     }
                 });
 

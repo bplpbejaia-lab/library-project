@@ -342,11 +342,36 @@ function firstPresent(source, keys) {
     return '';
 }
 
+function cleanOcrBirthPlace(value) {
+    return cleanString(value)
+        .replace(/^(?:مكان\s*الميلاد|lieu\s*(?:de)?\s*naissance|place\s*of\s*birth|birth\s*place)\s*[:：\-]?\s*/i, '')
+        .replace(/\b\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}\b/g, '')
+        .replace(/\b\d{4}[-/.]\d{1,2}[-/.]\d{1,2}\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^[,،;:\-\s]+|[,،;:\-\s]+$/g, '');
+}
+
+function extractBirthPlaceFromRawText(rawText) {
+    const text = String(rawText || '').replace(/\r/g, '\n');
+    if (!text.trim()) return '';
+
+    const labeled = text.match(/(?:مكان\s*الميلاد|lieu\s*(?:de)?\s*naissance|place\s*of\s*birth|birth\s*place)\s*[:：\-]?\s*([^\n\r]+)/i);
+    if (labeled) return cleanOcrBirthPlace(labeled[1]);
+
+    const dateThenPlace = text.match(/\b(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})\b\s*[,،\-]?\s*([A-Za-z\u00C0-\u024F\u0600-\u06FF][^\n\r]{1,40})/);
+    if (dateThenPlace) return cleanOcrBirthPlace(dateThenPlace[1]);
+
+    return '';
+}
+
 function normalizeOcrPayload(data, rawText = '') {
     const rawNomAr = firstPresent(data, ['last_name_ar', 'nom_ar', 'lastNameAr', 'family_name_ar']);
     const rawPrenomAr = firstPresent(data, ['first_name_ar', 'prenom_ar', 'firstNameAr', 'given_name_ar']);
     const rawNomLatin = firstPresent(data, ['last_name', 'last_name_latin', 'nom_latin', 'nomLatin', 'surname', 'family_name']);
     const rawPrenomLatin = firstPresent(data, ['first_name', 'first_name_latin', 'prenom_latin', 'prenomLatin', 'given_name']);
+    const normalizedRawText = firstPresent(data, ['raw_text', 'rawText', 'text']) || rawText;
+    const rawBirthPlace = firstPresent(data, ['place_of_birth', 'birth_place', 'lieu_naissance', 'lieuNaissance', 'place_of_birth_ar', 'birth_place_ar', 'مكان_الميلاد']);
     const normalized = {
         documentType: firstPresent(data, ['document_type', 'documentType', 'type_document', 'type']),
         nom: cleanArabicName(rawNomAr) || cleanArabicName(rawNomLatin),
@@ -355,7 +380,7 @@ function normalizeOcrPayload(data, rawText = '') {
         prenomLatin: cleanLatinName(rawPrenomLatin) || cleanLatinName(rawPrenomAr),
         genre: normalizeOcrGender(firstPresent(data, ['sex', 'gender', 'genre'])),
         naissance: normalizeOcrDate(firstPresent(data, ['date_of_birth', 'birth_date', 'date_naissance', 'naissance'])),
-        lieuNaissance: firstPresent(data, ['place_of_birth', 'birth_place', 'lieu_naissance', 'lieuNaissance']),
+        lieuNaissance: cleanOcrBirthPlace(rawBirthPlace) || extractBirthPlaceFromRawText(normalizedRawText),
         nationalite: firstPresent(data, ['nationality', 'nationalite']),
         nin: digitsOnly(firstPresent(data, ['national_id', 'nin', 'identity_number', 'id_number', 'personal_number'])).slice(0, 18),
         adresse: firstPresent(data, ['address', 'adresse']),
@@ -364,7 +389,7 @@ function normalizeOcrPayload(data, rawText = '') {
         issueDate: normalizeOcrDate(firstPresent(data, ['issue_date', 'date_delivrance'])),
         expiryDate: normalizeOcrDate(firstPresent(data, ['expiry_date', 'expiration_date', 'date_expiration'])),
         documentNumber: firstPresent(data, ['document_number', 'license_number', 'card_number']),
-        rawText: firstPresent(data, ['raw_text', 'rawText', 'text']) || rawText,
+        rawText: normalizedRawText,
         confidence: firstPresent(data, ['confidence', 'score']),
         notes: firstPresent(data, ['notes', 'warning', 'warnings'])
     };
@@ -387,6 +412,7 @@ Rules:
 - Do not copy Latin names into Arabic fields, and do not copy Arabic names into Latin fields.
 - Prefer the full printed name. Do not use MRZ-style or consonant-only abbreviations such as "MHMD" when a full name is visible; use empty strings instead.
 - place_of_birth is the birth place printed on the document; it can be any city/country and must not be limited to Bejaia communes.
+- Carefully look for place_of_birth next to labels like "مكان الميلاد", "Lieu de naissance", "Date et lieu de naissance", or immediately after the date of birth on the same line.
 - city is the current address/residence city only when visible in the address.
 - Use empty strings for fields that are not visible.
 - Never invent email or telephone; those are not on the card.
