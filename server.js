@@ -77,7 +77,7 @@ const pool = new Pool({
 const SITE_URL = 'https://bplp-bejaia.dz';
 const SITE_NAME_AR = 'المكتبة الرئيسية للمطالعة العمومية لولاية بجاية';
 const SITE_NAME_FR = 'Bibliothèque Principale de Lecture Publique de Béjaïa';
-const SITE_DESCRIPTION = 'Site officiel de la Bibliothèque Principale de Lecture Publique de Béjaïa (BPLP Béjaïa): catalogue des livres, inscription lecteur, activités culturelles, réservation de salles et services de bibliothèque à Béjaïa.';
+const SITE_DESCRIPTION = 'Bibliothèque Béjaïa officielle: site de la Bibliothèque Principale de Lecture Publique de Béjaïa (BPLP Bejaia) avec catalogue des livres, inscription lecteur, activités culturelles, réservation de salles et services de bibliothèque à Béjaïa.';
 
 
 
@@ -101,7 +101,7 @@ fastify.get('/', async (request, reply) => {
 <html dir="rtl" lang="ar"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>BPLP Béjaïa - Bibliothèque Principale de Lecture Publique de Béjaïa</title>
+<title>Bibliothèque Béjaïa officielle - BPLP Bejaia</title>
 <meta name="description" content="${SITE_DESCRIPTION}">
 <meta name="keywords" content="BPLP Béjaïa, BPLP Bejaia, bplp bejaia, bibliothèque Béjaïa, bibliotheque Bejaia, مكتبة بجاية, المكتبة الرئيسية بجاية, catalogue bibliothèque Béjaïa, inscription bibliothèque Béjaïa">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -111,7 +111,7 @@ fastify.get('/', async (request, reply) => {
 <link rel="apple-touch-icon" href="${SITE_URL}/site-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BPLP Béjaïa">
-<meta property="og:title" content="BPLP Béjaïa - Bibliothèque Principale de Lecture Publique de Béjaïa">
+<meta property="og:title" content="Bibliothèque Béjaïa officielle - BPLP Bejaia">
 <meta property="og:description" content="${SITE_DESCRIPTION}">
 <meta property="og:url" content="${SITE_URL}/">
 <meta property="og:image" content="${SITE_URL}/images/c.PNG">
@@ -527,6 +527,7 @@ body { font-family: 'Lexend', 'Noto Sans Arabic', sans-serif; overflow-x: hidden
 
 <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">المكتبة الرئيسية للمطالعة العمومية</h1>
 <p class="text-2xl md:text-4xl font-bold text-white mb-4">لولاية بجاية</p>
+<p class="text-lg md:text-2xl text-emerald-100 mb-3 font-bold" dir="ltr">Bibliothèque Béjaïa officielle - BPLP Bejaia</p>
 <p class="text-2xl md:text-3xl text-slate-100 mb-4 font-semibold">الشهيد الطاهر عمروشن</p>
 <p class="text-lg md:text-xl text-slate-300 mb-8 font-light">ⵜⴰⵎⴽⴻⵔⴷⵉⵝ ⵜⴰⴳⴻⵊⴷⴰⵏⵜ ⵏ ⵜⴴⵓⵔⵉ ⵏ ⴱⴳⴰⵢⴻⵝ</p>
 <div class="flex flex-wrap gap-4 justify-center">
