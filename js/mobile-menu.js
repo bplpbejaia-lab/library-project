@@ -5,6 +5,22 @@
 (function () {
     'use strict';
 
+    function revealMaterialSymbolsWhenReady() {
+        const root = document.documentElement;
+        if (!document.fonts || !document.fonts.load) {
+            return;
+        }
+        if (document.fonts.check('24px "Material Symbols Outlined"')) {
+            root.classList.add('material-symbols-ready');
+            return;
+        }
+        document.fonts.load('24px "Material Symbols Outlined"')
+            .then(() => root.classList.add('material-symbols-ready'))
+            .catch(() => {});
+    }
+
+    revealMaterialSymbolsWhenReady();
+
     // Only run on mobile/tablet
     function shouldInit() {
         return window.innerWidth <= 1024;

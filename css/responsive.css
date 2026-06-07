@@ -3,6 +3,21 @@
    Shared across ALL pages
    ======================================== */
 
+/* Prevent Google Material Symbols ligature text from flashing on slow networks.
+   Page content renders immediately; icons appear only when their font is ready. */
+html:not(.material-symbols-ready) .material-symbols-outlined {
+    color: transparent !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 1.25em;
+    min-width: 1.25em;
+    max-width: 1.25em;
+    overflow: hidden;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 /* ----------------------
    Mobile Hamburger Menu
    ---------------------- */
