@@ -105,6 +105,7 @@ fastify.get('/', async (request, reply) => {
 <meta name="description" content="${SITE_DESCRIPTION}">
 <meta name="keywords" content="BPLP Béjaïa, BPLP Bejaia, bplp bejaia, bibliothèque Béjaïa, bibliotheque Bejaia, مكتبة بجاية, المكتبة الرئيسية بجاية, catalogue bibliothèque Béjaïa, inscription bibliothèque Béjaïa">
 <meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="google-site-verification" content="_sGuTpsurTRP_-N4CCH-G4U2GzJYNFb1ApkgMcY4l3E">
 <link rel="canonical" href="${SITE_URL}/">
 <link rel="icon" href="${SITE_URL}/site-icon.png" type="image/png">
 <link rel="apple-touch-icon" href="${SITE_URL}/site-icon.png">
