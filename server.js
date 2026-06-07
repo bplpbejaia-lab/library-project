@@ -527,7 +527,6 @@ body { font-family: 'Lexend', 'Noto Sans Arabic', sans-serif; overflow-x: hidden
 
 <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">المكتبة الرئيسية للمطالعة العمومية</h1>
 <p class="text-2xl md:text-4xl font-bold text-white mb-4">لولاية بجاية</p>
-<p class="text-lg md:text-2xl text-emerald-100 mb-3 font-bold" dir="ltr">Bibliothèque Béjaïa officielle - BPLP Bejaia</p>
 <p class="text-2xl md:text-3xl text-slate-100 mb-4 font-semibold">الشهيد الطاهر عمروشن</p>
 <p class="text-lg md:text-xl text-slate-300 mb-8 font-light">ⵜⴰⵎⴽⴻⵔⴷⵉⵝ ⵜⴰⴳⴻⵊⴷⴰⵏⵜ ⵏ ⵜⴴⵓⵔⵉ ⵏ ⴱⴳⴰⵢⴻⵝ</p>
 <div class="flex flex-wrap gap-4 justify-center">
