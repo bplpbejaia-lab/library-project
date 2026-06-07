@@ -74,6 +74,11 @@ const pool = new Pool({
   database: 'Library'
 });
 
+const SITE_URL = 'https://bplp-bejaia.dz';
+const SITE_NAME_AR = 'المكتبة الرئيسية للمطالعة العمومية لولاية بجاية';
+const SITE_NAME_FR = 'Bibliothèque Principale de Lecture Publique de Béjaïa';
+const SITE_DESCRIPTION = 'Site officiel de la Bibliothèque Principale de Lecture Publique de Béjaïa (BPLP Béjaïa): catalogue des livres, inscription lecteur, activités culturelles, réservation de salles et services de bibliothèque à Béjaïa.';
+
 
 
 
@@ -96,7 +101,52 @@ fastify.get('/', async (request, reply) => {
 <html dir="rtl" lang="ar"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>المكتبة الرئيسية للمطالعة العمومية لولاية بجاية</title>
+<title>BPLP Béjaïa - Bibliothèque Principale de Lecture Publique de Béjaïa</title>
+<meta name="description" content="${SITE_DESCRIPTION}">
+<meta name="keywords" content="BPLP Béjaïa, BPLP Bejaia, bplp bejaia, bibliothèque Béjaïa, bibliotheque Bejaia, مكتبة بجاية, المكتبة الرئيسية بجاية, catalogue bibliothèque Béjaïa, inscription bibliothèque Béjaïa">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="${SITE_URL}/">
+<link rel="icon" href="${SITE_URL}/site-icon.png" type="image/png">
+<link rel="apple-touch-icon" href="${SITE_URL}/site-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BPLP Béjaïa">
+<meta property="og:title" content="BPLP Béjaïa - Bibliothèque Principale de Lecture Publique de Béjaïa">
+<meta property="og:description" content="${SITE_DESCRIPTION}">
+<meta property="og:url" content="${SITE_URL}/">
+<meta property="og:image" content="${SITE_URL}/images/c.PNG">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+${JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Library',
+  '@id': `${SITE_URL}/#library`,
+  name: SITE_NAME_FR,
+  alternateName: ['BPLP Béjaïa', 'BPLP Bejaia', SITE_NAME_AR, 'مكتبة بجاية'],
+  url: `${SITE_URL}/`,
+  image: `${SITE_URL}/images/c.PNG`,
+  logo: `${SITE_URL}/site-icon.png`,
+  description: SITE_DESCRIPTION,
+  email: 'bplpbejaia@gmail.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Rue Krim Belkacem, Aamriw',
+    addressLocality: 'Béjaïa',
+    addressCountry: 'DZ'
+  },
+  areaServed: {
+    '@type': 'AdministrativeArea',
+    name: 'Béjaïa'
+  },
+  sameAs: [
+    'https://bplp-bejaia.dz/'
+  ],
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE_URL}/pages/books-catalog.html?q={search_term_string}`,
+    'query-input': 'required name=search_term_string'
+  }
+}, null, 2)}
+</script>
 <link rel="prefetch" href="/pages/books-catalog.html">
 <link rel="preload" href="/images/1.webp" as="image" type="image/webp">
 <link rel="preload" href="/images/3.webp" as="image" type="image/webp">
@@ -1253,8 +1303,46 @@ window.addEventListener('load', function() {
   }
 });
 
+fastify.get('/site-icon.png', (request, reply) => {
+  reply.type('image/png').send(readFileSync(path.join(__dirname, 'images', 'c.PNG')));
+});
+
 fastify.get('/favicon.ico', (request, reply) => {
-  reply.status(204).send();
+  reply.type('image/png').send(readFileSync(path.join(__dirname, 'images', 'c.PNG')));
+});
+
+fastify.get('/robots.txt', (request, reply) => {
+  reply.type('text/plain').send(`User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
+`);
+});
+
+fastify.get('/sitemap.xml', (request, reply) => {
+  const pages = [
+    { loc: '/', priority: '1.0' },
+    { loc: '/pages/books-catalog.html', priority: '0.9' },
+    { loc: '/pages/g.html', priority: '0.9' },
+    { loc: '/pages/cultural-activities.html', priority: '0.8' },
+    { loc: '/pages/hall-booking.html', priority: '0.7' },
+    { loc: '/pages/technical-card.html', priority: '0.7' },
+    { loc: '/pages/library-goals.html', priority: '0.6' },
+    { loc: '/pages/internal-regulations.html', priority: '0.6' },
+    { loc: '/pages/director-word.html', priority: '0.6' }
+  ];
+  const lastmod = '2026-06-07';
+  const urls = pages.map(page => `  <url>
+    <loc>${SITE_URL}${page.loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`).join('\n');
+  reply.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`);
 });
 
 // Serve HTML pages from pages folder
