@@ -2542,8 +2542,7 @@
                     <div class="form-group">
                         <label class="form-label required">الجنسية <span
                                 class="material-symbols-outlined text-[18px] mr-2">flag</span></label>
-                        <input type="text" class="form-input" id="nationalite" list="nationalitesList"
-                            value="جزائرية" placeholder="اكتب أو اختر الجنسية" required>
+                        <select class="form-select" id="nationalite" required></select>
                         <datalist id="nationalitesList"></datalist>
                     </div>
 
@@ -3436,6 +3435,66 @@
                 'لا': 'b', 'لأ': 'b', 'لإ': 'b', 'لآ': 'b'
             };
             const countryCodes = 'AF AX AL DZ AS AD AO AI AQ AG AR AM AW AU AT AZ BS BH BD BB BY BE BZ BJ BM BT BO BQ BA BW BV BR IO BN BG BF BI CV KH CM CA KY CF TD CL CN CX CC CO KM CG CD CK CR CI HR CU CW CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FK FO FJ FI FR GF PF TF GA GM GE DE GH GI GR GL GD GP GU GT GG GN GW GY HT HM VA HN HK HU IS IN ID IR IQ IE IM IL IT JM IL IT JM JP JE JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MO MG MW MY MV ML MT MH MQ MR MU YT MX FM MD MC MN ME MS MA MZ MM NA NR NP NL NC NZ NI NE NG NU NF MK MP NO OM PK PW PS PA PG PY PE PH PN PL PT PR QA RE RO RU RW BL SH KN LC MF PM VC WS SM ST SA SN RS SC SL SG SX SK SI SB SO ZA GS SS ES LK SD SR SJ SE CH SY TW TJ TZ TH TL TG TK TO TT TN TR TM TC TV UG UA AE GB US UM UY UZ VU VE VN VG VI WF EH YE ZM ZW'.split(' ');
+            const ALGERIA_CITY_POSTAL_CODES = [
+                { code: '01000', names: ['Adrar', 'أدرار'] },
+                { code: '02000', names: ['Chlef', 'الشلف'] },
+                { code: '03000', names: ['Laghouat', 'الأغواط'] },
+                { code: '04000', names: ['Oum El Bouaghi', 'أم البواقي'] },
+                { code: '05000', names: ['Batna', 'باتنة'] },
+                { code: '06000', names: ['Béjaïa', 'Bejaia', 'بجاية'] },
+                { code: '07000', names: ['Biskra', 'بسكرة'] },
+                { code: '08000', names: ['Béchar', 'Bechar', 'بشار'] },
+                { code: '09000', names: ['Blida', 'البليدة'] },
+                { code: '10000', names: ['Bouira', 'البويرة'] },
+                { code: '11000', names: ['Tamanrasset', 'تمنراست'] },
+                { code: '12000', names: ['Tébessa', 'Tebessa', 'تبسة'] },
+                { code: '13000', names: ['Tlemcen', 'تلمسان'] },
+                { code: '14000', names: ['Tiaret', 'تيارت'] },
+                { code: '15000', names: ['Tizi Ouzou', 'تيزي وزو'] },
+                { code: '16000', names: ['Alger', 'Algiers', 'الجزائر'] },
+                { code: '17000', names: ['Djelfa', 'الجلفة'] },
+                { code: '18000', names: ['Jijel', 'جيجل'] },
+                { code: '19000', names: ['Sétif', 'Setif', 'سطيف'] },
+                { code: '20000', names: ['Saïda', 'Saida', 'سعيدة'] },
+                { code: '21000', names: ['Skikda', 'سكيكدة'] },
+                { code: '22000', names: ['Sidi Bel Abbès', 'Sidi Bel Abbes', 'سيدي بلعباس'] },
+                { code: '23000', names: ['Annaba', 'عنابة'] },
+                { code: '24000', names: ['Guelma', 'قالمة'] },
+                { code: '25000', names: ['Constantine', 'قسنطينة'] },
+                { code: '26000', names: ['Médéa', 'Medea', 'المدية'] },
+                { code: '27000', names: ['Mostaganem', 'مستغانم'] },
+                { code: '28000', names: ["M'Sila", 'Msila', 'المسيلة'] },
+                { code: '29000', names: ['Mascara', 'معسكر'] },
+                { code: '30000', names: ['Ouargla', 'ورقلة'] },
+                { code: '31000', names: ['Oran', 'وهران'] },
+                { code: '32000', names: ['El Bayadh', 'البيض'] },
+                { code: '33000', names: ['Illizi', 'إليزي'] },
+                { code: '34000', names: ['Bordj Bou Arreridj', 'برج بوعريريج'] },
+                { code: '35000', names: ['Boumerdes', 'Boumerdès', 'بومرداس'] },
+                { code: '36000', names: ['El Tarf', 'الطارف'] },
+                { code: '37000', names: ['Tindouf', 'تندوف'] },
+                { code: '38000', names: ['Tissemsilt', 'تيسمسيلت'] },
+                { code: '39000', names: ['El Oued', 'الوادي'] },
+                { code: '40000', names: ['Khenchela', 'خنشلة'] },
+                { code: '41000', names: ['Souk Ahras', 'سوق أهراس'] },
+                { code: '42000', names: ['Tipaza', 'تيبازة'] },
+                { code: '43000', names: ['Mila', 'ميلة'] },
+                { code: '44000', names: ['Aïn Defla', 'Ain Defla', 'عين الدفلى'] },
+                { code: '45000', names: ['Naâma', 'Naama', 'النعامة'] },
+                { code: '46000', names: ['Aïn Témouchent', 'Ain Temouchent', 'عين تموشنت'] },
+                { code: '47000', names: ['Ghardaïa', 'Ghardaia', 'غرداية'] },
+                { code: '48000', names: ['Relizane', 'غليزان'] },
+                { code: '49000', names: ['Timimoun', 'تيميمون'] },
+                { code: '50000', names: ['Bordj Badji Mokhtar', 'برج باجي مختار'] },
+                { code: '51000', names: ['Ouled Djellal', 'أولاد جلال'] },
+                { code: '52000', names: ['Béni Abbès', 'Beni Abbes', 'بني عباس'] },
+                { code: '53000', names: ['In Salah', 'عين صالح'] },
+                { code: '54000', names: ['In Guezzam', 'عين قزام'] },
+                { code: '55000', names: ['Touggourt', 'تقرت'] },
+                { code: '56000', names: ['Djanet', 'جانت'] },
+                { code: '57000', names: ["El M'Ghair", 'El Meghaier', 'المغير'] },
+                { code: '58000', names: ['El Meniaa', 'المنيعة'] }
+            ];
             const outsideBejaiaBirthPlace = '';
             const validDocumentTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
             const validPhotoTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -3491,6 +3550,43 @@
                 return getBejaiaCommunes().some(commune => normalizeValue(commune) === normalized);
             }
 
+            function populateAlgeriaCityOptions() {
+                const list = document.getElementById('bejaiaCommunesList');
+                if (!list) return;
+                const existing = new Set(Array.from(list.options).map(option => normalizeValue(option.value)));
+                ALGERIA_CITY_POSTAL_CODES.forEach(({ names }) => {
+                    names.forEach(name => {
+                        const normalized = normalizeValue(name);
+                        if (!normalized || existing.has(normalized)) return;
+                        const option = document.createElement('option');
+                        option.value = name;
+                        list.appendChild(option);
+                        existing.add(normalized);
+                    });
+                });
+            }
+
+            function getPostalCodeForCity(value) {
+                const normalized = normalizeValue(value);
+                if (!normalized) return '';
+                const match = ALGERIA_CITY_POSTAL_CODES.find(({ names }) =>
+                    names.some(name => normalizeValue(name) === normalized)
+                );
+                if (match) return match.code;
+                return isBejaiaCommune(value) ? '06000' : '';
+            }
+
+            function syncPostalCodeFromCity(value, force = false) {
+                const postalInput = document.getElementById('codePostal');
+                if (!postalInput) return;
+                const postalCode = getPostalCodeForCity(value);
+                if (!postalCode) return;
+                if (force || !getDigits(postalInput.value)) {
+                    postalInput.value = postalCode;
+                    postalInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+
             function isOutsideBejaiaBirthPlace(value) {
                 return false;
             }
@@ -3516,7 +3612,11 @@
             }
 
             function hasDigits(value) {
-                return /\d/.test(String(value || ''));
+                return /[0-9\u0660-\u0669\u06F0-\u06F9]/.test(String(value || ''));
+            }
+
+            function stripDigits(value) {
+                return String(value || '').replace(/[0-9\u0660-\u0669\u06F0-\u06F9]/g, '');
             }
 
             function hasLetters(value) {
@@ -3632,7 +3732,8 @@
                 const lang = getRegistrationLang();
                 const defaultValue = defaultNationalityForLang(lang);
                 const previousDefaultValues = ['جزائرية', 'جزائري', 'Algérienne', 'Algerian', 'Tazzayrit', 'Algérie', 'Algeria'];
-                const shouldResetDefault = !input.value.trim() || previousDefaultValues.includes(input.value.trim());
+                const currentValue = input.value.trim();
+                const shouldResetDefault = !currentValue || previousDefaultValues.includes(currentValue);
                 let displayNames = null;
 
                 try {
@@ -3648,20 +3749,18 @@
                     if (label && !values.includes(label)) values.push(label);
                 });
 
-                list.innerHTML = values.map(value => `<option value="${escapeOption(value)}"></option>`).join('');
-                if (shouldResetDefault) input.value = defaultValue;
-            }
+                if (currentValue && !shouldResetDefault && !values.some(value => normalizeValue(value) === normalizeValue(currentValue))) {
+                    values.unshift(currentValue);
+                }
 
-            document.getElementById('nationalite')?.addEventListener('focus', (event) => {
-                event.target.select();
-            });
+                input.innerHTML = values.map(value => `<option value="${escapeOption(value)}">${escapeOption(value)}</option>`).join('');
+                list.innerHTML = values.map(value => `<option value="${escapeOption(value)}"></option>`).join('');
+                input.value = shouldResetDefault ? defaultValue : currentValue;
+            }
 
             document.getElementById('nationalite')?.addEventListener('blur', (event) => {
                 if (!event.target.value.trim()) {
                     event.target.value = defaultNationalityForLang(getRegistrationLang());
-                }
-                if (getRegistrationLang() === 'ar') {
-                    event.target.value = toArabicNationality(event.target.value);
                 }
             });
 
@@ -3670,6 +3769,7 @@
             });
 
             bindKeyboardConverters();
+            populateAlgeriaCityOptions();
             populateBirthPlaces();
             populateNationalities();
             document.addEventListener('i18nChanged', populateNationalities);
@@ -3677,7 +3777,14 @@
             function setFormValue(id, value) {
                 const input = document.getElementById(id);
                 if (!input || value === undefined || value === null || value === '') return;
-                input.value = String(value).trim();
+                const nextValue = String(value).trim();
+                if (input.tagName === 'SELECT' && !Array.from(input.options).some(option => option.value === nextValue)) {
+                    const option = document.createElement('option');
+                    option.value = nextValue;
+                    option.textContent = nextValue;
+                    input.appendChild(option);
+                }
+                input.value = nextValue;
                 input.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
@@ -3766,7 +3873,7 @@
                 buildSummaryInput('summaryGenreModern', 'genre', { type: 'select', optionsFrom: 'reviewGenre' });
                 buildSummaryInput('summaryNaissanceModern', 'naissance', { type: 'date', dir: 'ltr' });
                 buildSummaryInput('summaryLieuNaissanceModern', 'lieuNaissance', { list: 'birthPlacesList' });
-                buildSummaryInput('summaryNationaliteModern', 'nationalite', { list: 'nationalitesList' });
+                buildSummaryInput('summaryNationaliteModern', 'nationalite', { type: 'select', optionsFrom: 'nationalite' });
                 buildSummaryInput('summaryProfessionModern', 'profession', { type: 'select', optionsFrom: 'profession' });
                 buildSummaryInput('summaryEmailModern', 'email', { type: 'email', placeholder: 'your@email.com', dir: 'ltr', textAlign: 'left' });
                 buildSummaryInput('summaryTelephoneModern', 'telephone', { type: 'tel', inputMode: 'tel', dir: 'ltr' });
@@ -3802,7 +3909,15 @@
                                 normalizeValue(option.value) === normalizedValue ||
                                 normalizeValue(option.textContent) === normalizedValue
                             );
-                            if (match) source.value = match.value;
+                            if (match) {
+                                source.value = match.value;
+                            } else if (value) {
+                                const option = document.createElement('option');
+                                option.value = value;
+                                option.textContent = value;
+                                source.appendChild(option);
+                                source.value = value;
+                            }
                         }
                         source.dispatchEvent(new Event('input', { bubbles: true }));
                     }
@@ -3829,10 +3944,14 @@
 
             function applyOcrFields(fields = {}) {
                 ocrBetaMode = true;
-                setFormValue('nom', cleanArabicName(fields.nom));
-                setFormValue('prenom', cleanArabicName(fields.prenom));
-                setFormValue('nomLatin', cleanLatinName(fields.nomLatin));
-                setFormValue('prenomLatin', cleanLatinName(fields.prenomLatin));
+                const nomAr = cleanArabicName(fields.nom);
+                const prenomAr = cleanArabicName(fields.prenom);
+                const nomLatin = cleanLatinName(fields.nomLatin) || cleanLatinName(fields.nom);
+                const prenomLatin = cleanLatinName(fields.prenomLatin) || cleanLatinName(fields.prenom);
+                setFormValue('nom', nomAr || nomLatin);
+                setFormValue('prenom', prenomAr || prenomLatin);
+                setFormValue('nomLatin', nomLatin);
+                setFormValue('prenomLatin', prenomLatin);
                 setGenreValue(fields.genre);
                 setFormValue('naissance', fields.naissance);
                 const birthPlace = fields.lieuNaissance || '';
@@ -3842,6 +3961,7 @@
                 setFormValue('adresse', fields.adresse);
                 setFormValue('ville', fields.ville || findCommuneInText(`${fields.adresse || ''} ${fields.rawText || ''}`));
                 setFormValue('codePostal', fields.codePostal);
+                if (!fields.codePostal) syncPostalCodeFromCity(getInputValue('ville'));
                 populateReviewFieldsFromSource();
             }
 
@@ -4014,7 +4134,9 @@
                     if (target === 'telephone' || target === 'whatsapp') input.value = formatPhoneInput(input.value);
                     if (target === 'nin') input.value = getDigits(input.value).slice(0, 18);
                     if (target === 'codePostal') input.value = getDigits(input.value).slice(0, 5);
+                    if (target === 'lieuNaissance' || target === 'ville') input.value = stripDigits(input.value);
                     syncReviewFieldToSource(input);
+                    if (target === 'ville') syncPostalCodeFromCity(input.value, true);
                 });
             });
 
@@ -4198,7 +4320,7 @@
                     if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: 'يرجى اختيار الجنس.' });
                     if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
                     if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
-                    if (!lieuNaissance || !hasLetters(lieuNaissance)) {
+                    if (!lieuNaissance || !hasLetters(lieuNaissance) || hasDigits(lieuNaissance)) {
                         errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب.' });
                     }
                     if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.' });
@@ -4219,7 +4341,7 @@
                     if (!/^0\d{9}$/.test(phone)) errors.push({ field: 'telephone', message: 'رقم الهاتف يجب أن يتكون من 10 أرقام ويبدأ بـ 0.' });
                     if (whatsapp && !/^0\d{9}$/.test(whatsapp)) errors.push({ field: 'whatsapp', message: 'رقم واتساب يجب أن يتكون من 10 أرقام ويبدأ بـ 0.' });
                     if (!getInputValue('adresse')) errors.push({ field: 'adresse', message: 'العنوان مطلوب.' });
-                    if (!ville || !isBejaiaCommune(ville)) errors.push({ field: 'ville', message: 'يرجى اختيار مدينة إقامة صحيحة من ولاية بجاية.' });
+                    if (!ville || !isBejaiaCommune(ville)) errors.push({ field: 'ville', message: 'يرجى اختيار مدينة إقامة صحيحة من قائمة المدن الجزائرية.' });
                     if (codePostal && !/^\d{5}$/.test(codePostal)) errors.push({ field: 'codePostal', message: 'الرمز البريدي يجب أن يتكون من 5 أرقام.' });
                 }
 
@@ -4413,6 +4535,7 @@
                         photoNameDisplay.textContent = 'الصورة اختيارية';
                     }
                 }
+                if (currentStep === 5) updateModernSummary();
             }
 
             document.getElementById('nom').addEventListener('input', updatePhotoPreview);
@@ -4797,6 +4920,15 @@
                 const digits = getDigits(value).slice(0, 10);
                 return digits.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
             }
+
+            document.getElementById('lieuNaissance').addEventListener('input', function (e) {
+                e.target.value = stripDigits(e.target.value);
+            });
+
+            document.getElementById('ville').addEventListener('input', function (e) {
+                e.target.value = stripDigits(e.target.value);
+                syncPostalCodeFromCity(e.target.value, true);
+            });
 
             document.getElementById('telephone').addEventListener('input', function (e) {
                 e.target.value = formatPhoneInput(e.target.value);

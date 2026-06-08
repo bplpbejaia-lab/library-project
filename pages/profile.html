@@ -966,8 +966,8 @@
                 <div id="engFilePreview" style="display:none;margin-top:16px;padding:12px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-green-600">description</span>
-                        <div style="flex:1;">
-                            <p id="engFileName" class="font-bold text-sm text-slate-700"></p>
+                        <div style="flex:1;min-width:0;">
+                            <p id="engFileName" class="font-bold text-sm text-slate-700" style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title=""></p>
                             <p id="engFileSize" class="text-xs text-slate-400"></p>
                         </div>
                         <button onclick="clearEngFile()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;">✕</button>
@@ -1624,9 +1624,14 @@
                 }
                 if (arc12) arc12.className = 'hidden lg:block flex-1 h-[3px] bg-blue-500 rounded-full shadow-lg';
 
+                const emailVerified = user.emailVerified === true || user.emailVerified === 1 ||
+                    user.emailVerified === '1' || String(user.emailVerified || '').toLowerCase() === 'true' ||
+                    user.LEC_EMAIL_VERIFIED === true || user.LEC_EMAIL_VERIFIED === 1 ||
+                    user.LEC_EMAIL_VERIFIED === '1' || String(user.LEC_EMAIL_VERIFIED || '').toLowerCase() === 'true';
+
                 // Step 2: Email (Green if verified)
                 if (s2) {
-                    if (user.emailVerified || user.email) {
+                    if (emailVerified) {
                         s2.className = 'glass-bubble bubble-active bubble-email';
                         s2.innerHTML = '<span class="material-symbols-outlined font-black">check</span>';
                         if (arc23) arc23.className = 'hidden lg:block flex-1 h-[3px] bg-purple-500 rounded-full shadow-lg';
@@ -1840,7 +1845,9 @@
                 return;
             }
             engSelectedFile = file;
-            document.getElementById('engFileName').textContent = file.name;
+            const engFileName = document.getElementById('engFileName');
+            engFileName.textContent = file.name;
+            engFileName.title = file.name;
             document.getElementById('engFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
             document.getElementById('engFilePreview').style.display = 'block';
         }
@@ -1879,10 +1886,15 @@
                         if (res.ok) {
                             const data = await res.json();
                             user.docEngagement = data.path;
+                            user.LEC_DOC_ENGAGEMENT = data.path;
                             localStorage.setItem('libraryUser', JSON.stringify(user));
+                            populateProfileData(user);
+                            updateStepper(user);
+                            populateDirectRfidCards(user);
                             setTimeout(() => {
                                 closeUploadEngagement();
                                 alert('تم رفع التعهد بنجاح!');
+                                refreshProfileData();
                             }, 400);
                         } else {
                             const d = await res.json();

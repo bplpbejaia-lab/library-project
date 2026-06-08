@@ -177,7 +177,7 @@ function dateOnly(value) {
 }
 
 function hasDigits(value) {
-    return /\d/.test(cleanString(value));
+    return /[0-9\u0660-\u0669\u06F0-\u06F9]/.test(cleanString(value));
 }
 
 function isValidTextValue(value) {
@@ -699,7 +699,7 @@ function validateRegistrationPayload(body) {
     }
 
     const birthPlace = cleanString(body.lieuNaissance);
-    if (birthPlace && !/[\p{L}\u0600-\u06FF]/u.test(birthPlace)) {
+    if (birthPlace && (!/[\p{L}\u0600-\u06FF]/u.test(birthPlace) || hasDigits(birthPlace))) {
         errors.push('مكان الميلاد غير صالح');
     }
 
