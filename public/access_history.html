@@ -95,7 +95,7 @@
             const date = document.getElementById('searchDate').value;
             const action = document.getElementById('searchAction').value;
             
-            let url = '/api/admin/access/logs?detailed=true';
+            let url = '/admin/api/admin/access/logs?detailed=true';
             if (query) url += `&query=${encodeURIComponent(query)}`;
             if (date) url += `&date=${date}`;
             if (action) url += `&action=${action}`;

@@ -164,7 +164,7 @@
         async function loadStats() {
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
-            const res = await fetch(`/api/admin/stats?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+            const res = await fetch(`/admin/api/admin/stats?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
             const data = await res.json();
             document.getElementById('ov-books').textContent = formatNumber(data.overview.books_added);
             document.getElementById('ov-readers').textContent = formatNumber(data.overview.readers_added);

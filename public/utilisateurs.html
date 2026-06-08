@@ -273,14 +273,20 @@
                 password: document.getElementById('userPassword').value
             };
             if (!body.login || !body.nom) { alert('Login et nom sont obligatoires'); return; }
-            const url = id ? `/api/admin/utilisateurs/${id}` : '/api/admin/utilisateurs';
-            await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if (!id && !body.password) { alert('Le mot de passe est obligatoire pour la création'); return; }
+            const url = id ? `/admin/api/admin/utilisateurs/${id}` : '/admin/api/admin/utilisateurs';
+            const res = await fetch(url, { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                alert('Erreur: ' + (err.error || 'Échec de l’enregistrement'));
+                return;
+            }
             closeModal(); loadUsers();
         }
 
         async function deleteUser(id) {
             if (!confirm('Supprimer cet utilisateur ?')) return;
-            await fetch(`/api/admin/utilisateurs/${id}`, { method: 'DELETE' });
+            await fetch(`/admin/api/admin/utilisateurs/${id}`, { method: 'DELETE' });
             loadUsers();
         }
 

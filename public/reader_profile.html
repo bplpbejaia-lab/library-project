@@ -431,10 +431,23 @@
                 display: block !important;
             }
 
+            #rfidPrintArea .grid {
+                display: block !important;
+            }
+
             .rfid-card-new {
                 box-shadow: none !important;
                 border: 1px solid #000 !important;
                 margin: 0 auto !important;
+            }
+
+            .rfid-card-new.front {
+                page-break-after: always !important;
+            }
+
+            .rfid-card-new.front.print-single-side {
+                page-break-after: auto !important;
+                break-after: auto !important;
             }
 
             .no-print {
@@ -688,7 +701,8 @@
                         <div>
                             <p class="text-xs text-slate-400 mb-2">رقم الهاتف</p>
                             <input type="tel" id="lecPhone"
-                                class="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-2xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                class="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-2xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                dir="ltr" style="text-align:right;">
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 mb-2">العنوان</p>
@@ -788,7 +802,6 @@
                     <div class="flex flex-col items-center w-full" id="containerRecto">
                         <div id="rfidRecto"></div>
                     </div>
-                    <div id="rfidSpacer" class="card-page-break" style="display: none;"></div>
                     <div class="flex flex-col items-center w-full" id="containerVerso">
                         <div id="rfidVerso"></div>
                     </div>
@@ -947,7 +960,7 @@
         async function init() {
             if (!readerId) { alert('Reader ID missing'); return; }
             try {
-                const res = await fetch(`/api/admin/lecteurs/${readerId}`);
+                const res = await fetch(`/admin/api/admin/lecteurs/${readerId}`);
                 if (!res.ok) throw new Error('Lecteur non trouvé');
                 currentReader = await res.json();
 
@@ -1157,11 +1170,13 @@
                     LEC_ID: user.LEC_ID || user.lecteurId || 'BJA-READER',
                     LEC_RFID: user.LEC_RFID || user.rfid
                 };
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(r.LEC_RFID || r.LEC_ID)}`;
-                const target = document.getElementById(targetId);
-                if (!target) return;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(r.LEC_RFID || r.LEC_ID)}`;
+            const target = document.getElementById(targetId);
+            if (!target) return;
 
-                const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : '';
+            const userPhoto = r.LEC_PHOTO ? r.LEC_PHOTO : '';
+            const regDate = user.date_adhesion || user.LEC_DATE_ADHESION || user.CREATE_DATE || '';
+            const regDateStr = regDate ? new Date(regDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
 
                 target.innerHTML = `
                     <div class="rfid-card-new front">
@@ -1195,6 +1210,7 @@
                             <img src="${qrUrl}">
                             <div class="recto-id-number">${r.LEC_RFID || r.LEC_ID}</div>
                         </div>
+                        ${regDateStr ? `<div class="recto-date-footer">تاريخ التسجيل: ${regDateStr}</div>` : ''}
                     </div>
                 `;
             } catch (err) { console.error("Render Error:", err); }
@@ -1228,7 +1244,7 @@
             }
 
             try {
-                const res = await fetch(`/api/admin/lecteurs/${readerId}/full-update`, {
+                const res = await fetch(`/admin/api/admin/lecteurs/${readerId}/full-update`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
@@ -1330,7 +1346,29 @@
         }
 
         function closeRfidModal() { document.getElementById('rfidModal').classList.remove('active'); }
-        function printCardPart(part) { window.print(); }
+        function printCardPart(part) {
+            const recto = document.getElementById('rfidRecto')?.querySelector('.rfid-card-new.front');
+            const verso = document.getElementById('rfidVerso')?.querySelector('.rfid-card-new.back');
+            if (!recto || !verso) return window.print();
+
+            if (part === 'recto') {
+                recto.style.display = 'block';
+                verso.style.display = 'none';
+                recto.classList.add('print-single-side');
+            } else if (part === 'verso') {
+                recto.style.display = 'none';
+                verso.style.display = 'block';
+                recto.classList.add('print-single-side');
+            } else {
+                recto.style.display = 'block';
+                verso.style.display = 'block';
+                recto.classList.remove('print-single-side');
+            }
+            window.print();
+            recto.style.display = 'block';
+            verso.style.display = 'block';
+            recto.classList.remove('print-single-side');
+        }
 
         async function renewSubscription(event) {
             if (event) event.preventDefault();
@@ -1338,7 +1376,7 @@
             if (!confirm('هل أنت متأكد من رغبتك في تجديد بطاقة القارئ لمدة سنة إضافية؟')) return;
 
             try {
-                const res = await fetch(`/api/admin/lecteurs/${readerId}/renew`, {
+                const res = await fetch(`/admin/api/admin/lecteurs/${readerId}/renew`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });

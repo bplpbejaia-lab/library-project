@@ -27,6 +27,9 @@ async function utilisateursRoutes(fastify) {
     // Create new user
     fastify.post('/', async (request, reply) => {
         const { login, nom, prenom, email, tel, role, password } = request.body;
+        if (!password) {
+            return reply.status(400).send({ error: 'Password required' });
+        }
         try {
             const result = await db.query(
                 'INSERT INTO "UTILISATEUR" ("UTL_LOGIN", "UTL_NOM", "UTL_PRENOM", "UTL_EMAIL", "UTL_TEL", "UTL_ROLE", "UTL_PASSWORD") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',

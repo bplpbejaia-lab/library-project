@@ -280,7 +280,7 @@
             document.getElementById('exemplarModal').classList.add('open');
 
             try {
-                const res = await fetch(`/api/admin/orders/available-exemplars/${docId}`);
+                const res = await fetch(`/admin/api/admin/orders/available-exemplars/${docId}`);
                 const exemplars = await res.json();
 
                 if (exemplars.length === 0) {
@@ -303,7 +303,7 @@
         async function approveWithExemplar(expId) {
             if (!confirm(`Attribuer l'exemplaire ${expId} à cette commande ?`)) return;
             try {
-                const res = await fetch(`/api/admin/orders/${currentOrderId}/approve`, {
+                const res = await fetch(`/admin/api/admin/orders/${currentOrderId}/approve`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ exp_id: expId })
@@ -342,13 +342,13 @@
 
         async function rejectOrder(id) {
             if (!confirm('Rejeter cette commande ?')) return;
-            await fetch(`/api/admin/orders/${id}/reject`, { method: 'PUT' });
+            await fetch(`/admin/api/admin/orders/${id}/reject`, { method: 'PUT' });
             loadOrders();
         }
 
         async function deleteOrder(id) {
             if (!confirm('Supprimer cette commande ?')) return;
-            await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+            await fetch(`/admin/api/admin/orders/${id}`, { method: 'DELETE' });
             loadOrders();
         }
 
@@ -358,7 +358,7 @@
         });
 
         async function setupSSE() {
-            const eventSource = new EventSource('/api/admin/orders/events');
+            const eventSource = new EventSource('/admin/api/admin/orders/events');
 
             eventSource.onmessage = (event) => {
                 const { type, data } = JSON.parse(event.data);

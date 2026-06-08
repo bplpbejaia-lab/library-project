@@ -420,7 +420,7 @@
         async function returnBook(orderId) {
             if (!confirm('Confirmer le retour de ce livre ?')) return;
             try {
-                const res = await fetch(`/api/admin/orders/${orderId}/return`, { method: 'PUT' });
+                const res = await fetch(`/admin/api/admin/orders/${orderId}/return`, { method: 'PUT' });
                 if (res.ok) {
                     showToast('Livre retourné avec succès !');
                     loadLoans();
@@ -466,7 +466,7 @@
             }
             
             try {
-                const res = await fetch(`/api/admin/lecteurs/${lecId}/penalize`, {
+                const res = await fetch(`/admin/api/admin/lecteurs/${lecId}/penalize`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ penalty_days: penaltyDays })

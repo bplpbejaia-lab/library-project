@@ -338,6 +338,12 @@
             .rfid-card-new.front {
                 page-break-after: always !important;
             }
+
+            .rfid-card-new.front[style*="display: none"],
+            .rfid-card-new.front.print-single-side {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
         }
 
         .source-badge-EXTERNE {
@@ -774,8 +780,8 @@
             if (!append) { currentOffset = 0; allReaders = []; tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;opacity:0.5"><i class="fas fa-spinner fa-spin"></i> Chargement...</td></tr>'; }
             try {
                 const period = getPeriod();
-                const url = `/api/admin/lecteurs?limit=${PAGE_SIZE}&offset=${currentOffset}&period=${period}`;
-                const [res, statsRes] = await Promise.all([fetch(url.startsWith('/') ? '/admin' + url : url), fetch('/admin/api/admin/lecteurs/stats')]);
+                const url = `/admin/api/admin/lecteurs?limit=${PAGE_SIZE}&offset=${currentOffset}&period=${period}`;
+                const [res, statsRes] = await Promise.all([fetch(url), fetch('/admin/api/admin/lecteurs/stats')]);
                 const data = await res.json();
                 const rows = data.rows || [];
                 totalReaders = data.total || 0;
@@ -980,7 +986,7 @@
         async function validateReader(id) {
             if (!confirm('Voulez-vous valider ce lecteur ?')) return;
             try {
-                const res = await fetch(`/api/admin/lecteurs/${id}/validate`, { method: 'PUT' });
+                const res = await fetch(`/admin/api/admin/lecteurs/${id}/validate`, { method: 'PUT' });
                 if (res.ok) {
                     allReaders = allReaders.map(r => r.LEC_ID === id ? { ...r, LEC_STATUT: 1 } : r);
                     filterReaders();
@@ -1068,7 +1074,7 @@
 
         async function fetchDocsPreviews(id) {
             try {
-                const res = await fetch(`/api/admin/lecteurs/${id}`);
+                const res = await fetch(`/admin/api/admin/lecteurs/${id}`);
                 const r = await res.json();
 
                 if (r.LEC_DOC_ENGAGEMENT) setDocPreview('Eng', r.LEC_DOC_ENGAGEMENT, 'lecDocEng');
@@ -1136,13 +1142,18 @@
                 doc_inscription: document.getElementById('lecDocIns').value,
                 doc_identite: document.getElementById('lecDocIden').value
             };
-            if (!body.nom || !body.prenom) { console.log('Nom et prénom sont obligatoires'); return; }
-            await fetch(oldId ? `/api/admin/lecteurs/${oldId}` : '/api/admin/lecteurs', { method: oldId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if (!body.nom || !body.prenom) { alert('Nom et prénom sont obligatoires'); return; }
+            const res = await fetch(oldId ? `/admin/api/admin/lecteurs/${oldId}` : '/admin/api/admin/lecteurs', { method: oldId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                alert('Erreur: ' + (err.error || 'Échec de l’enregistrement'));
+                return;
+            }
             closeModal(); resetAndLoad();
         }
 
         async function viewReader(id) {
-            const res = await fetch(`/api/admin/lecteurs/${id}`);
+            const res = await fetch(`/admin/api/admin/lecteurs/${id}`);
             const r = await res.json();
             const signedEngagementPath = getSignedEngagementPath(r);
             document.getElementById('detailTitle').textContent = `${r.LEC_NOM || ''} ${r.LEC_PRENOM || ''}`;
@@ -1286,7 +1297,7 @@
         }
 
         async function showRfidCard(lecId) {
-            const res = await fetch(`/api/admin/lecteurs/${lecId}`);
+            const res = await fetch(`/admin/api/admin/lecteurs/${lecId}`);
             const r = await res.json();
             const names = getReaderNameParts(r);
             const rfidCode = r.LEC_RFID || `RFID-${String(r.LEC_ID).padStart(6, '0')}`;
@@ -1334,9 +1345,6 @@
                         <div class="recto-date-footer">تاريخ التسجيل: ${regDateStr}</div>
                     </div>
 
-                    <!-- PAGE BREAK SPACER FOR TOTAL PRINT -->
-                    <div style="page-break-after: always; height: 0; margin: 0; padding: 0; border: none; display: block;"></div>
-
                     <!-- BACK OF THE CARD -->
                     <div class="rfid-card-new back">
                         <img src="/admin/public/images/bplpb_logo.jpg" class="verso-logo-centered" onerror="this.src='/admin/public/images/library_logo.png'">
@@ -1356,27 +1364,26 @@
             const container = document.getElementById('rfidPrintArea');
             const recto = container.querySelector('.rfid-card-new.front');
             const verso = container.querySelector('.rfid-card-new.back');
-            const spacer = container.querySelector('div[style*="page-break-after"]');
 
             if (part === 'recto') {
                 recto.style.display = 'block';
                 verso.style.display = 'none';
-                if (spacer) spacer.style.display = 'none';
+                recto.classList.add('print-single-side');
             } else if (part === 'verso') {
                 recto.style.display = 'none';
                 verso.style.display = 'block';
-                if (spacer) spacer.style.display = 'none';
+                recto.classList.add('print-single-side');
             } else {
                 recto.style.display = 'block';
                 verso.style.display = 'block';
-                if (spacer) spacer.style.display = 'block';
+                recto.classList.remove('print-single-side');
             }
             window.print();
 
             // Reset for modal view
             recto.style.display = 'block';
             verso.style.display = 'block';
-            if (spacer) spacer.style.display = 'block';
+            recto.classList.remove('print-single-side');
         }
 
         async function deleteReader(id, name = '') {
@@ -1481,7 +1488,7 @@
             }
 
             try {
-                const res = await fetch(`/api/admin/lecteurs/${lecId}/full-update`, {
+                const res = await fetch(`/admin/api/admin/lecteurs/${lecId}/full-update`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)

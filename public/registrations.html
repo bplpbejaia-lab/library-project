@@ -742,7 +742,7 @@
 
         async function uploadFiles(regId, formData) {
             try {
-                const res = await fetch(`/api/admin/registrations/${regId}/id-card`, {
+                const res = await fetch(`/admin/api/admin/registrations/${regId}/id-card`, {
                     method: 'POST', body: formData
                 });
                 const data = await res.json();
@@ -827,7 +827,7 @@
             document.getElementById('rfidCheckResult').innerHTML = '<span style="color:#999;"><i class="fas fa-spinner fa-spin"></i> Vérification...</span>';
 
             try {
-                const res = await fetch(`/api/admin/rfid/check?rfid=${encodeURIComponent(rfid)}`);
+                const res = await fetch(`/admin/api/admin/rfid/check?rfid=${encodeURIComponent(rfid)}`);
                 const data = await res.json();
 
                 if (data.exists) {
@@ -849,7 +849,7 @@
 
             try {
                 const body = rfid ? { rfid_code: rfid } : {};
-                const res = await fetch(`/api/admin/registrations/${currentApproveId}/approve`, {
+                const res = await fetch(`/admin/api/admin/registrations/${currentApproveId}/approve`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
@@ -872,7 +872,7 @@
         async function rejectRegistration(id) {
             if (!confirm('Rejeter cette demande d\'inscription ?')) return;
             try {
-                const res = await fetch(`/api/admin/registrations/${id}/reject`, { method: 'PUT' });
+                const res = await fetch(`/admin/api/admin/registrations/${id}/reject`, { method: 'PUT' });
                 if (!res.ok) {
                     const data = await res.json();
                     alert('Erreur: ' + (data.error || 'Rejet échoué'));
@@ -888,7 +888,7 @@
         async function deleteRegistration(id) {
             if (!confirm('Supprimer cette entrée ?')) return;
             try {
-                const res = await fetch(`/api/admin/registrations/${id}`, { method: 'DELETE' });
+                const res = await fetch(`/admin/api/admin/registrations/${id}`, { method: 'DELETE' });
                 if (!res.ok) {
                     const data = await res.json();
                     alert('Erreur: ' + (data.error || 'Suppression échouée'));

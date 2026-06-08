@@ -671,7 +671,7 @@
 
             searchTimeout = setTimeout(async () => {
                 try {
-                    const res = await fetch(`/api/admin/access/search-readers?query=${encodeURIComponent(val)}`);
+                const res = await fetch(`/admin/api/admin/access/search-readers?query=${encodeURIComponent(val)}`);
                     const readers = await res.json();
                     renderSuggestions(readers);
                 } catch (e) {}
