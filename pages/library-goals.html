@@ -810,11 +810,31 @@
             });
         });
 
+        function showPageToast(message) {
+            let container = document.getElementById('pageToastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'pageToastContainer';
+                container.style.cssText = 'position:fixed;top:20px;left:20px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:99999;pointer-events:none;';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = 'pointer-events:auto;background:#fff;border:1px solid #fecaca;border-right:5px solid #ef4444;box-shadow:0 12px 28px rgba(15,23,42,.14);padding:12px 14px;border-radius:12px;font-weight:700;color:#0f172a;direction:rtl;';
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity .25s ease';
+                setTimeout(() => toast.remove(), 260);
+            }, 2600);
+        }
+
         function handleLogin() {
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             if (!username || !password) {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                showPageToast('يرجى إدخال اسم المستخدم وكلمة المرور');
                 return;
             }
             const users = JSON.parse(localStorage.getItem('libraryUsers') || '[]');
@@ -824,7 +844,7 @@
                 document.getElementById('loginOverlay').classList.remove('active');
                 window.location.reload();
             } else {
-                alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+                showPageToast('اسم المستخدم أو كلمة المرور غير صحيحة');
             }
         }
     </script>

@@ -557,6 +557,11 @@
         }
 
         @media print {
+            @page {
+                size: A4 landscape;
+                margin: 8mm;
+            }
+
             body * {
                 visibility: hidden !important;
             }
@@ -567,19 +572,37 @@
             }
 
             #rfidPrintArea {
-                position: absolute;
-                top: 0;
-                left: 0;
+                position: fixed;
+                inset: 0;
                 width: 100%;
+                height: auto;
                 background: white;
                 z-index: 9999;
-                display: block !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            #rfidPrintArea > div {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                margin: 0 !important;
             }
 
             .rfid-card-new {
                 box-shadow: none !important;
                 border: 1px solid #000 !important;
                 margin: 0 auto !important;
+                transform: none !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
             }
 
             .no-print {
@@ -1425,6 +1448,113 @@
             return raw;
         }
 
+        function getActiveLang() {
+            return localStorage.getItem('lang') || document.documentElement.lang || 'ar';
+        }
+
+        function profileText(key) {
+            const dict = {
+                ar: {
+                    success: 'نجاح',
+                    error: 'خطأ',
+                    fileTooLarge: 'حجم الملف يتجاوز 10MB',
+                    invalidEngagement: 'صيغة الملف غير مقبولة. الصيغ المقبولة: PDF, JPG, PNG',
+                    chooseFile: 'الرجاء اختيار ملف أولاً',
+                    uploadSuccess: 'تم رفع التعهد بنجاح!',
+                    photoUpdated: 'تم تحديث الصورة بنجاح',
+                    photoTooLarge: 'حجم الصورة يتجاوز 5MB',
+                    uploadFailed: 'فشل الرفع',
+                    serverConnection: 'خطأ في الاتصال بالخادم',
+                    genericError: 'حدث خطأ',
+                    fillFields: 'الرجاء ملء جميع الحقول',
+                    passMismatch: 'تأكيد كلمة المرور غير مطابق',
+                    passChanged: 'تم تغيير كلمة المرور بنجاح',
+                    emailRequired: 'الرجاء إدخال البريد الإلكتروني',
+                    emailInvalid: 'الرجاء إدخال بريد إلكتروني صالح',
+                    emailChanged: 'تم تغيير البريد الإلكتروني بنجاح. يرجى مراجعة بريدك الجديد لتأكيده.',
+                    receiptError: 'خطأ في توليد الوصل',
+                    loginRequired: 'المستخدم غير متصل',
+                    engagementError: 'خطأ أثناء توليد الاستمارة',
+                    verificationSent: 'تم إرسال رابط التأكيد إلى بريدك الإلكتروني.',
+                    sending: 'جاري الرفع...',
+                    uploadButton: 'رفع الملف'
+                },
+                fr: {
+                    success: 'Succès',
+                    error: 'Erreur',
+                    fileTooLarge: 'Le fichier dépasse 10 Mo',
+                    invalidEngagement: 'Format refusé. Formats acceptés : PDF, JPG, PNG',
+                    chooseFile: 'Veuillez choisir un fichier',
+                    uploadSuccess: 'Engagement téléversé avec succès !',
+                    photoUpdated: 'Photo mise à jour avec succès',
+                    photoTooLarge: 'La photo dépasse 5 Mo',
+                    uploadFailed: 'Échec du téléversement',
+                    serverConnection: 'Erreur de connexion au serveur',
+                    genericError: 'Une erreur est survenue',
+                    fillFields: 'Veuillez remplir tous les champs',
+                    passMismatch: 'La confirmation du mot de passe ne correspond pas',
+                    passChanged: 'Mot de passe modifié avec succès',
+                    emailRequired: 'Veuillez saisir l’adresse e-mail',
+                    emailInvalid: 'Veuillez saisir une adresse e-mail valide',
+                    emailChanged: 'E-mail modifié avec succès. Merci de consulter votre nouvelle boîte pour le confirmer.',
+                    receiptError: 'Erreur lors de la génération du reçu',
+                    loginRequired: 'Utilisateur non connecté',
+                    engagementError: 'Erreur lors de la génération de l’engagement',
+                    verificationSent: 'Le lien de confirmation a été envoyé à votre e-mail.',
+                    sending: 'Téléversement...',
+                    uploadButton: 'Téléverser le fichier'
+                },
+                en: {
+                    success: 'Success',
+                    error: 'Error',
+                    fileTooLarge: 'The file exceeds 10 MB',
+                    invalidEngagement: 'Invalid format. Accepted formats: PDF, JPG, PNG',
+                    chooseFile: 'Please choose a file',
+                    uploadSuccess: 'Signed commitment uploaded successfully!',
+                    photoUpdated: 'Photo updated successfully',
+                    photoTooLarge: 'The photo exceeds 5 MB',
+                    uploadFailed: 'Upload failed',
+                    serverConnection: 'Server connection error',
+                    genericError: 'An error occurred',
+                    fillFields: 'Please fill all fields',
+                    passMismatch: 'Password confirmation does not match',
+                    passChanged: 'Password changed successfully',
+                    emailRequired: 'Please enter the e-mail address',
+                    emailInvalid: 'Please enter a valid e-mail address',
+                    emailChanged: 'E-mail changed successfully. Please check your new mailbox to confirm it.',
+                    receiptError: 'Error while generating receipt',
+                    loginRequired: 'User not connected',
+                    engagementError: 'Error while generating the form',
+                    verificationSent: 'The confirmation link has been sent to your e-mail.',
+                    sending: 'Uploading...',
+                    uploadButton: 'Upload file'
+                }
+            };
+            dict.kab = dict.fr;
+            const lang = getActiveLang();
+            return dict[lang]?.[key] || dict.fr[key] || dict.ar[key] || key;
+        }
+
+        function showProfileNotice(message, type = 'success') {
+            let container = document.getElementById('profileToastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'profileToastContainer';
+                container.style.cssText = 'position:fixed;top:18px;right:18px;z-index:20000;display:flex;flex-direction:column;gap:10px;max-width:min(360px,calc(100vw - 32px));';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            const isError = type === 'error';
+            toast.style.cssText = `background:white;border:1px solid ${isError ? '#fecaca' : '#bbf7d0'};border-right:5px solid ${isError ? '#ef4444' : '#22c55e'};box-shadow:0 16px 40px rgba(15,23,42,.14);border-radius:12px;padding:13px 15px;font-weight:700;color:#0f172a;direction:${getActiveLang() === 'ar' ? 'rtl' : 'ltr'};`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity .25s ease';
+                setTimeout(() => toast.remove(), 260);
+            }, 3600);
+        }
+
         function getDateParts(value) {
             if (!value) return null;
             const raw = String(value);
@@ -1835,12 +1965,12 @@
             const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
             const allowedExt = /\.(pdf|jpe?g|png)$/i;
             if (file.size > 10 * 1024 * 1024) {
-                alert('حجم الملف يتجاوز 10MB');
+                showProfileNotice(profileText('fileTooLarge'), 'error');
                 input.value = '';
                 return;
             }
             if (!allowedTypes.includes(file.type) || !allowedExt.test(file.name)) {
-                alert('صيغة الملف غير مقبولة. الصيغ المقبولة: PDF, JPG, PNG');
+                showProfileNotice(profileText('invalidEngagement'), 'error');
                 input.value = '';
                 return;
             }
@@ -1859,13 +1989,13 @@
         }
 
         async function submitEngagementUpload() {
-            if (!engSelectedFile) { alert('الرجاء اختيار ملف أولاً'); return; }
+            if (!engSelectedFile) { showProfileNotice(profileText('chooseFile'), 'error'); return; }
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             if (!user) return;
 
             const btn = document.getElementById('engUploadBtn');
             btn.disabled = true;
-            btn.textContent = 'جاري الرفع...';
+            btn.textContent = profileText('sending');
             document.getElementById('engUploadProgress').style.display = 'block';
 
             try {
@@ -1893,18 +2023,18 @@
                             populateDirectRfidCards(user);
                             setTimeout(() => {
                                 closeUploadEngagement();
-                                alert('تم رفع التعهد بنجاح!');
+                                showProfileNotice(profileText('uploadSuccess'), 'success');
                                 refreshProfileData();
                             }, 400);
                         } else {
                             const d = await res.json();
-                            alert('خطأ: ' + (d.error || 'فشل الرفع'));
+                            showProfileNotice(`${profileText('error')}: ${d.error || profileText('uploadFailed')}`, 'error');
                         }
-                    } catch (err) { alert('خطأ في الاتصال بالخادم'); }
-                    finally { btn.disabled = false; btn.textContent = 'رفع الملف'; }
+                    } catch (err) { showProfileNotice(profileText('serverConnection'), 'error'); }
+                    finally { btn.disabled = false; btn.textContent = profileText('uploadButton'); }
                 };
                 reader.readAsDataURL(engSelectedFile);
-            } catch (err) { alert('خطأ'); btn.disabled = false; btn.textContent = 'رفع الملف'; }
+            } catch (err) { showProfileNotice(profileText('genericError'), 'error'); btn.disabled = false; btn.textContent = profileText('uploadButton'); }
         }
         function togglePassVis(inputId, btn) {
             const input = document.getElementById(inputId);
@@ -1926,8 +2056,8 @@
             const oldP = document.getElementById('oldPass').value;
             const newP = document.getElementById('newPass').value;
             const confirmP = document.getElementById('confirmPass').value;
-            if (!oldP || !newP) return alert('الرجاء ملء جميع الحقول');
-            if (newP !== confirmP) return alert('تأكيد كلمة المرور غير مطابق');
+            if (!oldP || !newP) return showProfileNotice(profileText('fillFields'), 'error');
+            if (newP !== confirmP) return showProfileNotice(profileText('passMismatch'), 'error');
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             try {
                 const res = await fetch('/api/auth/change-password', {
@@ -1935,9 +2065,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lecteurId: user.lecteurId || user.id, oldPassword: oldP, newPassword: newP })
                 });
-                if (res.ok) { alert('تم تغيير كلمة المرور بنجاح'); closeChangePassword(); }
-                else { const d = await res.json(); alert(d.error || 'خطأ'); }
-            } catch (err) { alert('خطأ في الاتصال'); }
+                if (res.ok) { showProfileNotice(profileText('passChanged'), 'success'); closeChangePassword(); }
+                else { const d = await res.json(); showProfileNotice(d.error || profileText('genericError'), 'error'); }
+            } catch (err) { showProfileNotice(profileText('serverConnection'), 'error'); }
         }
 
         function openChangeEmail() { document.getElementById('changeEmailModal').classList.add('active'); }
@@ -1945,10 +2075,10 @@
 
         async function submitChangeEmail() {
             const newEmail = document.getElementById('newEmail').value;
-            if (!newEmail) return alert('الرجاء إدخال البريد الإلكتروني');
+            if (!newEmail) return showProfileNotice(profileText('emailRequired'), 'error');
             
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(newEmail)) return alert('الرجاء إدخال بريد إلكتروني صالح');
+            if (!emailRegex.test(newEmail)) return showProfileNotice(profileText('emailInvalid'), 'error');
 
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             try {
@@ -1958,7 +2088,7 @@
                     body: JSON.stringify({ lecteurId: user.lecteurId || user.id, newEmail: newEmail })
                 });
                 if (res.ok) {
-                    alert('تم تغيير البريد الإلكتروني بنجاح. يرجى مراجعة بريدك الجديد لتأكيده.');
+                    showProfileNotice(profileText('emailChanged'), 'success');
                     closeChangeEmail();
                     
                     user.email = newEmail;
@@ -1968,15 +2098,21 @@
                     window.location.reload();
                 } else {
                     const d = await res.json();
-                    alert(d.error || 'خطأ');
+                    showProfileNotice(d.error || profileText('genericError'), 'error');
                 }
             } catch (err) {
-                alert('خطأ في الاتصال بالخادم');
+                showProfileNotice(profileText('serverConnection'), 'error');
             }
         }
 
         async function handlePhotoUpload(input) {
             if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                showProfileNotice(profileText('photoTooLarge'), 'error');
+                input.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const base64 = e.target.result;
@@ -1987,13 +2123,27 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ lecteurId: user.lecteurId || user.id, photo: base64 })
                     });
-                    if (res.ok) { user.photo = base64; localStorage.setItem('libraryUser', JSON.stringify(user)); window.location.reload(); }
-                } catch (err) { console.error(err); }
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) {
+                        user.photo = data.photoUrl || base64;
+                        localStorage.setItem('libraryUser', JSON.stringify(user));
+                        populateProfileData(user);
+                        populateDirectRfidCards(user);
+                        showProfileNotice(profileText('photoUpdated'), 'success');
+                    } else {
+                        showProfileNotice(data.error || profileText('genericError'), 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showProfileNotice(profileText('serverConnection'), 'error');
+                } finally {
+                    input.value = '';
+                }
             };
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
         }
 
-        function printRegistrationForm() {
+        async function printRegistrationForm() {
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             if (!user) return;
             
@@ -2022,25 +2172,45 @@
             }
             
             const el = document.getElementById('registrationFormPrint');
+            const previousStyle = {
+                position: el.style.position,
+                left: el.style.left,
+                top: el.style.top,
+                zIndex: el.style.zIndex,
+                display: el.style.display
+            };
+            el.style.position = 'fixed';
+            el.style.left = '0';
+            el.style.top = '0';
+            el.style.zIndex = '-1';
+            el.style.display = 'block';
             
-            setTimeout(() => {
-                html2pdf().set({ 
+            await new Promise(resolve => requestAnimationFrame(resolve));
+
+            try {
+                await html2pdf().set({
                     margin: [0, 0], 
                     filename: 'Recu.pdf', 
                     image: { type: 'jpeg', quality: 1 }, 
                     html2canvas: { scale: 3, useCORS: true, logging: false }, 
                     jsPDF: { unit: 'mm', format: [80, 160] } 
-                }).from(el).save().catch(err => {
-                    console.error('PDF generation error:', err);
-                    alert('خطأ في توليد الوصل');
-                });
-            }, 500);
+                }).from(el).save();
+            } catch (err) {
+                console.error('PDF generation error:', err);
+                showProfileNotice(profileText('receiptError'), 'error');
+            } finally {
+                el.style.position = previousStyle.position;
+                el.style.left = previousStyle.left;
+                el.style.top = previousStyle.top;
+                el.style.zIndex = previousStyle.zIndex;
+                el.style.display = previousStyle.display;
+            }
         }
 
         async function printEngagementForm(lang) {
             const user = JSON.parse(localStorage.getItem('libraryUser'));
             if (!user) {
-                alert('Utilisateur non connecté');
+                showProfileNotice(profileText('loginRequired'), 'error');
                 return;
             }
 
@@ -2068,7 +2238,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert('خطأ أثناء توليد الاستمارة');
+                showProfileNotice(profileText('engagementError'), 'error');
             }
         }
 
@@ -2096,7 +2266,30 @@
         }
 
         function closeRfidModal() { document.getElementById('rfidModal').classList.remove('active'); }
-        function printCardPart(part) { window.print(); }
+        function printCardPart(part) {
+            const recto = document.getElementById('rfidRecto');
+            const verso = document.getElementById('rfidVerso');
+            if (!recto || !verso) return window.print();
+
+            const prevRecto = recto.style.display;
+            const prevVerso = verso.style.display;
+
+            if (part === 'recto') {
+                verso.style.display = 'none';
+            } else if (part === 'verso') {
+                recto.style.display = 'none';
+            }
+
+            const restore = () => {
+                recto.style.display = prevRecto;
+                verso.style.display = prevVerso;
+                window.removeEventListener('afterprint', restore);
+            };
+
+            window.addEventListener('afterprint', restore, { once: true });
+            window.print();
+            setTimeout(restore, 1000);
+        }
 
         async function resendEmailVerification() {
             const user = JSON.parse(localStorage.getItem('libraryUser'));
@@ -2115,21 +2308,22 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert('تم إرسال رابط التأكيد إلى بريدك الإلكتروني.');
+                    showProfileNotice(profileText('verificationSent'), 'success');
                     btn.innerText = 'تم الإرسال';
                 } else {
-                    alert(data.error || 'خطأ أثناء الإرسال');
+                    showProfileNotice(data.error || profileText('genericError'), 'error');
                     btn.innerText = originalText;
                     btn.disabled = false;
                 }
             } catch (err) {
                 console.error(err);
-                alert('خطأ في الاتصال بالخادم');
+                showProfileNotice(profileText('serverConnection'), 'error');
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
         }
     </script>
+    <script src="/js/i18n.js"></script>
     <script src="/js/mobile-menu.js"></script>
 </body>
 

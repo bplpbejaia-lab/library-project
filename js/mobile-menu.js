@@ -26,6 +26,25 @@
         return window.innerWidth <= 1024;
     }
 
+    function showMenuToast(message) {
+        let container = document.getElementById('mobileToastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'mobileToastContainer';
+            container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:20000;display:flex;flex-direction:column;gap:10px;max-width:min(340px,calc(100vw - 32px));pointer-events:none;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'pointer-events:auto;background:#fff;border:1px solid #dbeafe;border-right:5px solid #2E7D32;box-shadow:0 12px 28px rgba(15,23,42,.14);padding:12px 14px;border-radius:12px;font-weight:700;color:#0f172a;direction:rtl;';
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity .25s ease';
+            setTimeout(() => toast.remove(), 260);
+        }, 3200);
+    }
+
     // Detect if we're on a sub-page (inside /pages/) or root
     const isSubPage = window.location.pathname.includes('/pages/');
     const prefix = isSubPage ? '../' : '';
@@ -284,13 +303,13 @@
                 let successMsg = 'تم إرسال كلمة مرور مؤقتة إلى بريدك الإلكتروني بنجاح. يرجى مراجعة علبة الوارد.';
                 if (lang === 'fr') successMsg = 'Un mot de passe temporaire a été envoyé avec succès à votre e-mail.';
                 else if (lang === 'en') successMsg = 'A temporary password has been successfully sent to your email.';
-                alert(successMsg);
+                showMenuToast(successMsg);
             } else {
-                alert(data.error || (lang === 'fr' ? 'Erreur' : 'خطأ في إرسال البريد'));
+                showMenuToast(data.error || (lang === 'fr' ? 'Erreur' : 'خطأ في إرسال البريد'));
             }
         } catch (err) {
             console.error(err);
-            alert(lang === 'fr' ? 'Erreur de connexion' : 'خطأ في الاتصال بالخادم');
+            showMenuToast(lang === 'fr' ? 'Erreur de connexion' : 'خطأ في الاتصال بالخادم');
         }
     };
 

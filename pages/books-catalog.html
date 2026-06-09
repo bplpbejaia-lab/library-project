@@ -777,6 +777,10 @@
             transform: translateX(-50%) translateY(0);
         }
 
+        .toast-notification.error {
+            background: #b91c1c;
+        }
+
         /* Vibe decors (like home cards) */
         .modal-corner {
             width: 80px;
@@ -1789,11 +1793,15 @@
         }
 
         // Toast system
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toastNotification');
             document.getElementById('toastMessage').textContent = msg;
+            toast.classList.toggle('error', type === 'error');
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.classList.remove('error');
+            }, 2500);
         }
 
         // Cart Logic
@@ -1919,12 +1927,12 @@
                         toggleCart();
                         showToast(`${_t('orderSuccess')} ${count} ${_t('booksSuccess')}`);
                     } else {
-                        alert(_t('orderError') + (data.error || _t('orderFailed')));
+                        showToast(_t('orderError') + (data.error || _t('orderFailed')), 'error');
                     }
                 })
                 .catch(err => {
                     console.error('Checkout error:', err);
-                    alert(_t('connectionError'));
+                    showToast(_t('connectionError'), 'error');
                 })
                 .finally(() => {
                     btn.innerHTML = originalContent;
@@ -2087,7 +2095,7 @@
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             if (!username || !password) {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+                showToast('يرجى إدخال اسم المستخدم وكلمة المرور', 'error');
                 return;
             }
 
@@ -2109,11 +2117,11 @@
                     if (overlay) overlay.classList.remove('active');
                     window.location.reload();
                 } else {
-                    alert(data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة');
+                    showToast(data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
                 }
             } catch (err) {
                 console.error(err);
-                alert('تعذر الاتصال بالخادم حالياً');
+                showToast('تعذر الاتصال بالخادم حالياً', 'error');
             }
         }
     </script>

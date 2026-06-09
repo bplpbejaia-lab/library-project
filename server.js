@@ -1082,10 +1082,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function handleLogin() {
+  const showLoginToast = (message) => {
+    let container = document.getElementById('loginToastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'loginToastContainer';
+      container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:20000;display:flex;flex-direction:column;gap:10px;max-width:min(340px,calc(100vw - 32px));pointer-events:none;';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = 'pointer-events:auto;background:#fff;border:1px solid #fecaca;border-right:5px solid #ef4444;box-shadow:0 12px 28px rgba(15,23,42,.14);padding:12px 14px;border-radius:12px;font-weight:700;color:#0f172a;direction:rtl;';
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity .25s ease';
+      setTimeout(() => toast.remove(), 260);
+    }, 3200);
+  };
+
   const username = document.getElementById('loginUsername').value.trim();
   const password = document.getElementById('loginPassword').value;
   if (!username || !password) {
-    alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+    showLoginToast('يرجى إدخال اسم المستخدم وكلمة المرور');
     return;
   }
   
@@ -1107,11 +1126,11 @@ async function handleLogin() {
       document.getElementById('loginOverlay').classList.remove('active');
       window.location.reload();
     } else {
-      alert(data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة');
+      showLoginToast(data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة');
     }
   } catch (err) {
     console.error(err);
-    alert('تعذر الاتصال بالخادم حالياً');
+    showLoginToast('تعذر الاتصال بالخادم حالياً');
   }
 }
 
@@ -1294,7 +1313,7 @@ window.addEventListener('load', function() {
 </body></html>`;
 
     let finalHtml = html;
-    if (finalHtml.includes('</body>')) {
+    if (finalHtml.includes('</body>') && !finalHtml.includes('/js/i18n.js')) {
       finalHtml = finalHtml.replace('</body>', '<script src="/js/i18n.js"></script></body>');
     }
     reply.type('text/html').send(finalHtml);
@@ -1358,7 +1377,7 @@ fastify.get('/pages/:page', async (request, reply) => {
     }
 
     let content = readFileSync(filePath, 'utf-8');
-    if (content.includes('</body>')) {
+    if (content.includes('</body>') && !content.includes('/js/i18n.js')) {
       content = content.replace('</body>', '<script src="/js/i18n.js"></script></body>');
     }
     reply.type('text/html').send(content);

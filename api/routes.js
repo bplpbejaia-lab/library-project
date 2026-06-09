@@ -160,20 +160,39 @@ function isValidDateOnly(value) {
     }
     const today = new Date();
     const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-    return parsed.getTime() <= todayUtc;
+    const minUtc = Date.UTC(1900, 0, 1);
+    return parsed.getTime() >= minUtc && parsed.getTime() <= todayUtc;
 }
 
 function dateOnly(value) {
     if (!value) return '';
     if (value instanceof Date) {
-        const year = value.getFullYear();
-        const month = String(value.getMonth() + 1).padStart(2, '0');
-        const day = String(value.getDate()).padStart(2, '0');
+        const year = value.getUTCFullYear();
+        const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(value.getUTCDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
     const raw = String(value);
     const match = raw.match(/^(\d{4}-\d{2}-\d{2})/);
     return match ? match[1] : raw;
+}
+
+function publicDbError(error) {
+    const message = cleanString(error?.message);
+    if (error?.code === '23502' && message.includes('BIB_ID')) {
+        return 'Identifiant bibliothèque manquant. Veuillez réessayer avec le prochain numéro proposé.';
+    }
+    if (error?.code === '23502' && message.includes('UTL_ID')) {
+        return 'Identifiant utilisateur manquant. Veuillez réessayer avec le prochain numéro proposé.';
+    }
+    if (error?.code === '23505') {
+        return 'Cet identifiant existe déjà. Veuillez utiliser le prochain numéro disponible.';
+    }
+    return '';
+}
+
+async function ensureLecteurColumn(columnName, columnDefinition) {
+    await pool.query(`ALTER TABLE "LECTEUR" ADD COLUMN IF NOT EXISTS "${columnName}" ${columnDefinition}`);
 }
 
 function hasDigits(value) {
@@ -1153,7 +1172,7 @@ export async function registerStep1(fastify, opts) {
             });
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: 'Erreur lors de l\'inscription: ' + error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors de l\'inscription. Veuillez vérifier les champs et réessayer.' });
         }
     });
 }
@@ -1625,7 +1644,7 @@ export async function exportEngagementPdf(fastify, opts) {
             }
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors de la génération du PDF' });
         }
     });
 }
@@ -1706,13 +1725,20 @@ export async function exportEngagementPdfAr(fastify, opts) {
                         }
                     } else {
                         const photoRelPath = userData.photo.replace(/^\//, '');
+                        const photoAdminRelPath = photoRelPath.replace(/^admin\//, '');
                         let photoAbsPath = path.join(projectRoot, photoRelPath);
                         if (!fs.existsSync(photoAbsPath)) {
                             // Sibling library-admin (VPS) or Library_admin (dev)
                             photoAbsPath = path.join(projectRoot, '..', 'library-admin', photoRelPath);
                         }
                         if (!fs.existsSync(photoAbsPath)) {
+                            photoAbsPath = path.join(projectRoot, '..', 'library-admin', photoAdminRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
                             photoAbsPath = path.join(projectRoot, '..', 'Library_admin', photoRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
+                            photoAbsPath = path.join(projectRoot, '..', 'Library_admin', photoAdminRelPath);
                         }
                         if (!fs.existsSync(photoAbsPath)) {
                             photoAbsPath = path.join(projectRoot, '..', photoRelPath);
@@ -1773,7 +1799,7 @@ export async function exportEngagementPdfAr(fastify, opts) {
             }
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors de la génération du PDF' });
         }
     });
 
@@ -1799,7 +1825,7 @@ export async function exportEngagementPdfAr(fastify, opts) {
             return reply.send(fileBuffer);
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors de la récupération du PDF' });
         }
     });
 }
@@ -1880,13 +1906,20 @@ export async function exportEngagementPdfFr(fastify, opts) {
                         }
                     } else {
                         const photoRelPath = userData.photo.replace(/^\//, '');
+                        const photoAdminRelPath = photoRelPath.replace(/^admin\//, '');
                         let photoAbsPath = path.join(projectRoot, photoRelPath);
                         if (!fs.existsSync(photoAbsPath)) {
                             // Sibling library-admin (VPS) or Library_admin (dev)
                             photoAbsPath = path.join(projectRoot, '..', 'library-admin', photoRelPath);
                         }
                         if (!fs.existsSync(photoAbsPath)) {
+                            photoAbsPath = path.join(projectRoot, '..', 'library-admin', photoAdminRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
                             photoAbsPath = path.join(projectRoot, '..', 'Library_admin', photoRelPath);
+                        }
+                        if (!fs.existsSync(photoAbsPath)) {
+                            photoAbsPath = path.join(projectRoot, '..', 'Library_admin', photoAdminRelPath);
                         }
                         if (!fs.existsSync(photoAbsPath)) {
                             photoAbsPath = path.join(projectRoot, '..', photoRelPath);
@@ -1947,7 +1980,7 @@ export async function exportEngagementPdfFr(fastify, opts) {
             }
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors de la génération du PDF' });
         }
     });
 
@@ -1972,7 +2005,7 @@ export async function exportEngagementPdfFr(fastify, opts) {
             return reply.send(fileBuffer);
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors de la récupération du PDF' });
         }
     });
 }
@@ -2628,13 +2661,20 @@ export async function uploadSignedEngagement(fastify, opts) {
             fs.writeFileSync(fullPath, parsed.buffer);
 
             const relPath = `/uploads/engagements/${filename}`;
-            await pool.query('UPDATE "LECTEUR" SET "LEC_DOC_ENGAGEMENT" = $1 WHERE "LEC_ID" = $2', [relPath, lecteurId]);
+            await ensureLecteurColumn('LEC_DOC_ENGAGEMENT', 'TEXT');
+            const updateResult = await pool.query(
+                'UPDATE "LECTEUR" SET "LEC_DOC_ENGAGEMENT" = $1 WHERE "LEC_ID" = $2',
+                [relPath, lecteurId]
+            );
+            if (updateResult.rowCount === 0) {
+                return reply.status(404).send({ error: 'Lecteur introuvable' });
+            }
 
             console.log(`Signed engagement saved for ${lecteurId}: ${relPath}`);
             return reply.send({ success: true, path: relPath });
         } catch (error) {
             fastify.log.error(error);
-            reply.status(500).send({ error: error.message });
+            reply.status(500).send({ error: publicDbError(error) || 'Erreur lors du téléversement de l’engagement' });
         }
     });
 

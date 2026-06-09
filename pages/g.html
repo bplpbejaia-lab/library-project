@@ -2549,14 +2549,13 @@
                     <div class="form-group">
                         <label class="form-label required">تاريخ الميلاد <span
                                 class="material-symbols-outlined text-[18px] mr-2">calendar_month</span></label>
-                        <input type="date" class="form-input" id="naissance" required dir="ltr" style="text-align: right;">
+                        <input type="date" class="form-input" id="naissance" min="1900-01-01" required dir="ltr" style="text-align: right;">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label required">مكان الميلاد <span
                                 class="material-symbols-outlined text-[18px] mr-2">location_on</span></label>
-                        <input type="text" class="form-input" id="lieuNaissance" placeholder="اكتب أو اختر مكان الميلاد"
-                            list="birthPlacesList" required>
+                        <select class="form-select" id="lieuNaissance" required></select>
                     </div>
 
                     <div class="form-group">
@@ -3499,6 +3498,20 @@
             const validDocumentTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
             const validPhotoTypes = ['image/jpeg', 'image/png', 'image/webp'];
             const maxUploadBytes = 5 * 1024 * 1024;
+            const birthDateMin = '1900-01-01';
+            const preferredNationalityCodes = ['DZ', 'FR', 'MA', 'TN', 'LY', 'MR', 'EG', 'TR', 'SY', 'PS'];
+            const bejaiaCommunesByLang = {
+                ar: ['أدكار', 'بني معوش', 'أيت مليكش', 'أيت رزين', 'أيت إسماعيل', 'أقبو', 'أكفادو', 'أمالو', 'أميزور', 'أوقاس', 'برباشة', 'بجاية', 'بني جليل', 'بني كسيلة', 'بودجليل', 'بوحمزة', 'بوخليفة', 'شلاطة', 'شميني', 'درقينة', 'ذراع القايد', 'القصر', 'فناية الماثن', 'فرعون', 'إغيل علي', 'إغرم', 'كنديرة', 'خراطة', 'لفلاي', 'مسيسنة', 'ملبو', 'وادي غير', 'أوزلاقن', 'صدوق', 'سمعون', 'سيدي عيش', 'سيدي عياد', 'سوق الإثنين', 'سوق أوفلا', 'تالة حمزة', 'تامقرة', 'تامريجت', 'تاوريرت إغيل', 'تاسكريوت', 'تازمالت', 'تيبان', 'تيشي', 'تيفرة', 'تيمزريت', 'تينبذار', 'تيزي نبرابر', 'توجة'],
+                fr: ['Adekar', 'Ait Maouche', 'Ait Mellikeche', "Ait R'zine", 'Ait-Smail', 'Akbou', 'Akfadou', 'Amalou', 'Amizour', 'Aokas', 'Barbacha', 'Bejaia', 'Beni Djellil', 'Beni Ksila', 'Boudjellil', 'Bouhamza', 'Boukhelifa', 'Chellata', 'Chemini', 'Darguina', 'Draa El-Kaid', 'El Kseur', 'Fenaia Ilmaten', 'Ferraoun', 'Ighil Ali', 'Ighram', 'Kendira', 'Kherrata', 'Leflaye', "M'cisna", 'Melbou', 'Oued Ghir', 'Ouzellaguen', 'Seddouk', 'Semaoun', 'Sidi-Aich', 'Sidi-Ayad', 'Souk El Tenine', 'Souk-Oufella', 'Tala Hamza', 'Tamokra', 'Tamridjet', 'Taourirt Ighil', 'Taskriout', 'Tazmalt', 'Tibane', 'Tichy', 'Tifra', 'Timezrit', 'Tinabdher', "Tizi N'Berber", 'Toudja']
+            };
+
+            function todayIsoDate() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
 
             function normalizeValue(value) {
                 return String(value || '')
@@ -3607,8 +3620,10 @@
                 const day = Number(match[3]);
                 const parsed = new Date(Date.UTC(year, month - 1, day));
                 if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) return false;
+                const min = new Date(`${birthDateMin}T00:00:00Z`).getTime();
                 const today = new Date();
-                return parsed.getTime() <= Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+                const max = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+                return parsed.getTime() >= min && parsed.getTime() <= max;
             }
 
             function hasDigits(value) {
@@ -3661,9 +3676,32 @@
 
             function populateBirthPlaces() {
                 const birthList = document.getElementById('birthPlacesList');
-                const communesList = document.getElementById('bejaiaCommunesList');
-                if (!birthList || !communesList) return;
-                birthList.innerHTML = communesList.innerHTML;
+                const birthSelect = document.getElementById('lieuNaissance');
+                if (!birthList || !birthSelect) return;
+
+                const lang = getRegistrationLang();
+                const useArabic = lang === 'ar';
+                const placeholder = useArabic ? 'اختر مكان الميلاد' : 'Choisissez le lieu de naissance';
+                const communeValues = useArabic ? bejaiaCommunesByLang.ar : bejaiaCommunesByLang.fr;
+                const wilayaValues = ALGERIA_CITY_POSTAL_CODES
+                    .map(({ names }) => useArabic ? (names.find(hasArabic) || names[0]) : (names.find(name => hasLatin(name)) || names[0]))
+                    .filter(Boolean);
+                const values = Array.from(new Set([...communeValues, ...wilayaValues]));
+                const currentValue = birthSelect.value;
+
+                birthSelect.innerHTML = `<option value="">${escapeOption(placeholder)}</option>` +
+                    values.map(value => `<option value="${escapeOption(value)}">${escapeOption(value)}</option>`).join('');
+                birthList.innerHTML = values.map(value => `<option value="${escapeOption(value)}"></option>`).join('');
+
+                if (currentValue) {
+                    if (!Array.from(birthSelect.options).some(option => option.value === currentValue)) {
+                        const option = document.createElement('option');
+                        option.value = currentValue;
+                        option.textContent = currentValue;
+                        birthSelect.appendChild(option);
+                    }
+                    birthSelect.value = currentValue;
+                }
             }
 
             function convertKeyboardText(value, map, sequenceMap = null) {
@@ -3693,12 +3731,164 @@
                     if (!input) return;
                     input.setAttribute('dir', 'rtl');
                     input.style.textAlign = 'right';
+                    input.addEventListener('input', () => {
+                        applyInputConversion(input, value => convertKeyboardText(value, latinToArabicKeyboardMap));
+                    });
                 });
             }
 
             function getRegistrationLang() {
                 const savedLang = localStorage.getItem('lang') || document.documentElement.lang || 'ar';
                 return savedLang === 'kab' ? 'fr' : savedLang;
+            }
+
+            function setBirthDateBounds() {
+                const dobInput = document.getElementById('naissance');
+                if (!dobInput) return;
+                dobInput.min = birthDateMin;
+                dobInput.max = todayIsoDate();
+                if (dobInput.value && !isValidDateOnly(dobInput.value)) dobInput.value = '';
+            }
+
+            const registrationUiMessages = {
+                ar: {
+                    toastSuccess: 'نجاح',
+                    toastError: 'خطأ',
+                    toastInfo: 'تنبيه',
+                    nomRequired: 'اللقب بالعربية مطلوب.',
+                    prenomRequired: 'الاسم بالعربية مطلوب.',
+                    nomDigits: 'اللقب بالعربية لا يجب أن يحتوي على أرقام.',
+                    prenomDigits: 'الاسم بالعربية لا يجب أن يحتوي على أرقام.',
+                    nomLatinDigits: 'اللقب باللاتينية لا يجب أن يحتوي على أرقام.',
+                    prenomLatinDigits: 'الاسم باللاتينية لا يجب أن يحتوي على أرقام.',
+                    nomLatinArabic: 'اللقب باللاتينية لا يجب أن يحتوي على أحرف عربية.',
+                    prenomLatinArabic: 'الاسم باللاتينية لا يجب أن يحتوي على أحرف عربية.',
+                    genreRequired: 'يرجى اختيار الجنس.',
+                    invalidNationality: 'يرجى إدخال جنسية صحيحة.',
+                    invalidDob: 'يرجى إدخال تاريخ ميلاد صحيح بين 1900 واليوم.',
+                    birthPlaceRequired: 'مكان الميلاد مطلوب.',
+                    nin18: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.',
+                    photoRequired: 'صورة الهوية مطلوبة للتسجيل.',
+                    invalidEmail: 'يرجى إدخال بريد إلكتروني صحيح.',
+                    invalidPhone: 'رقم الهاتف يجب أن يتكون من 10 أرقام ويبدأ بـ 0.',
+                    invalidWhatsapp: 'رقم واتساب يجب أن يتكون من 10 أرقام ويبدأ بـ 0.',
+                    addressRequired: 'العنوان مطلوب.',
+                    invalidCity: 'يرجى اختيار مدينة إقامة صحيحة من القائمة.',
+                    invalidPostal: 'الرمز البريدي يجب أن يتكون من 5 أرقام.',
+                    cniFrontRequired: 'بطاقة الهوية - الوجه الأمامي مطلوبة.',
+                    cniBackRequired: 'بطاقة الهوية - الوجه الخلفي مطلوبة.',
+                    passwordRequired: 'كلمة المرور مطلوبة.',
+                    passwordLength: 'كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل.',
+                    passwordMismatch: 'كلمات المرور غير متطابقة.',
+                    conditionsRequired: 'يجب قبول شروط الاستخدام.',
+                    uploadPhotoTooLarge: 'حجم الصورة يجب ألا يتجاوز 5MB.',
+                    uploadPhotoInvalid: 'صيغة الصورة غير مقبولة. الصيغ المقبولة: JPG, PNG, WEBP.',
+                    processing: 'جاري المعالجة...',
+                    retry: 'إعادة المحاولة',
+                    registrationFailed: 'تعذر إتمام التسجيل.',
+                    connectionError: 'حدث خطأ في الاتصال بالخادم.',
+                    connectionShort: 'خطأ في الاتصال',
+                    successTitle: 'تم التسجيل بنجاح!',
+                    completed: 'اكتمل التسجيل',
+                    emailNotSent: 'تعذر إرسال رسالة التحقق حالياً، يمكنك إعادة إرسالها من ملفك الشخصي.',
+                    emailSent: 'تحقق من بريدك الإلكتروني لتفعيل الحساب.',
+                    scannerAccepted: 'تم اعتماد الصورة بنجاح!',
+                    optionalPhoto: 'الصورة اختيارية'
+                },
+                fr: {
+                    toastSuccess: 'Succès',
+                    toastError: 'Erreur',
+                    toastInfo: 'Information',
+                    nomRequired: 'Le nom en arabe est obligatoire.',
+                    prenomRequired: 'Le prénom en arabe est obligatoire.',
+                    nomDigits: 'Le nom en arabe ne doit pas contenir de chiffres.',
+                    prenomDigits: 'Le prénom en arabe ne doit pas contenir de chiffres.',
+                    nomLatinDigits: 'Le nom en latin ne doit pas contenir de chiffres.',
+                    prenomLatinDigits: 'Le prénom en latin ne doit pas contenir de chiffres.',
+                    nomLatinArabic: 'Le nom en latin ne doit pas contenir de caractères arabes.',
+                    prenomLatinArabic: 'Le prénom en latin ne doit pas contenir de caractères arabes.',
+                    genreRequired: 'Veuillez choisir le genre.',
+                    invalidNationality: 'Veuillez choisir une nationalité valide.',
+                    invalidDob: 'Veuillez saisir une date de naissance valide entre 1900 et aujourd’hui.',
+                    birthPlaceRequired: 'Le lieu de naissance est obligatoire.',
+                    nin18: 'Le NIN doit contenir exactement 18 chiffres.',
+                    photoRequired: 'La photo d’identité est obligatoire pour l’inscription.',
+                    invalidEmail: 'Veuillez saisir un e-mail valide.',
+                    invalidPhone: 'Le téléphone doit contenir 10 chiffres et commencer par 0.',
+                    invalidWhatsapp: 'Le WhatsApp doit contenir 10 chiffres et commencer par 0.',
+                    addressRequired: 'L’adresse est obligatoire.',
+                    invalidCity: 'Veuillez choisir une ville de résidence valide dans la liste.',
+                    invalidPostal: 'Le code postal doit contenir 5 chiffres.',
+                    cniFrontRequired: 'La pièce d’identité recto est obligatoire.',
+                    cniBackRequired: 'La pièce d’identité verso est obligatoire.',
+                    passwordRequired: 'Le mot de passe est obligatoire.',
+                    passwordLength: 'Le mot de passe doit contenir au moins 6 caractères.',
+                    passwordMismatch: 'Les mots de passe ne correspondent pas.',
+                    conditionsRequired: 'Vous devez accepter les conditions d’utilisation.',
+                    uploadPhotoTooLarge: 'La photo ne doit pas dépasser 5 Mo.',
+                    uploadPhotoInvalid: 'Format de photo refusé. Formats acceptés : JPG, PNG, WEBP.',
+                    processing: 'Traitement en cours...',
+                    retry: 'Réessayer',
+                    registrationFailed: 'Impossible de finaliser l’inscription.',
+                    connectionError: 'Erreur de connexion au serveur.',
+                    connectionShort: 'Erreur de connexion',
+                    successTitle: 'Inscription réussie !',
+                    completed: 'Inscription terminée',
+                    emailNotSent: 'L’e-mail de vérification n’a pas pu être envoyé. Vous pourrez le renvoyer depuis votre profil.',
+                    emailSent: 'Consultez votre e-mail pour activer le compte.',
+                    scannerAccepted: 'Image validée avec succès !',
+                    optionalPhoto: 'Photo facultative'
+                },
+                en: {
+                    toastSuccess: 'Success',
+                    toastError: 'Error',
+                    toastInfo: 'Info',
+                    nomRequired: 'Arabic last name is required.',
+                    prenomRequired: 'Arabic first name is required.',
+                    nomDigits: 'Arabic last name must not contain digits.',
+                    prenomDigits: 'Arabic first name must not contain digits.',
+                    nomLatinDigits: 'Latin last name must not contain digits.',
+                    prenomLatinDigits: 'Latin first name must not contain digits.',
+                    nomLatinArabic: 'Latin last name must not contain Arabic characters.',
+                    prenomLatinArabic: 'Latin first name must not contain Arabic characters.',
+                    genreRequired: 'Please choose a gender.',
+                    invalidNationality: 'Please choose a valid nationality.',
+                    invalidDob: 'Please enter a valid birth date between 1900 and today.',
+                    birthPlaceRequired: 'Place of birth is required.',
+                    nin18: 'The NIN must contain exactly 18 digits.',
+                    photoRequired: 'The ID photo is required for registration.',
+                    invalidEmail: 'Please enter a valid e-mail address.',
+                    invalidPhone: 'Phone number must contain 10 digits and start with 0.',
+                    invalidWhatsapp: 'WhatsApp number must contain 10 digits and start with 0.',
+                    addressRequired: 'Address is required.',
+                    invalidCity: 'Please choose a valid residence city from the list.',
+                    invalidPostal: 'Postal code must contain 5 digits.',
+                    cniFrontRequired: 'ID card front side is required.',
+                    cniBackRequired: 'ID card back side is required.',
+                    passwordRequired: 'Password is required.',
+                    passwordLength: 'Password must contain at least 6 characters.',
+                    passwordMismatch: 'Passwords do not match.',
+                    conditionsRequired: 'You must accept the terms of use.',
+                    uploadPhotoTooLarge: 'Photo size must not exceed 5 MB.',
+                    uploadPhotoInvalid: 'Photo format refused. Accepted formats: JPG, PNG, WEBP.',
+                    processing: 'Processing...',
+                    retry: 'Try again',
+                    registrationFailed: 'Unable to complete registration.',
+                    connectionError: 'Server connection error.',
+                    connectionShort: 'Connection error',
+                    successTitle: 'Registration successful!',
+                    completed: 'Registration complete',
+                    emailNotSent: 'The verification e-mail could not be sent. You can resend it from your profile.',
+                    emailSent: 'Check your e-mail to activate the account.',
+                    scannerAccepted: 'Image approved successfully!',
+                    optionalPhoto: 'Optional photo'
+                }
+            };
+            registrationUiMessages.kab = registrationUiMessages.fr;
+
+            function uiText(key) {
+                const lang = localStorage.getItem('lang') || document.documentElement.lang || 'ar';
+                return registrationUiMessages[lang]?.[key] || registrationUiMessages.fr[key] || registrationUiMessages.ar[key] || key;
             }
 
             function defaultNationalityForLang(lang) {
@@ -3742,19 +3932,28 @@
                     displayNames = null;
                 }
 
-                const values = [defaultValue];
+                const allValues = [defaultValue];
                 countryCodes.forEach(code => {
                     let label = displayNames ? displayNames.of(code) : code;
                     if (lang === 'ar') label = toArabicNationality(label);
-                    if (label && !values.includes(label)) values.push(label);
+                    if (label && !allValues.includes(label)) allValues.push(label);
                 });
+
+                const values = [defaultValue];
+                preferredNationalityCodes.forEach(code => {
+                    let label = displayNames ? displayNames.of(code) : code;
+                    if (lang === 'ar') label = toArabicNationality(label);
+                    if (label && !values.some(value => normalizeValue(value) === normalizeValue(label))) values.push(label);
+                });
+                const otherLabel = lang === 'ar' ? 'أخرى' : (lang === 'en' ? 'Other' : 'Autre');
+                values.push(otherLabel);
 
                 if (currentValue && !shouldResetDefault && !values.some(value => normalizeValue(value) === normalizeValue(currentValue))) {
                     values.unshift(currentValue);
                 }
 
                 input.innerHTML = values.map(value => `<option value="${escapeOption(value)}">${escapeOption(value)}</option>`).join('');
-                list.innerHTML = values.map(value => `<option value="${escapeOption(value)}"></option>`).join('');
+                list.innerHTML = allValues.map(value => `<option value="${escapeOption(value)}"></option>`).join('');
                 input.value = shouldResetDefault ? defaultValue : currentValue;
             }
 
@@ -3769,10 +3968,15 @@
             });
 
             bindKeyboardConverters();
+            setBirthDateBounds();
             populateAlgeriaCityOptions();
             populateBirthPlaces();
             populateNationalities();
-            document.addEventListener('i18nChanged', populateNationalities);
+            document.addEventListener('i18nChanged', () => {
+                setBirthDateBounds();
+                populateBirthPlaces();
+                populateNationalities();
+            });
 
             function setFormValue(id, value) {
                 const input = document.getElementById(id);
@@ -3982,12 +4186,12 @@
                 const file = event.target.files[0];
                 if (!file) return;
                 if (file.size > maxUploadBytes) {
-                    showNotification('حجم الصورة يجب ألا يتجاوز 5MB.', 'error');
+                    showNotification(uiText('uploadPhotoTooLarge'), 'error');
                     event.target.value = '';
                     return;
                 }
                 if (!validPhotoTypes.includes(file.type)) {
-                    showNotification('صيغة الصورة غير مقبولة. الصيغ المقبولة: JPG, PNG, WEBP.', 'error');
+                    showNotification(uiText('uploadPhotoInvalid'), 'error');
                     event.target.value = '';
                     return;
                 }
@@ -4309,26 +4513,26 @@
                     const lieuNaissance = getInputValue('lieuNaissance');
                     const nin = getDigits(getInputValue('nin'));
 
-                    if (!nom) errors.push({ field: 'nom', message: 'اللقب بالعربية مطلوب.' });
-                    if (!prenom) errors.push({ field: 'prenom', message: 'الاسم بالعربية مطلوب.' });
-                    if (nom && hasDigits(nom)) errors.push({ field: 'nom', message: 'اللقب بالعربية لا يجب أن يحتوي على أرقام.' });
-                    if (prenom && hasDigits(prenom)) errors.push({ field: 'prenom', message: 'الاسم بالعربية لا يجب أن يحتوي على أرقام.' });
-                    if (nomLatin && hasDigits(nomLatin)) errors.push({ field: 'nomLatin', message: 'اللقب باللاتينية لا يجب أن يحتوي على أرقام.' });
-                    if (prenomLatin && hasDigits(prenomLatin)) errors.push({ field: 'prenomLatin', message: 'الاسم باللاتينية لا يجب أن يحتوي على أرقام.' });
-                    if (nomLatin && hasArabic(nomLatin)) errors.push({ field: 'nomLatin', message: 'Le nom latin ne doit pas contenir de caractères arabes.' });
-                    if (prenomLatin && hasArabic(prenomLatin)) errors.push({ field: 'prenomLatin', message: 'Le prénom latin ne doit pas contenir de caractères arabes.' });
-                    if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: 'يرجى اختيار الجنس.' });
-                    if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: 'يرجى إدخال جنسية صحيحة.' });
-                    if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: 'يرجى إدخال تاريخ ميلاد صحيح.' });
+                    if (!nom) errors.push({ field: 'nom', message: uiText('nomRequired') });
+                    if (!prenom) errors.push({ field: 'prenom', message: uiText('prenomRequired') });
+                    if (nom && hasDigits(nom)) errors.push({ field: 'nom', message: uiText('nomDigits') });
+                    if (prenom && hasDigits(prenom)) errors.push({ field: 'prenom', message: uiText('prenomDigits') });
+                    if (nomLatin && hasDigits(nomLatin)) errors.push({ field: 'nomLatin', message: uiText('nomLatinDigits') });
+                    if (prenomLatin && hasDigits(prenomLatin)) errors.push({ field: 'prenomLatin', message: uiText('prenomLatinDigits') });
+                    if (nomLatin && hasArabic(nomLatin)) errors.push({ field: 'nomLatin', message: uiText('nomLatinArabic') });
+                    if (prenomLatin && hasArabic(prenomLatin)) errors.push({ field: 'prenomLatin', message: uiText('prenomLatinArabic') });
+                    if (!document.querySelector('input[name="genre"]:checked')) errors.push({ field: null, message: uiText('genreRequired') });
+                    if (!nationalite || !hasLetters(nationalite) || hasDigits(nationalite)) errors.push({ field: 'nationalite', message: uiText('invalidNationality') });
+                    if (!isValidDateOnly(getInputValue('naissance'))) errors.push({ field: 'naissance', message: uiText('invalidDob') });
                     if (!lieuNaissance || !hasLetters(lieuNaissance) || hasDigits(lieuNaissance)) {
-                        errors.push({ field: 'lieuNaissance', message: 'مكان الميلاد مطلوب.' });
+                        errors.push({ field: 'lieuNaissance', message: uiText('birthPlaceRequired') });
                     }
-                    if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: 'رقم التعريف الوطني يجب أن يتكون من 18 رقماً.' });
+                    if (!/^\d{18}$/.test(nin)) errors.push({ field: 'nin', message: uiText('nin18') });
                 }
 
                 if (step === 2) {
                     if (ocrBetaMode) return errors;
-                    if (!photoDataUrl) errors.push({ field: 'uploadOption', message: 'صورة الهوية مطلوبة للتسجيل.' });
+                    if (!photoDataUrl) errors.push({ field: 'uploadOption', message: uiText('photoRequired') });
                 }
 
                 if (step === 3) {
@@ -4337,26 +4541,26 @@
                     const ville = getInputValue('ville');
                     const codePostal = getDigits(getInputValue('codePostal'));
 
-                    if (!isValidEmail(getInputValue('email'))) errors.push({ field: 'email', message: 'يرجى إدخال بريد إلكتروني صحيح.' });
-                    if (!/^0\d{9}$/.test(phone)) errors.push({ field: 'telephone', message: 'رقم الهاتف يجب أن يتكون من 10 أرقام ويبدأ بـ 0.' });
-                    if (whatsapp && !/^0\d{9}$/.test(whatsapp)) errors.push({ field: 'whatsapp', message: 'رقم واتساب يجب أن يتكون من 10 أرقام ويبدأ بـ 0.' });
-                    if (!getInputValue('adresse')) errors.push({ field: 'adresse', message: 'العنوان مطلوب.' });
-                    if (!ville || !isBejaiaCommune(ville)) errors.push({ field: 'ville', message: 'يرجى اختيار مدينة إقامة صحيحة من قائمة المدن الجزائرية.' });
-                    if (codePostal && !/^\d{5}$/.test(codePostal)) errors.push({ field: 'codePostal', message: 'الرمز البريدي يجب أن يتكون من 5 أرقام.' });
+                    if (!isValidEmail(getInputValue('email'))) errors.push({ field: 'email', message: uiText('invalidEmail') });
+                    if (!/^0\d{9}$/.test(phone)) errors.push({ field: 'telephone', message: uiText('invalidPhone') });
+                    if (whatsapp && !/^0\d{9}$/.test(whatsapp)) errors.push({ field: 'whatsapp', message: uiText('invalidWhatsapp') });
+                    if (!getInputValue('adresse')) errors.push({ field: 'adresse', message: uiText('addressRequired') });
+                    if (!ville || !isBejaiaCommune(ville)) errors.push({ field: 'ville', message: uiText('invalidCity') });
+                    if (codePostal && !/^\d{5}$/.test(codePostal)) errors.push({ field: 'codePostal', message: uiText('invalidPostal') });
                 }
 
                 if (step === 4) {
-                    if (!cniDataUrl) errors.push({ field: 'cniUpload', message: 'بطاقة الهوية - الوجه الأمامي مطلوبة.' });
-                    if (!cniBackDataUrl) errors.push({ field: 'cniBackUpload', message: 'بطاقة الهوية - الوجه الخلفي مطلوبة.' });
+                    if (!cniDataUrl) errors.push({ field: 'cniUpload', message: uiText('cniFrontRequired') });
+                    if (!cniBackDataUrl) errors.push({ field: 'cniBackUpload', message: uiText('cniBackRequired') });
                 }
 
                 if (step === 5) {
                     const password = document.getElementById('password').value;
                     const confirm = document.getElementById('confirmPassword').value;
-                    if (!password) errors.push({ field: 'password', message: 'كلمة المرور مطلوبة.' });
-                    if (password && password.length < 6) errors.push({ field: 'password', message: 'كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل.' });
-                    if (password !== confirm) errors.push({ field: 'confirmPassword', message: 'كلمات المرور غير متطابقة.' });
-                    if (!document.getElementById('conditions').checked) errors.push({ field: 'conditions', message: 'يجب قبول شروط الاستخدام.' });
+                    if (!password) errors.push({ field: 'password', message: uiText('passwordRequired') });
+                    if (password && password.length < 6) errors.push({ field: 'password', message: uiText('passwordLength') });
+                    if (password !== confirm) errors.push({ field: 'confirmPassword', message: uiText('passwordMismatch') });
+                    if (!document.getElementById('conditions').checked) errors.push({ field: 'conditions', message: uiText('conditionsRequired') });
                 }
 
                 return errors;
@@ -4384,17 +4588,26 @@
                 return showValidationErrors(validateStep(currentStep));
             }
 
+            function getPreferredPhotoName() {
+                const nomLatin = getInputValue('nomLatin');
+                const prenomLatin = getInputValue('prenomLatin');
+                const nom = getInputValue('nom');
+                const prenom = getInputValue('prenom');
+                return `${(nomLatin || nom).toUpperCase()} ${prenomLatin || prenom}`.trim();
+            }
+
             function updateModernSummary() {
                 const nom = document.getElementById('nom').value;
                 const prenom = document.getElementById('prenom').value;
                 const summaryNameModern = document.getElementById('summaryNameModern');
+                const preferredPhotoName = getPreferredPhotoName();
 
                 if (summaryNameModern?.querySelector('.review-sync')) {
                     setReviewControlValue(document.getElementById('summaryNomModern'), nom);
                     setReviewControlValue(document.getElementById('summaryPrenomModern'), prenom);
-                    if (nom && prenom) photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
+                    if (preferredPhotoName) photoNameDisplay.textContent = preferredPhotoName;
                 } else if (nom && prenom) {
-                    photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
+                    photoNameDisplay.textContent = preferredPhotoName || `${nom.toUpperCase()} ${prenom}`;
                     summaryNameModern.textContent = `${nom.toUpperCase()} ${prenom}`;
                 } else {
                     summaryNameModern.textContent = '-';
@@ -4485,12 +4698,12 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 if (file.size > maxUploadBytes) {
-                    showNotification('حجم الصورة يجب ألا يتجاوز 5MB.', 'error');
+                    showNotification(uiText('uploadPhotoTooLarge'), 'error');
                     photoUpload.value = '';
                     return;
                 }
                 if (!validPhotoTypes.includes(file.type)) {
-                    showNotification('صيغة الصورة غير مقبولة. الصيغ المقبولة: JPG, PNG, WEBP.', 'error');
+                    showNotification(uiText('uploadPhotoInvalid'), 'error');
                     photoUpload.value = '';
                     return;
                 }
@@ -4514,6 +4727,7 @@
             function updatePhotoPreview() {
                 const nom = document.getElementById('nom').value;
                 const prenom = document.getElementById('prenom').value;
+                const preferredPhotoName = getPreferredPhotoName();
 
                 if (photoDataUrl) {
                     photoPreviewImg.src = photoDataUrl;
@@ -4521,18 +4735,18 @@
                     photoPreviewIcon.style.display = 'none';
                     removePhotoBtn.style.display = 'inline-flex';
 
-                    if (nom && prenom) {
-                        photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
+                    if (preferredPhotoName) {
+                        photoNameDisplay.textContent = preferredPhotoName;
                     }
                 } else {
                     photoPreviewImg.style.display = 'none';
                     photoPreviewIcon.style.display = 'block';
                     removePhotoBtn.style.display = 'none';
 
-                    if (nom && prenom) {
-                        photoNameDisplay.textContent = `${nom.toUpperCase()} ${prenom}`;
+                    if (preferredPhotoName) {
+                        photoNameDisplay.textContent = preferredPhotoName;
                     } else {
-                        photoNameDisplay.textContent = 'الصورة اختيارية';
+                        photoNameDisplay.textContent = uiText('optionalPhoto');
                     }
                 }
                 if (currentStep === 5) updateModernSummary();
@@ -4547,6 +4761,7 @@
                 const end = this.selectionEnd;
                 this.value = this.value.toUpperCase();
                 this.setSelectionRange(start, end);
+                updatePhotoPreview();
             });
 
             // Auto-format prenomLatin (first letter uppercase, rest lowercase)
@@ -4558,6 +4773,7 @@
                     this.value = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
                 }
                 this.setSelectionRange(start, end);
+                updatePhotoPreview();
             });
 
             document.getElementById('sameAsPhone').addEventListener('change', function () {
@@ -4762,7 +4978,7 @@
             confirmScannerBtn.addEventListener('click', function () {
                 if (!pendingScannerDataUrl) return;
                 applyScannerCapture(pendingScannerDataUrl);
-                showNotification('تم اعتماد الصورة بنجاح!', 'success');
+                showNotification(uiText('scannerAccepted'), 'success');
                 closeScanner();
             });
 
@@ -4781,7 +4997,7 @@
 
                 const password = passwordInput.value;
 
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+                this.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${uiText('processing')}`;
                 this.disabled = true;
 
                 const formData = {
@@ -4818,8 +5034,8 @@
                     .then(async response => {
                         const data = await response.json().catch(() => ({}));
                         if (!response.ok || data.error) {
-                            showNotification('خطأ: ' + (data.error || 'تعذر إتمام التسجيل.'), 'error');
-                            this.innerHTML = '<span class="material-symbols-outlined">error</span> إعادة المحاولة';
+                            showNotification(`${uiText('toastError')}: ${data.error || uiText('registrationFailed')}`, 'error');
+                            this.innerHTML = `<span class="material-symbols-outlined">error</span> ${uiText('retry')}`;
                             this.disabled = false;
                             return null;
                         }
@@ -4832,11 +5048,11 @@
                         if (usernameField) usernameField.value = data.lecteurId;
 
                         showSuccessModal(
-                            'تم التسجيل بنجاح!',
-                            `مرحبا <b>${formData.prenomAr} ${formData.nomAr}</b>، لقد تم تسجيل حسابك بنجاح. بيانات الدخول الخاصة بك: <br> • رمز القارئ: <b>${data.lecteurId}</b><br><br>${data.emailSent === false ? 'تعذر إرسال رسالة التحقق حالياً، يمكنك إعادة إرسالها من ملفك الشخصي.' : 'تحقق من بريدك الإلكتروني لتفعيل الحساب.'}`
+                            uiText('successTitle'),
+                            `${uiText('successTitle')}<br>Code lecteur: <b>${data.lecteurId}</b><br><br>${data.emailSent === false ? uiText('emailNotSent') : uiText('emailSent')}`
                         );
 
-                        this.innerHTML = '<span class="material-symbols-outlined">check_circle</span> اكتمل التسجيل';
+                        this.innerHTML = `<span class="material-symbols-outlined">check_circle</span> ${uiText('completed')}`;
                         this.style.background = 'linear-gradient(to right, var(--success-color), #4caf50)';
 
                         // Save to status for UI
@@ -4857,8 +5073,8 @@
                     })
                     .catch(err => {
                         console.error('Registration error:', err);
-                        showNotification('حدث خطأ في الاتصال بالخادم.', 'error');
-                        this.innerHTML = 'خطأ في الاتصال';
+                        showNotification(uiText('connectionError'), 'error');
+                        this.innerHTML = uiText('connectionShort');
                         this.disabled = false;
                     });
             });
@@ -4876,7 +5092,7 @@
                 toast.className = `toast toast-${type}`;
 
                 const icon = type === 'success' ? 'check_circle' : (type === 'error' ? 'error' : 'info');
-                const title = type === 'success' ? 'نجاح' : (type === 'error' ? 'خطأ' : 'تنبيه');
+                const title = type === 'success' ? uiText('toastSuccess') : (type === 'error' ? uiText('toastError') : uiText('toastInfo'));
 
                 toast.innerHTML = `
                     <span class="material-symbols-outlined toast-icon" style="color: ${type === 'success' ? '#22c55e' : '#ef4444'}">${icon}</span>
@@ -5285,6 +5501,7 @@
                     بجاية. genie systeme جميع الحقوق محفوظة.</p>
             </div>
         </div>
+        <script src="/js/i18n.js"></script>
         <script src="/js/mobile-menu.js"></script>
 </body>
 

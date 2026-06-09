@@ -3,6 +3,25 @@
     const CONTENT_KEY='ca_content_v2';
     let isAdmin=false;
 
+    function notifyAdmin(message) {
+        let container = document.getElementById('adminToastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'adminToastContainer';
+            container.style.cssText = 'position:fixed;top:16px;right:16px;z-index:21000;display:flex;flex-direction:column;gap:10px;max-width:min(340px,calc(100vw - 32px));pointer-events:none;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'pointer-events:auto;background:#fff;border:1px solid #fde68a;border-right:5px solid #d97706;box-shadow:0 12px 28px rgba(15,23,42,.14);padding:12px 14px;border-radius:12px;font-weight:700;color:#0f172a;direction:rtl;';
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity .25s ease';
+            setTimeout(() => toast.remove(), 260);
+        }, 3200);
+    }
+
     const D={
         heroTitle:'برنامج النشاطات الثقافية',
         heroSub:'اكتشف الفعاليات والأنشطة الثقافية القادمة في المكتبة الرئيسية لولاية بجاية',
@@ -63,8 +82,8 @@
         trigger.onclick=()=>{
             if(localStorage.getItem(ADMIN_KEY)){ toggleAdmin(); return; }
             const pw=prompt('أدخل كلمة مرور المدير:');
-            if(pw==='admin123'){ localStorage.setItem(ADMIN_KEY,'1'); toggleAdmin(true); alert('تم تسجيل الدخول كمدير'); }
-            else alert('كلمة المرور غير صحيحة');
+            if(pw==='admin123'){ localStorage.setItem(ADMIN_KEY,'1'); toggleAdmin(true); notifyAdmin('تم تسجيل الدخول كمدير'); }
+            else notifyAdmin('كلمة المرور غير صحيحة');
         };
 
         mk('div','admin-tag','وضع المدير',document.body).id='adminTag';
