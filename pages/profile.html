@@ -1823,17 +1823,20 @@
             const expiry = user.date_expiration || user.LEC_DATE_EXPIRATION;
             const expiryStr = expiry ? formatDateForDisplay(expiry) : 'Indéfinie';
 
-            document.getElementById('directRfidVerso').innerHTML = `
-                <div class="rfid-card-new back" style="display:flex !important; visibility:visible !important; opacity:1 !important;">
-                    <img src="/public/images/bplpb_logo.jpg" class="verso-logo-centered" style="display:block !important;" onerror="this.src='../logo.jpg'">
-                    <div class="verso-ar-text">
-                        <p>هذه البطاقة شخصية</p>
-                        <p>هذه البطاقة صالحة لمدة سنة</p>
-                        <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ التسجيل: ${regDateStr}</p>
-                        <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ انتهاء الصلاحية: ${expiryStr}</p>
+            const directRfidVerso = document.getElementById('directRfidVerso');
+            if (directRfidVerso) {
+                directRfidVerso.innerHTML = `
+                    <div class="rfid-card-new back" style="display:flex !important; visibility:visible !important; opacity:1 !important;">
+                        <img src="/public/images/bplpb_logo.jpg" class="verso-logo-centered" style="display:block !important;" onerror="this.src='../logo.jpg'">
+                        <div class="verso-ar-text">
+                            <p>هذه البطاقة شخصية</p>
+                            <p>هذه البطاقة صالحة لمدة سنة</p>
+                            <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ التسجيل: ${regDateStr}</p>
+                            <p style="font-size: 11px; margin-top: 5px; color: #666;">تاريخ انتهاء الصلاحية: ${expiryStr}</p>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
 
             // Document visibility toggles
             document.getElementById('viewCniFront').style.display = user.cniFront ? 'inline-block' : 'none';

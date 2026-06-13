@@ -118,35 +118,35 @@ fastify.get('/', async (request, reply) => {
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 ${JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'Library',
-  '@id': `${SITE_URL}/#library`,
-  name: SITE_NAME_FR,
-  alternateName: ['BPLP Béjaïa', 'BPLP Bejaia', SITE_NAME_AR, 'مكتبة بجاية'],
-  url: `${SITE_URL}/`,
-  image: `${SITE_URL}/images/c.PNG`,
-  logo: `${SITE_URL}/site-icon.png`,
-  description: SITE_DESCRIPTION,
-  email: 'bplpbejaia@gmail.com',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'Rue Krim Belkacem, Aamriw',
-    addressLocality: 'Béjaïa',
-    addressCountry: 'DZ'
-  },
-  areaServed: {
-    '@type': 'AdministrativeArea',
-    name: 'Béjaïa'
-  },
-  sameAs: [
-    'https://bplp-bejaia.dz/'
-  ],
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${SITE_URL}/pages/books-catalog.html?q={search_term_string}`,
-    'query-input': 'required name=search_term_string'
-  }
-}, null, 2)}
+      '@context': 'https://schema.org',
+      '@type': 'Library',
+      '@id': `${SITE_URL}/#library`,
+      name: SITE_NAME_FR,
+      alternateName: ['BPLP Béjaïa', 'BPLP Bejaia', SITE_NAME_AR, 'مكتبة بجاية'],
+      url: `${SITE_URL}/`,
+      image: `${SITE_URL}/images/c.PNG`,
+      logo: `${SITE_URL}/site-icon.png`,
+      description: SITE_DESCRIPTION,
+      email: 'bplpbejaia@gmail.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Rue Krim Belkacem, Aamriw',
+        addressLocality: 'Béjaïa',
+        addressCountry: 'DZ'
+      },
+      areaServed: {
+        '@type': 'AdministrativeArea',
+        name: 'Béjaïa'
+      },
+      sameAs: [
+        'https://bplp-bejaia.dz/'
+      ],
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${SITE_URL}/pages/books-catalog.html?q={search_term_string}`,
+        'query-input': 'required name=search_term_string'
+      }
+    }, null, 2)}
 </script>
 <link rel="prefetch" href="/pages/books-catalog.html">
 <link rel="preload" href="/images/1.webp" as="image" type="image/webp">

@@ -1520,7 +1520,7 @@ export async function resendVerification(fastify, opts) {
             );
 
             if (result.rows.length === 0) return reply.status(404).send({ error: 'Utilisateur non trouvé' });
-            
+
             const user = result.rows[0];
             if (user.LEC_EMAIL_VERIFIED) return reply.status(400).send({ error: 'Email déjà vérifié' });
 
@@ -1783,13 +1783,13 @@ export async function exportEngagementPdfAr(fastify, opts) {
             if (fs.existsSync(outputPdf)) {
                 const stats = fs.statSync(outputPdf);
                 console.log(`PDF generated: ${stats.size} bytes, token: ${token}`);
-                
+
                 // Auto-cleanup after 5 minutes
                 setTimeout(() => {
                     if (fs.existsSync(outputPdf)) fs.unlinkSync(outputPdf);
                 }, 5 * 60 * 1000);
 
-                return reply.send({ 
+                return reply.send({
                     downloadUrl: `/api/auth/download-pdf-ar/${token}`,
                     filename: outputFilename,
                     size: stats.size
@@ -1964,13 +1964,13 @@ export async function exportEngagementPdfFr(fastify, opts) {
             if (fs.existsSync(outputPdf)) {
                 const stats = fs.statSync(outputPdf);
                 console.log(`PDF FR generated: ${stats.size} bytes, token: ${token}`);
-                
+
                 // Auto-cleanup after 5 minutes
                 setTimeout(() => {
                     if (fs.existsSync(outputPdf)) fs.unlinkSync(outputPdf);
                 }, 5 * 60 * 1000);
 
-                return reply.send({ 
+                return reply.send({
                     downloadUrl: `/api/auth/download-pdf-fr/${token}`,
                     filename: outputFilename,
                     size: stats.size
